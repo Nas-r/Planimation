@@ -1,0 +1,40 @@
+
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <title>PDDL Animator 0.1</title>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Import JQuery -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <!-- Import D3js -->
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <!-- Import development JS Files -->
+  <script src="stage1.js"></script>
+
+  <style>
+  </style>
+</head>
+
+<body>
+  <h1> PDDL Animator 0.1 Pre-Alpha </h1>
+    <!-- File Input -->
+  <p>Please Load a Domain File</p>
+  <input id="inputdomain" type="file">
+  <p>Please Load a Problem File</p>
+  <input id="inputproblem" type="file">
+  <p>Please Load a Solution File</p>
+  <input id="inputplan" type="file">
+
+
+  <div id="domain"></div>
+  <div id="problem"></div>
+  <div id="plan"></div>
+  <div id="testoutput"></div>
+  <div id="animation"></div>
+
+</body>
+
+</html>
