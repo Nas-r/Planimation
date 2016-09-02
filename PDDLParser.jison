@@ -1,23 +1,29 @@
 %lex
-%s objects predicates animation
+%s objects predicates animation predicate
 %%
 
 <objects>[_-a-zA-Z0-9]+				{ return 'IDENTIFIER';}
-<objects>[)]									{this.begin('INITIAL'); return 'RPAREN';}
+<objects>"- "[_-a-zA-Z0-9]+ 	{	return 'TYPE';}
+<objects>[)]									{ this.begin('INITIAL'); return 'RPAREN';}
 
-<predicates>[_-a-zA-Z0-9]+		{ return 'IDENTIFIER';}
-<predicates>[)]								{this.begin('INITIAL'); return 'RPAREN';}
+<predicates>[(] 							{ this.begin('predicate');}
+<predicates>[)]								{ this.begin('INITIAL'); return 'RPAREN';}
 
-"(define" 				{return 'BEGIN';}
+<predicate>[_-a-zA-Z0-9]+			{ return 'IDENTIFIER';}
+<predicate>[?][_-a-zA-Z0-9]+ 	{ return 'ARGUMENT';}
+<predicate>[- ][_-a-zA-Z0-9]+ {	return 'TYPE';}
+<predicate>[)]								{ this.begin('predicates'); return 'RPAREN'}
 
-[;;animation]			{this.begin('animation'); return 'ANIMATION';}
-[;;].*						{/* ignore non animation comments */}
+"(define" 				{ return 'BEGIN';}
 
-"(:objects" 			{this.begin('objects'); return 'OBJECTS';}
-"(:constants"			{this.begin('objects'); return 'OBJECTS';}
+[;;animation]			{ this.begin('animation'); return 'ANIMATION';}
+[;;].*						{ /* ignore non animation comments */}
+
+"(:objects" 			{ this.begin('objects'); return 'OBJECTS';}
+"(:constants"			{ this.begin('objects'); return 'OBJECTS';}
 "(:types"  				{ return 'TYPES';}
-"(:predicates"		{this.begin('predicates');	return 'PREDICATES';}
-"(:actions" 			{ return 'ACTIONS';}
+"(:predicates"		{ this.begin('predicates');	return 'PREDICATES';}
+"(:action" 				{ return 'ACTION';}
 
 /*Ignore*/
 [:]								{}
@@ -41,7 +47,8 @@ blocks
 
 block
 	: objects
-	| constants
+	| predicates
+	| animations
 	{};
 
 objects
@@ -53,4 +60,28 @@ object
 	{console.log($2);}
 	| IDENTIFIER
 	{console.log($1);}
+	;
+
+predicates
+	: PREDICATES predicatelist RPAREN
+	{}
+	;
+
+predicatelist
+	: predicate predicate
+	| predicate RPAREN
+	{}
+		;
+predicate
+	: IDENTIFIER arguments
+	| IDENTIFIER
+	{}
+	;
+
+arguments
+	: arguments ARGUMENT TYPE
+	| ARGUMENT TYPE
+	| arguments ARGUMENT
+	| ARGUMENT
+	{}
 	;
