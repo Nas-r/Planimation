@@ -1,14 +1,10 @@
-# Planimation
-A tool to animate plans generated from PDDL definitions
-
-Notes to self:
 Objects and Constants are treated the same
 
 predicates must have animation annotations of the form
-;;animate(<options>)
+;;animate:
 
 options include: relative positioning, transformations and transitions,
-sprite swaps, more?
+sprite swaps,
 
 
 actions combine the predicate animations and can also have their
