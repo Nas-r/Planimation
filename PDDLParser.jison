@@ -1,18 +1,43 @@
 %lex
-%s objects predicates animation predicate
+%s objects predicate predicates animation actions parameters effects effectslist
 %%
 
-<objects>[_-a-zA-Z0-9]+				{ return 'IDENTIFIER';}
-<objects>"- "[_-a-zA-Z0-9]+ 	{	return 'TYPE';}
-<objects>[)]									{ this.begin('INITIAL'); return 'RPAREN';}
+<objects>[_\-a-zA-Z0-9]+				{ return 'IDENTIFIER';}
+<objects>"- "[_\-a-zA-Z0-9]+ 		{	return 'TYPE';}
+<objects>[)]										{ this.begin('INITIAL'); return 'RPAREN';}
 
-<predicates>[(] 							{ this.begin('predicate');}
-<predicates>[)]								{ this.begin('INITIAL'); return 'RPAREN';}
+<predicates>[(] 								{ this.begin('predicate');}
+<predicates>[)]									{ this.begin('INITIAL'); return 'RPAREN';}
 
-<predicate>[_-a-zA-Z0-9]+			{ return 'IDENTIFIER';}
-<predicate>[?][_-a-zA-Z0-9]+ 	{ return 'ARGUMENT';}
-<predicate>[- ][_-a-zA-Z0-9]+ {	return 'TYPE';}
-<predicate>[)]								{ this.begin('predicates'); return 'RPAREN'}
+<predicate>[?][_\-a-zA-Z0-9]+ 	{ return 'ARGUMENT';}
+<predicate>"- "[_\-a-zA-Z0-9]+ 	{	return 'TYPE';}
+<predicate>[_\-a-zA-Z0-9]+			{ return 'IDENTIFIER';}
+<predicate>[)]									{ this.popState(); return 'RPAREN'}
+<predicate>[(]									{}
+
+<actions>[_\-a-zA-Z0-9]+				{ return 'IDENTIFIER';}
+<actions>":parameters"					{	this.begin('parameters'); return 'PARAMETERS';}
+<actions>":effect"							{ this.begin('effects'); return 'EFFECTS';}
+<actions>[:].*									{}
+<actions>[)]										{ this.begin('INITIAL'); return 'RPAREN';}
+
+<parameters>[(]									{ return 'LPAREN';}
+<parameters>[?][_\-a-zA-Z0-9]+ 	{ return 'PARAMETER';}
+<parameters>"- "[_\-a-zA-Z0-9]+ {	return 'TYPE';}
+<parameters>[)]									{ this.begin('actions'); return 'RPAREN';}
+
+<effects>[(]										{ return 'LPAREN';}
+<effects>"and" 									{ this.begin('effectslist'); return 'AND';}
+<effects>"not"									{ return 'NOT';}
+<effects>[?][_\-a-zA-Z0-9]+ 		{ return 'ARGUMENT';}
+<effects>"- "[_\-a-zA-Z0-9]+ 		{	return 'TYPE';}
+<effects>[_\-a-zA-Z0-9]+				{ return 'IDENTIFIER';}
+<effects>[)]										{ this.popState(); return 'RPAREN';}
+
+
+
+<effectslist>"(not" {this.begin('predicate'); return'NOT';}
+<effectslist>"("		{this.begin('predicate'); }
 
 "(define" 				{ return 'BEGIN';}
 
@@ -24,6 +49,7 @@
 "(:types"  				{ return 'TYPES';}
 "(:predicates"		{ this.begin('predicates');	return 'PREDICATES';}
 "(:action" 				{ return 'ACTION';}
+"(:INIT"					{ return 'INIT';}
 
 /*Ignore*/
 [:]								{}

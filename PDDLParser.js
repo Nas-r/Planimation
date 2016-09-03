@@ -586,36 +586,56 @@ case 7:	return 19;
 break;
 case 8: this.begin('predicates'); return 12
 break;
-case 9: return 4;
+case 9: return 13;
 break;
-case 10: this.begin('animation'); return 'ANIMATION';
+case 10:	this.begin('parameters'); return 'PARAMETERS';
 break;
-case 11: /* ignore non animation comments */
+case 11: this.begin('effects'); return 'EFFECTS';
 break;
-case 12: this.begin('objects'); return 10;
+case 12:
 break;
-case 13: this.begin('objects'); return 10;
+case 13: this.begin('INITIAL'); return 12;
 break;
-case 14: return 'TYPES';
+case 14: return 'LPAREN';
 break;
-case 15: this.begin('predicates');	return 14;
+case 15: return 'PARAMETER';
 break;
-case 16: return 'ACTION';
+case 16:	return 19;
 break;
-case 17:
+case 17: this.begin('actions'); return 12;
 break;
-case 18:
+case 18: return 4;
 break;
-case 19:
+case 19: this.begin('animation'); return 'ANIMATION';
 break;
-case 20:
+case 20: /* ignore non animation comments */
 break;
-case 21:
+case 21: this.begin('objects'); return 10;
+break;
+case 22: this.begin('objects'); return 10;
+break;
+case 23: return 'TYPES';
+break;
+case 24: this.begin('predicates');	return 14;
+break;
+case 25: return 'ACTION';
+break;
+case 26: return 'INIT';
+break;
+case 27:
+break;
+case 28:
+break;
+case 29:
+break;
+case 30:
+break;
+case 31:
 break;
 }
 },
-rules: [/^(?:[_-a-zA-Z0-9]+)/,/^(?:- [_-a-zA-Z0-9]+)/,/^(?:[)])/,/^(?:[(])/,/^(?:[)])/,/^(?:[_-a-zA-Z0-9]+)/,/^(?:[?][_-a-zA-Z0-9]+)/,/^(?:[- ][_-a-zA-Z0-9]+)/,/^(?:[)])/,/^(?:\(define\b)/,/^(?:[;;animation])/,/^(?:[;;].*)/,/^(?:\(:objects\b)/,/^(?:\(:constants\b)/,/^(?:\(:types\b)/,/^(?:\(:predicates\b)/,/^(?:\(:action\b)/,/^(?:[:])/,/^(?:[(])/,/^(?:[)])/,/^(?:[_\-a-zA-Z0-9]+)/,/^(?:[ \t\n]+)/],
-conditions: {"objects":{"rules":[0,1,2,9,10,11,12,13,14,15,16,17,18,19,20,21],"inclusive":true},"predicates":{"rules":[3,4,9,10,11,12,13,14,15,16,17,18,19,20,21],"inclusive":true},"animation":{"rules":[9,10,11,12,13,14,15,16,17,18,19,20,21],"inclusive":true},"predicate":{"rules":[5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21],"inclusive":true},"INITIAL":{"rules":[9,10,11,12,13,14,15,16,17,18,19,20,21],"inclusive":true}}
+rules: [/^(?:[_\-a-zA-Z0-9]+)/,/^(?:- [_\-a-zA-Z0-9]+)/,/^(?:[)])/,/^(?:[(])/,/^(?:[)])/,/^(?:[_\-a-zA-Z0-9]+)/,/^(?:[?][_\-a-zA-Z0-9]+)/,/^(?:- [_\-a-zA-Z0-9]+)/,/^(?:[)])/,/^(?:[_\-a-zA-Z0-9]+)/,/^(?::parameters\b)/,/^(?::effect\b)/,/^(?:[:].*)/,/^(?:[)])/,/^(?:[(])/,/^(?:[?][_\-a-zA-Z0-9]+)/,/^(?:- [_\-a-zA-Z0-9]+)/,/^(?:[)])/,/^(?:\(define\b)/,/^(?:[;;animation])/,/^(?:[;;].*)/,/^(?:\(:objects\b)/,/^(?:\(:constants\b)/,/^(?:\(:types\b)/,/^(?:\(:predicates\b)/,/^(?:\(:action\b)/,/^(?:\(:INIT\b)/,/^(?:[:])/,/^(?:[(])/,/^(?:[)])/,/^(?:[_\-a-zA-Z0-9]+)/,/^(?:[ \t\n]+)/],
+conditions: {"objects":{"rules":[0,1,2,18,19,20,21,22,23,24,25,26,27,28,29,30,31],"inclusive":true},"predicate":{"rules":[5,6,7,8,18,19,20,21,22,23,24,25,26,27,28,29,30,31],"inclusive":true},"predicates":{"rules":[3,4,18,19,20,21,22,23,24,25,26,27,28,29,30,31],"inclusive":true},"animation":{"rules":[18,19,20,21,22,23,24,25,26,27,28,29,30,31],"inclusive":true},"actions":{"rules":[9,10,11,12,13,18,19,20,21,22,23,24,25,26,27,28,29,30,31],"inclusive":true},"parameters":{"rules":[14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31],"inclusive":true},"effects":{"rules":[18,19,20,21,22,23,24,25,26,27,28,29,30,31],"inclusive":true},"INITIAL":{"rules":[18,19,20,21,22,23,24,25,26,27,28,29,30,31],"inclusive":true}}
 });
 return lexer;
 })();
