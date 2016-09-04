@@ -31,164 +31,200 @@ var VARIABLE = /{QUESTION_TAG}+(-|{CHAR}|{DIGIT})*;
 [\t ]             {}
 \n                {}
 \-                {return 'HYPHEN';}
-{VARIABLE}        {yylval.sval = strdup(yytext); TOKEN(VARIABLE);}
-{STRING}          {yylval.sval = strdup(yytext); TOKEN(STRING); }
+{VARIABLE}        {yylval.sval = strdup(yytext); return 'VARIABLE';}
+{STRING}          {yylval.sval = strdup(yytext); return 'STRING'; }
 
 /lex
 
+%%
 
-  start: LPAREN DEFINE LPAREN DOMAIN domain_name RPAREN
-  domain_definitions
-  domain_types
+start
+  : LPAREN DEFINE LPAREN DOMAIN domain_name RPAREN
+    domain_definitions
+    domain_types
+    domain_body
+    RPAREN {printf("Domain: %s\n", $5);}
+  ;
+
   domain_body
-  RPAREN {printf("Domain: %s\n", $5);}
+    : predicates_def domain_body
+    | constants_def domain_body
+    | action_def domain_body
+    |
+    ;
+
+  domain_name
+    : STRING
+    {$$ = $1;}
   ;
 
-  domain_body: predicates_def domain_body
-  | constants_def domain_body
-  | action_def domain_body
-  |
+  domain_definitions
+    : LPAREN definition tRPAREN
+    {printf("Parsed requirements: %s\n", str_requirements);}
   ;
 
-  domain_name: tSTRING {$$ = $1;}
-  ;
-
-  domain_definitions: tLPAREN definition tRPAREN {printf("Parsed requirements: %s\n", str_requirements);}
-
-  definition:  kREQUIREMENTS definition
-  |  kTYPING  definition {strcat(str_requirements, "types ");}
-  |  kSTRIPS  definition {strcat(str_requirements, "strips ");}
-  |
+  definition
+    : REQUIREMENTS definition
+    |  TYPING  definition {strcat(str_requirements, "types ");}
+    |  STRIPS  definition {strcat(str_requirements, "strips ");}
+    |
   ;
 
   /*Types*/
-  domain_types: tLPAREN types tRPAREN {printf("Parsed types: %s\n", str_types);}
+  domain_types
+    : LPAREN types RPAREN {printf("Parsed types: %s\n", str_types);}
 
-  types:  kTYPES types
-  | tSTRING types {strcat(str_types, $1);}
-  |
+  types
+    : TYPES types
+    | STRING types {strcat(str_types, $1);}
+    |
   ;
 
-  predicates_def: tLPAREN list_predicates tRPAREN
+  predicates_def
+    : LPAREN list_predicates RPAREN
+  ;
 
-  list_predicates: kPREDICATES list_atomic_formula_skeleton
-
+  list_predicates
+    : PREDICATES list_atomic_formula_skeleton
+  ;
   /*Formulas*/
-  list_atomic_formula_skeleton: atomic_formula_skeleton list_atomic_formula_skeleton
-  |
+  list_atomic_formula_skeleton
+    : atomic_formula_skeleton list_atomic_formula_skeleton
+    |
   ;
 
-  atomic_formula_skeleton: tLPAREN terminal_string typed_list tRPAREN
-  | tLPAREN kNOT tLPAREN terminal_string typed_list tRPAREN tRPAREN
+  atomic_formula_skeleton
+    : LPAREN terminal_string typed_list RPAREN
+    | LPAREN NOT LPAREN terminal_string typed_list RPAREN RPAREN
   ;
 
 
   /*Variables ?i*/
-  typed_list: variable typed_list
-  | tHYPHEN terminal_type_string typed_list
-  |
+  typed_list
+    : variable typed_list
+    | HYPHEN terminal_type_string typed_list
+    |
   ;
 
-  actions_typed_list: variable actions_typed_list{
-    $2->add_parameter($1);
-    $$ = $2;
-  }
-  |{
-    Predicate* v = new Predicate();
-    $$ = v;
-  }
+  actions_typed_list
+    : variable actions_typed_list
+    {$2->add_parameter($1);
+      $$ = $2;}
+    |
+    {Predicate* v = new Predicate();
+      $$ = v;}
   ;
 
-  variable: tVARIABLE {
+  variable
+    : VARIABLE {
     string st = $1;
     Variable* v = new Variable(st);
     $$ = v;
-  }
+    }
+  ;
 
   /*Parameters variable*/
-  parameter_typed_list: variable tHYPHEN terminal_type_string parameter_typed_list {
-    $1->set_type($3);
-  }
-  |
+  parameter_typed_list
+    : variable HYPHEN terminal_type_string parameter_typed_list
+    {$1->set_type($3);}
+    |
   ;
 
   /*Constants*/
-  constants_def: tLPAREN list_constants tRPAREN
+  constants_def
+    : LPAREN list_constants RPAREN
+    ;
 
-  list_constants: kCONSTANTS constants_list
+  list_constants
+    : CONSTANTS constants_list
+    ;
 
-  constants_list: tSTRING constants_list
-  | tHYPHEN terminal_string constants_list
-  |
+  constants_list
+    : STRING constants_list
+    | HYPHEN terminal_string constants_list
+    |
   ;
 
   /*Actions*/
-  action_def: tLPAREN kACTION terminal_string parameters_action action_def_body tRPAREN
+  action_def
+    : LPAREN ACTION terminal_string parameters_action action_def_body RPAREN
+    ;
 
-  parameters_action: kPARAMETERS tLPAREN parameter_typed_list tRPAREN
+  parameters_action
+    : PARAMETERS LPAREN parameter_typed_list RPAREN
+;
 
-  action_def_body: action_preconditions action_result
+  action_def_body
+    : action_preconditions action_result
+;
 
   /*Action preconditions*/
-  action_preconditions: kPRECONDITION list_effects {
+  action_preconditions
+    : PRECONDITION list_effects {
     /*cout << $3->print_predicates() << endl;*/
   }
 
-
   /*Action Effects*/
-  action_result: kEFFECT list_effects{
+  action_result: EFFECT list_effects
+  {
     Effect* e = new Effect();
     e->add_effect($2);
   }
-  | kEFFECT tLPAREN kAND action_effect tRPAREN{
-
+  | EFFECT LPAREN AND action_effect RPAREN{
   }
-  | kOBSERVE list_fluents
+  | OBSERVE list_fluents
+;
 
   /*Action effects: can be conditional or not*/
-  action_effect: tLPAREN kWHEN list_effects list_effects tRPAREN {
+  action_effect: LPAREN WHEN list_effects list_effects RPAREN {
     Effect* e = new Effect();
     e->set_conditional();
     e->add_condition($3);
     e->add_effect($4);
   }
-
+;
   list_effects: fluent {
     ListPredicates* v = new ListPredicates();
     v->add_predicate($1);
     $$ = v;
   }
-  | tLPAREN list_fluents tRPAREN {$$ = $2;}
-  | tLPAREN kAND list_fluents tRPAREN {$$ = $3;}
+  | LPAREN list_fluents RPAREN {$$ = $2;}
+  | LPAREN AND list_fluents RPAREN {$$ = $3;}
+;
 
-  list_fluents:  {
-    ListPredicates* v = new ListPredicates();
-    $$ = v;
-  }
-  | fluent list_fluents {
-    $2->add_predicate($1);
-    $$ = $2;
-  }
+  list_fluents
+    :  {
+      ListPredicates* v = new ListPredicates();
+      $$ = v;
+    }
+    | fluent list_fluents {
+      $2->add_predicate($1);
+      $$ = $2;
+    }
   ;
 
-  fluent: tLPAREN terminal_string actions_typed_list tRPAREN {
+  fluent
+    : LPAREN terminal_string actions_typed_list RPAREN {
     string st = $2;
     $3->set_name($2);
     $$ = $3;
   }
-  | tLPAREN kNOT tLPAREN terminal_string actions_typed_list tRPAREN tRPAREN {
+  | LPAREN NOT LPAREN terminal_string actions_typed_list RPAREN RPAREN {
     $5->set_name($4);
     $5->negate();
     $$ = $5;
   };
 
   /*Terminal leafs*/
-  terminal_string: tSTRING {
-    $$ = $1;
+  terminal_string
+    : STRING {
+      $$ = $1;
   }
+;
 
-  terminal_type_string: tSTRING {
-    $$ = $1;
+  terminal_type_string
+    : STRING {
+      $$ = $1;
   }
-
+;
 %%
