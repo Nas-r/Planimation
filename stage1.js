@@ -6,38 +6,47 @@ var plan_file;
 ****************      LOAD TEST FILES     **********************
 */
 
-  $(document).ready(function(){
-      $('#inputdomain').on('change', function(e){
-          domain_file=this.files[0];
-          readFile(this.files[0], function(e) {
-              //manipulate with result...
-              $('#domain').text(e.target.result);
-          });
+$(document).ready(function(){
 
-      });
-      $('#inputproblem').on('change', function(e){
-          problem_file=this.files[0];
-          readFile(this.files[0], function(e) {
-              //manipulate with result...
-              $('#problem').text(e.target.result);
-          });
+    $('#inputdomain').on('change', function(e){
+        domain_file=this.files[0];
+        readFile(this.files[0], function(e) {
+            //manipulate with result...
+            $('#domain').text(e.target.result);
+        });
+    });
 
-      });
-      $('#inputplan').on('change', function(e){
-          plan_file=this.files[0];
-          readFile(this.files[0], function(e) {
-              //manipulate with result...
-              $('#plan').text(e.target.result);
-          });
+    $('#inputproblem').on('change', function(e){
+        problem_file=this.files[0];
+        readFile(this.files[0], function(e) {
+            //manipulate with result...
+            $('#problem').text(e.target.result);
+        });
+    });
 
-      });
-  });
+    $('#inputplan').on('change', function(e){
+        plan_file=this.files[0];
+        readFile(this.files[0], function(e) {
+            //manipulate with result...
+            $('#plan').text(e.target.result);
+        });
+    });
 
-  function readFile(file, callback){
-      var reader = new FileReader();
-      reader.onload = callback
-      reader.readAsText(file);
+});
+
+function readFile(file, callback){
+    var reader = new FileReader();
+    reader.onload = callback
+    reader.readAsText(file);
 }
+
+function parse (input) {
+    return require("./PDDL").parse(input);
+}
+
+var output = parse();
+
+
 
 /*TODO: create a dictionary of type definitions*/
 
@@ -54,5 +63,3 @@ var plan_file;
  /*How will I handle relational predicates (those with multiple objects/constants)?*/
  /*store them with all relevant objects and update as necessary? I think this is
  the most prudent approach, and it's not terribly inefficient. I can always improve it later.*/
-
- 
