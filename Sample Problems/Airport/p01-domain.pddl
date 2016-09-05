@@ -10,15 +10,19 @@
 
 (define (domain airport_fixed_structure)
 
+;; BEGIN
 (:requirements :typing)
 
 (:types airplane segment direction airplanetype)
 
+;; TYPES IDENTIFIER IDENTIFIER ... RPAREN
+
 (:constants
-  ;;
+
+;;OBJECTS
                 north
                 south - direction
-
+;;IDENTIFIER IDENTIFIER TYPE
                 light
                 medium
                 heavy - airplanetype
@@ -44,9 +48,15 @@
                 airplane_CFBEG - airplane
 )
 
+;;RPAREN
+
 (:predicates
+
+;;PREDICATES
                 ;; airport information
                 (has-type ?a - airplane ?t - airplanetype)
+;;IDENTIFIER ARGUMENT TYPE ARGUMENT TYPE RPAREN
+
                 ;; plane a has type t
                 (at-segment ?a - airplane ?s - segment)
                 ;; planes are at segments, ie at their end in driving direction
@@ -71,11 +81,13 @@
                 (is-pushing ?a - airplane)
                 (is-parked ?a - airplane ?s - segment)
 
+;;RPAREN
 )
 
 (:action move_seg_pp_0_60_seg_ppdoor_0_40_north_north_medium
-
+;;ACTION IDENTIFIER
  :parameters    (?a - airplane)
+;; PARAMETERS LPAREN PARAMETER TYPE RPAREN
 
  :precondition  (and
                  (has-type ?a medium)
@@ -98,8 +110,8 @@
                  (not (not_blocked seg_ppdoor_0_40 ?a))
                  (at-segment ?a seg_ppdoor_0_40)
 
-
                 )
+;;
 )
 
 (:action move_seg_ppdoor_0_40_seg_tww1_0_200_north_south_medium

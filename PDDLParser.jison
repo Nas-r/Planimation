@@ -12,7 +12,7 @@
 <predicate>[?][_\-a-zA-Z0-9]+ 	{ return 'ARGUMENT';}
 <predicate>"- "[_\-a-zA-Z0-9]+ 	{	return 'TYPE';}
 <predicate>[_\-a-zA-Z0-9]+			{ return 'IDENTIFIER';}
-<predicate>[)]									{ this.popState(); return 'RPAREN'}
+<predicate>[)]+									{ this.popState(); return 'RPAREN'}
 <predicate>[(]									{}
 
 <actions>[_\-a-zA-Z0-9]+				{ return 'IDENTIFIER';}
@@ -35,9 +35,9 @@
 <effects>[)]										{ this.popState(); return 'RPAREN';}
 
 
-
 <effectslist>"(not" {this.begin('predicate'); return'NOT';}
 <effectslist>"("		{this.begin('predicate'); }
+<effectslist>")"		{this.begin('actions'); return 'RPAREN';}
 
 "(define" 				{ return 'BEGIN';}
 
@@ -48,7 +48,7 @@
 "(:constants"			{ this.begin('objects'); return 'OBJECTS';}
 "(:types"  				{ return 'TYPES';}
 "(:predicates"		{ this.begin('predicates');	return 'PREDICATES';}
-"(:action" 				{ return 'ACTION';}
+"(:action" 				{ this.begin('actions'); return 'ACTION';}
 "(:INIT"					{ return 'INIT';}
 
 /*Ignore*/
@@ -75,6 +75,7 @@ block
 	: objects
 	| predicates
 	| animations
+	|	actions
 	{};
 
 objects
@@ -94,15 +95,33 @@ predicates
 	;
 
 predicatelist
-	: predicate predicate
-	| predicate RPAREN
+	: predicatelist predicate
+	| predicate
 	{}
 		;
 predicate
-	: IDENTIFIER arguments
-	| IDENTIFIER
+	: IDENTIFIER arguments RPAREN
+	| IDENTIFIER RPAREN
 	{}
 	;
+
+actions
+	:	ACTION IDENTIFIER action_body RPAREN
+	{};
+
+action_body
+	: PARAMETERS LPAREN parameters RPAREN
+	| EFFECTS
+	{};
+
+parameters
+	: parameteres PARAMETER TYPE
+	| parameter PARAMETER
+	| PARAMETER TYPE
+	| PARAMETER
+	{};
+
+
 
 arguments
 	: arguments ARGUMENT TYPE

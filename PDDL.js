@@ -71,25 +71,130 @@
     recoverable: (boolean: TRUE when the parser has a error recovery rule available for this particular error)
   }
 */
-var PDDLParser = (function(){
-var o=function(k,v,o,l){for(o=o||{},l=k.length;l--;o[k[l]]=v);return o},$V0=[1,7],$V1=[1,9],$V2=[1,10],$V3=[1,11],$V4=[1,9,11,15,19],$V5=[1,17],$V6=[13,14],$V7=[13,29];
+var PDDL = (function(){
+var o=function(k,v,o,l){for(o=o||{},l=k.length;l--;o[k[l]]=v);return o},$V0=[2,11],$V1=[1,14],$V2=[1,15],$V3=[1,16],$V4=[1,21],$V5=[2,5],$V6=[2,15],$V7=[1,24],$V8=[1,23],$V9=[1,41],$Va=[2,22],$Vb=[2,19],$Vc=[1,43],$Vd=[1,44],$Ve=[4,8],$Vf=[8,30],$Vg=[2,27],$Vh=[1,63],$Vi=[1,71],$Vj=[1,79],$Vk=[2,41],$Vl=[4,8,40,43],$Vm=[1,84],$Vn=[1,83],$Vo=[2,29],$Vp=[1,93];
 var parser = {trace: function trace() { },
 yy: {},
-symbols_: {"error":2,"begin":3,"BEGIN":4,"blocks":5,"block":6,"objects":7,"predicates":8,"animations":9,"actions":10,"OBJECTS":11,"object":12,"RPAREN":13,"IDENTIFIER":14,"PREDICATES":15,"predicatelist":16,"predicate":17,"arguments":18,"ACTION":19,"action_body":20,"PARAMETERS":21,"LPAREN":22,"parameters":23,"EFFECTS":24,"parameteres":25,"PARAMETER":26,"TYPE":27,"parameter":28,"ARGUMENT":29,"$accept":0,"$end":1},
-terminals_: {2:"error",4:"BEGIN",9:"animations",11:"OBJECTS",13:"RPAREN",14:"IDENTIFIER",15:"PREDICATES",19:"ACTION",21:"PARAMETERS",22:"LPAREN",24:"EFFECTS",25:"parameteres",26:"PARAMETER",27:"TYPE",28:"parameter",29:"ARGUMENT"},
-productions_: [0,[3,2],[5,2],[5,1],[6,1],[6,1],[6,1],[6,1],[7,3],[12,2],[12,1],[8,3],[16,2],[16,1],[17,3],[17,2],[10,4],[20,4],[20,1],[23,3],[23,2],[23,2],[23,1],[18,3],[18,2],[18,2],[18,1]],
+symbols_: {"error":2,"start":3,"LPAREN":4,"DEFINE":5,"DOMAIN":6,"domain_name":7,"RPAREN":8,"domain_definitions":9,"domain_types":10,"domain_body":11,"predicates_def":12,"constants_def":13,"action_def":14,"STRING":15,"definition":16,"REQUIREMENTS":17,"TYPING":18,"STRIPS":19,"types":20,"TYPES":21,"CONSTANTS":22,"constants_list":23,"HYPHEN":24,"PREDICATES":25,"predicate_list":26,"predicate":27,"typed_list":28,"NOT":29,"VARIABLE":30,"actions_typed_list":31,"ACTION":32,"parameters_action":33,"action_def_body":34,"PARAMETERS":35,"action_preconditions":36,"action_result":37,"PRECONDITION":38,"list_effects":39,"EFFECT":40,"AND":41,"action_effect":42,"OBSERVE":43,"list_fluents":44,"WHEN":45,"fluent":46,"terminal_string":47,"terminal_type_string":48,"$accept":0,"$end":1},
+terminals_: {2:"error",4:"LPAREN",5:"DEFINE",6:"DOMAIN",8:"RPAREN",15:"STRING",17:"REQUIREMENTS",18:"TYPING",19:"STRIPS",21:"TYPES",22:"CONSTANTS",24:"HYPHEN",25:"PREDICATES",29:"NOT",30:"VARIABLE",32:"ACTION",35:"PARAMETERS",38:"PRECONDITION",40:"EFFECT",41:"AND",43:"OBSERVE",45:"WHEN"},
+productions_: [0,[3,10],[11,2],[11,2],[11,2],[11,0],[7,1],[9,3],[16,2],[16,2],[16,2],[16,0],[10,3],[20,2],[20,2],[20,0],[13,4],[23,2],[23,3],[23,0],[12,4],[26,2],[26,0],[27,4],[27,7],[28,2],[28,4],[28,0],[31,2],[31,0],[14,6],[33,4],[34,2],[36,2],[37,2],[37,5],[37,2],[42,5],[39,1],[39,3],[39,4],[44,0],[44,2],[46,4],[46,7],[47,1],[48,1]],
 performAction: function anonymous(yytext, yyleng, yylineno, yy, yystate /* action[1] */, $$ /* vstack */, _$ /* lstack */) {
 /* this == yyval */
 
 var $0 = $$.length - 1;
 switch (yystate) {
-case 9: case 10:
-console.log($$[$0]);
+case 1:
+console.log("Domain: %s\n", $$[$0-5]);
+break;
+case 6:
+this.$ = $$[$0];
+break;
+case 9:
+requirements.push("types");
+break;
+case 10:
+requirements.push("strips");
+break;
+case 12:
+console.log("Parsed types:\n"); console.log(types);
+break;
+case 14:
+types.push($$[$0-1]);
+break;
+case 17:
+ constants.constantsList.push($$[$0-1])
+break;
+case 18:
+ constants.types.push($$[$0-1]);constants.typeIndex.push(constants.constantsList.length);
+break;
+case 23:
+predicates.push(new Predicate($$[$0-2],$$[$0-1]);)
+break;
+case 24:
+predicates.push(new Predicate($$[$0-3],$$[$0-2]));
+break;
+case 25:
+ $$[$0-1].push(new Argument($$[$0], ""));
+      this.$ = $$[$0-1];
+break;
+case 26:
+ $$[$0-3].push(new Argument($$[$0-2],$$[$0-1]));
+      this.$=$$[$0-3];
+break;
+case 28:
+$$[$0]->add_parameter($$[$0-1]);
+      this.$ = $$[$0];
+break;
+case 29:
+Predicate* v = new Predicate();
+      this.$ = v;
+break;
+case 30:
+ActionList.push(new Action($$[$0-3],$$[$0-2],$$[$0-1]));
+break;
+case 31:
+this.$=$$[$0-1];
+break;
+case 33: case 35:
+
+  
+break;
+case 34:
+
+    var e = new Effect([$$[$0]]);
+  
+break;
+case 37:
+
+    e->add_condition($$[$0-2]);
+    e->add_effect($$[$0-1]);
+  
+break;
+case 38:
+
+    ListPredicates* v = new ListPredicates();
+    v->add_predicate($$[$0]);
+    this.$ = v;
+  
+break;
+case 39: case 40:
+this.$ = $$[$0-1];
+break;
+case 41:
+
+      ListPredicates* v = new ListPredicates();
+      this.$ = v;
+    
+break;
+case 42:
+
+      $$[$0]->add_predicate($$[$0-1]);
+      this.$ = $$[$0];
+    
+break;
+case 43:
+
+    string st = $$[$0-2];
+    $$[$0-1]->set_name($$[$0-2]);
+    this.$ = $$[$0-1];
+  
+break;
+case 44:
+
+    $$[$0-2]->set_name($$[$0-3]);
+    $$[$0-2]->negate();
+    this.$ = $$[$0-2];
+  
+break;
+case 45: case 46:
+
+      this.$ = $$[$0];
+  
 break;
 }
 },
-table: [{3:1,4:[1,2]},{1:[3]},{5:3,6:4,7:5,8:6,9:$V0,10:8,11:$V1,15:$V2,19:$V3},{1:[2,1],6:12,7:5,8:6,9:$V0,10:8,11:$V1,15:$V2,19:$V3},o($V4,[2,3]),o($V4,[2,4]),o($V4,[2,5]),o($V4,[2,6]),o($V4,[2,7]),{12:13,14:[1,14]},{14:$V5,16:15,17:16},{14:[1,18]},o($V4,[2,2]),{13:[1,19],14:[1,20]},o($V6,[2,10]),{13:[1,21],14:$V5,17:22},o($V6,[2,13]),{13:[1,24],18:23,29:[1,25]},{20:26,21:[1,27],24:[1,28]},o($V4,[2,8]),o($V6,[2,9]),o($V4,[2,11]),o($V6,[2,12]),{13:[1,29],29:[1,30]},o($V6,[2,15]),o($V7,[2,26],{27:[1,31]}),{13:[1,32]},{22:[1,33]},{13:[2,18]},o($V6,[2,14]),o($V7,[2,25],{27:[1,34]}),o($V7,[2,24]),o($V4,[2,16]),{23:35,25:[1,36],26:[1,38],28:[1,37]},o($V7,[2,23]),{13:[1,39]},{26:[1,40]},{26:[1,41]},{13:[2,22],27:[1,42]},{13:[2,17]},{27:[1,43]},{13:[2,20]},{13:[2,21]},{13:[2,19]}],
-defaultActions: {28:[2,18],39:[2,17],41:[2,20],42:[2,21],43:[2,19]},
+table: [{3:1,4:[1,2]},{1:[3]},{5:[1,3]},{4:[1,4]},{6:[1,5]},{7:6,15:[1,7]},{8:[1,8]},{8:[2,6]},{4:[1,10],9:9},{4:[1,12],10:11},{8:$V0,16:13,17:$V1,18:$V2,19:$V3},{4:$V4,8:$V5,11:17,12:18,13:19,14:20},{8:$V6,15:$V7,20:22,21:$V8},{8:[1,25]},{8:$V0,16:26,17:$V1,18:$V2,19:$V3},{8:$V0,16:27,17:$V1,18:$V2,19:$V3},{8:$V0,16:28,17:$V1,18:$V2,19:$V3},{8:[1,29]},{4:$V4,8:$V5,11:30,12:18,13:19,14:20},{4:$V4,8:$V5,11:31,12:18,13:19,14:20},{4:$V4,8:$V5,11:32,12:18,13:19,14:20},{22:[1,34],25:[1,33],32:[1,35]},{8:[1,36]},{8:$V6,15:$V7,20:37,21:$V8},{8:$V6,15:$V7,20:38,21:$V8},{4:[2,7]},{8:[2,8]},{8:[2,9]},{8:[2,10]},{1:[2,1]},{8:[2,2]},{8:[2,3]},{8:[2,4]},{4:$V9,8:$Va,26:39,27:40},{8:$Vb,15:$Vc,23:42,24:$Vd},{15:[1,45]},o($Ve,[2,12]),{8:[2,13]},{8:[2,14]},{8:[1,46]},{4:$V9,8:$Va,26:47,27:40},{15:[1,48],29:[1,49]},{8:[1,50]},{8:$Vb,15:$Vc,23:51,24:$Vd},{15:[1,52]},{33:53,35:[1,54]},o($Ve,[2,20]),{8:[2,21]},o($Vf,$Vg,{28:55}),{4:[1,56]},o($Ve,[2,16]),{8:[2,17]},{8:$Vb,15:$Vc,23:57,24:$Vd},{34:58,36:59,38:[1,60]},{4:[1,61]},{8:[1,62],30:$Vh},{15:[1,64]},{8:[2,18]},{8:[1,65]},{37:66,40:[1,67],43:[1,68]},{4:$Vi,39:69,46:70},o($Vf,$Vg,{28:72}),o($Ve,[2,23]),o($Vf,[2,25],{24:[1,73]}),o($Vf,$Vg,{28:74}),o($Ve,[2,30]),{8:[2,32]},{4:[1,76],39:75,46:70},{4:$Vj,8:$Vk,44:77,46:78},o([40,43],[2,33]),o($Vl,[2,38]),{4:$Vj,8:$Vk,15:$Vm,29:$Vn,41:[1,81],44:80,46:78,47:82},{8:[1,85],30:$Vh},{15:[1,86]},{8:[1,87],30:$Vh},{8:[2,34]},{4:$Vj,8:$Vk,15:$Vm,29:$Vn,41:[1,88],44:80,46:78,47:82},{8:[2,36]},{4:$Vj,8:$Vk,44:89,46:78},{15:$Vm,29:$Vn,47:82},{8:[1,90]},{4:$Vj,8:$Vk,44:91,46:78},{8:$Vo,30:$Vp,31:92},{4:[1,94]},o($Vf,[2,45]),{38:[2,31]},o($Vf,[2,26]),{8:[1,95]},{4:[1,97],8:$Vk,42:96,44:91,46:78},{8:[2,42]},o($Vl,[2,39]),{8:[1,98]},{8:[1,99]},{8:$Vo,30:$Vp,31:100},{15:$Vm,47:101},o($Ve,[2,24]),{8:[1,102]},{15:$Vm,29:$Vn,45:[1,103],47:82},o($Vl,[2,40]),o($Vl,[2,43]),{8:[2,28]},{8:$Vo,30:$Vp,31:104},{8:[2,35]},{4:$Vi,39:105,46:70},{8:[1,106]},{4:$Vi,39:107,46:70},{8:[1,108]},{8:[1,109]},o($Vl,[2,44]),{8:[2,37]}],
+defaultActions: {7:[2,6],25:[2,7],26:[2,8],27:[2,9],28:[2,10],29:[2,1],30:[2,2],31:[2,3],32:[2,4],37:[2,13],38:[2,14],47:[2,21],51:[2,17],57:[2,18],66:[2,32],75:[2,34],77:[2,36],85:[2,31],89:[2,42],100:[2,28],102:[2,35],109:[2,37]},
 parseError: function parseError(str, hash) {
     if (hash.recoverable) {
         this.trace(str);
@@ -240,6 +345,53 @@ parse: function parse(input) {
     }
     return true;
 }};
+
+
+var requirements = [];
+var types = [];
+var parameters = [];
+
+/*list of constants followed by a list of types followed by where in the list
+of constants the type was denoted (so I can attach types to constants at a
+later stage )*/
+
+function Constant(constantsList, types, typeIndex){
+  this.constantsList = constants;
+  this.types = types;
+  this.typeIndex = typeIndex;
+}
+
+var constants = new Constant([], [], []);
+
+function Argument(name, type){
+  this.name = name;
+  this.type = type;
+};
+
+/*arguments may be typed*/
+function Predicate(name, arguments){
+  this.name = name;
+  this.arguments = arguments;
+};
+
+var predicates = [];
+
+function Action(name, parameters, effects){
+  this.name = name;
+  this.parameters = parameters;
+  this.effects = effects;
+}
+
+var ActionList = [];
+
+function Effect(effectlist) {
+  this.effectlist = effectlist;
+}
+
+function Variable(name, type) {
+  this.name = name;
+  this.type = type;
+}
 /* generated by jison-lex 0.3.4 */
 var lexer = (function(){
 var lexer = ({
@@ -568,96 +720,60 @@ options: {},
 performAction: function anonymous(yy,yy_,$avoiding_name_collisions,YY_START) {
 var YYSTATE=YY_START;
 switch($avoiding_name_collisions) {
-case 0: return 14;
+case 0: return 6;
 break;
-case 1:	return 27;
+case 1: return 5;
 break;
-case 2: this.begin('INITIAL'); return 13;
+case 2: return 'PROBLEM';
 break;
-case 3: this.begin('predicate');
+case 3: return 17;
 break;
-case 4: this.begin('INITIAL'); return 13;
+case 4: return 19;
 break;
-case 5: return 29;
+case 5: return 18;
 break;
-case 6:	return 27;
+case 6: return 21;
 break;
-case 7: return 14;
+case 7: return 25;
 break;
-case 8: this.popState(); return 13
+case 8: return 22;
 break;
-case 9:
+case 9: return 35;
 break;
-case 10: return 14;
+case 10: return 32;
 break;
-case 11:	this.begin('parameters'); return 21;
+case 11: return 38;
 break;
-case 12: this.begin('effects'); return 24;
+case 12: return 40;
 break;
-case 13:
+case 13: return 43;
 break;
-case 14: this.begin('INITIAL'); return 13;
+case 14: return 41;
 break;
-case 15: return 22;
+case 15: return 29;
 break;
-case 16: return 26;
+case 16: return 45;
 break;
-case 17:	return 27;
+case 17:
 break;
-case 18: this.begin('actions'); return 13;
+case 18: return 4; 
 break;
-case 19: return 22;
+case 19: return 8; 
 break;
-case 20: this.begin('effectslist'); return 'AND';
+case 20:
 break;
-case 21: return 'NOT';
+case 21:
 break;
-case 22: return 29;
+case 22:return 24;
 break;
-case 23:	return 27;
+case 23:yylval.sval = strdup(yy_.yytext); return 30;
 break;
-case 24: return 14;
-break;
-case 25: this.popState(); return 13;
-break;
-case 26:this.begin('predicate'); return'NOT';
-break;
-case 27:this.begin('predicate'); 
-break;
-case 28:this.begin('actions'); return 13;
-break;
-case 29: return 4;
-break;
-case 30: this.begin('animation'); return 'ANIMATION';
-break;
-case 31: /* ignore non animation comments */
-break;
-case 32: this.begin('objects'); return 11;
-break;
-case 33: this.begin('objects'); return 11;
-break;
-case 34: return 'TYPES';
-break;
-case 35: this.begin('predicates');	return 15;
-break;
-case 36: this.begin('actions'); return 19;
-break;
-case 37: return 'INIT';
-break;
-case 38:
-break;
-case 39:
-break;
-case 40:
-break;
-case 41:
-break;
-case 42:
+case 24:yylval.sval = strdup(yy_.yytext); return 15; 
 break;
 }
 },
-rules: [/^(?:[_\-a-zA-Z0-9]+)/,/^(?:- [_\-a-zA-Z0-9]+)/,/^(?:[)])/,/^(?:[(])/,/^(?:[)])/,/^(?:[?][_\-a-zA-Z0-9]+)/,/^(?:- [_\-a-zA-Z0-9]+)/,/^(?:[_\-a-zA-Z0-9]+)/,/^(?:[)]+)/,/^(?:[(])/,/^(?:[_\-a-zA-Z0-9]+)/,/^(?::parameters\b)/,/^(?::effect\b)/,/^(?:[:].*)/,/^(?:[)])/,/^(?:[(])/,/^(?:[?][_\-a-zA-Z0-9]+)/,/^(?:- [_\-a-zA-Z0-9]+)/,/^(?:[)])/,/^(?:[(])/,/^(?:and\b)/,/^(?:not\b)/,/^(?:[?][_\-a-zA-Z0-9]+)/,/^(?:- [_\-a-zA-Z0-9]+)/,/^(?:[_\-a-zA-Z0-9]+)/,/^(?:[)])/,/^(?:\(not\b)/,/^(?:\()/,/^(?:\))/,/^(?:\(define\b)/,/^(?:[;;animation])/,/^(?:[;;].*)/,/^(?:\(:objects\b)/,/^(?:\(:constants\b)/,/^(?:\(:types\b)/,/^(?:\(:predicates\b)/,/^(?:\(:action\b)/,/^(?:\(:INIT\b)/,/^(?:[:])/,/^(?:[(])/,/^(?:[)])/,/^(?:[_\-a-zA-Z0-9]+)/,/^(?:[ \t\n]+)/],
-conditions: {"objects":{"rules":[0,1,2,29,30,31,32,33,34,35,36,37,38,39,40,41,42],"inclusive":true},"predicate":{"rules":[5,6,7,8,9,29,30,31,32,33,34,35,36,37,38,39,40,41,42],"inclusive":true},"predicates":{"rules":[3,4,29,30,31,32,33,34,35,36,37,38,39,40,41,42],"inclusive":true},"animation":{"rules":[29,30,31,32,33,34,35,36,37,38,39,40,41,42],"inclusive":true},"actions":{"rules":[10,11,12,13,14,29,30,31,32,33,34,35,36,37,38,39,40,41,42],"inclusive":true},"parameters":{"rules":[15,16,17,18,29,30,31,32,33,34,35,36,37,38,39,40,41,42],"inclusive":true},"effects":{"rules":[19,20,21,22,23,24,25,29,30,31,32,33,34,35,36,37,38,39,40,41,42],"inclusive":true},"effectslist":{"rules":[26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42],"inclusive":true},"INITIAL":{"rules":[29,30,31,32,33,34,35,36,37,38,39,40,41,42],"inclusive":true}}
+rules: [/^(?:domain\b)/,/^(?:define\b)/,/^(?:problem\b)/,/^(?:requirements\b)/,/^(?:strips\b)/,/^(?:typing\b)/,/^(?:types\b)/,/^(?:predicates\b)/,/^(?:constants\b)/,/^(?:parameters\b)/,/^(?:action\b)/,/^(?:precondition\b)/,/^(?:effect\b)/,/^(?:observe\b)/,/^(?:and\b)/,/^(?:not\b)/,/^(?:when\b)/,/^(?:.*$)/,/^(?:[(])/,/^(?:[)])/,/^(?:[\t ])/,/^(?:\n)/,/^(?:-)/,/^(?:(([?])+(-|([a-zA-Z_])|([0-9]))*))/,/^(?:(([a-zA-Z_])+(-|([a-zA-Z_])|([0-9]))*))/],
+conditions: {"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24],"inclusive":true}}
 });
 return lexer;
 })();
@@ -671,9 +787,9 @@ return new Parser;
 
 
 if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
-exports.parser = PDDLParser;
-exports.Parser = PDDLParser.Parser;
-exports.parse = function () { return PDDLParser.parse.apply(PDDLParser, arguments); };
+exports.parser = PDDL;
+exports.Parser = PDDL.Parser;
+exports.parse = function () { return PDDL.parse.apply(PDDL, arguments); };
 exports.main = function commonjsMain(args) {
     if (!args[1]) {
         console.log('Usage: '+args[0]+' FILE');
