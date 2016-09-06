@@ -50,7 +50,7 @@ start
     domain_definitions
     domain_types
     domain_body
-    RPAREN {console.log("Domain: %s\n", $5); console.log("Test: \n", JSON.stringify(ActionList)); return [$8,$9];}
+    RPAREN {console.log("Domain: %s\n", $5); console.log("Test: \n", JSON.stringify(actionList)); return [types, constants, predicates, actionList];}
 ;
 
 domain_body
@@ -144,7 +144,7 @@ argument_list
 /*action_def_body here is just a list of the effects, everything else is ignored*/
 action_def
   : LPAREN ACTION STRING parameters_action action_def_body RPAREN
-  {ActionList.push(new Action($3,$4,$5));}
+  {actionList.push(new Action($3,$4,$5));}
 ;
 
 parameters_action
@@ -240,7 +240,7 @@ function Action(name, parameters, effects){
   this.effects = effects;
 }
 
-var ActionList = [];
+var actionList = [];
 
 function Effect(effectlist) {
   this.effectlist = effectlist;

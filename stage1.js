@@ -2,8 +2,6 @@ var domain_file;
 var problem_file;
 var plan_file;
 
-var parser = require("./PDDL").parser;
-
 /*
 ****************      LOAD TEST FILES     **********************
 */
@@ -43,8 +41,8 @@ function readFile(file, callback){
 }
 
 function doParsing() {
-  output = parser.parse($('#domain').text());
-  consle.log(output.predicates);
+  output = PDDL.parse($('#domain').text());
+  console.log(output);
 }
 
 

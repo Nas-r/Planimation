@@ -84,7 +84,7 @@ performAction: function anonymous(yytext, yyleng, yylineno, yy, yystate /* actio
 var $0 = $$.length - 1;
 switch (yystate) {
 case 1:
-console.log("Domain: %s\n", $$[$0-5]); console.log("Test: \n", JSON.stringify(ActionList)); return [$$[$0-2],$$[$0-1]];
+console.log("Domain: %s\n", $$[$0-5]); console.log("Test: \n", JSON.stringify(actionList)); return [types, constants, predicates, actionList];
 break;
 case 6: case 31:
 this.$ = $$[$0];
@@ -126,7 +126,7 @@ case 27:
       this.$=$$[$0-1];
 break;
 case 29:
-ActionList.push(new Action($$[$0-3],$$[$0-2],$$[$0-1]));
+actionList.push(new Action($$[$0-3],$$[$0-2],$$[$0-1]));
 break;
 case 30:
 this.$=$$[$0-1];
@@ -346,7 +346,7 @@ function Action(name, parameters, effects){
   this.effects = effects;
 }
 
-var ActionList = [];
+var actionList = [];
 
 function Effect(effectlist) {
   this.effectlist = effectlist;
