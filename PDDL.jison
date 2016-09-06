@@ -9,35 +9,37 @@ QUESTION_TAG = [?];
 VARIABLE = {QUESTION_TAG}+(\-|{CHAR}|{DIGIT})*;
 
 %%
+[;;].*					   	{ /* ignore non animation comments */}
 
-"domain"          { return 'DOMAIN';}
-"define"          { return 'DEFINE';}
-"problem"         { return 'PROBLEM';}
+"domain"            { return 'DOMAIN';}
+"define"            { return 'DEFINE';}
+"problem"           { return 'PROBLEM';}
 
-:requirements     { return 'REQUIREMENTS';}
-:strips           { return 'STRIPS';}
-:typing           { return 'TYPING';}
+":requirements"     { return 'REQUIREMENTS';}
+":strips"           { return 'STRIPS';}
+":typing"           { return 'TYPING';}
 
-:types            { return 'TYPES';}
-:predicates       { return 'PREDICATES';}
-:constants        { return 'CONSTANTS';}
-:parameters       { return 'PARAMETERS';}
-:action           { return 'ACTION';}
-:precondition     { return 'PRECONDITION';}
-:effect           { return 'EFFECT';}
-:observe          { return 'OBSERVE';}
+":types"            { return 'TYPES';}
+":predicates"       { return 'PREDICATES';}
+":constants"        { return 'CONSTANTS';}
+":parameters"       { return 'PARAMETERS';}
+":action"           { return 'ACTION';}
+":precondition"     { return 'PRECONDITION';}
+":effect"           { return 'EFFECT';}
+":observe"          { return 'OBSERVE';}
 
-"and"             { return 'AND';}
-"not"             { return 'NOT';}
-"when"            { return 'WHEN';}
-#.*$              {}
-[(]               { return 'LPAREN'; }
-[)]               { return 'RPAREN'; }
-[\t ]             {}
-\n                {}
-\-                {return 'HYPHEN';}
-{VARIABLE}        {yylval.sval = strdup(yytext); return 'VARIABLE';}
-{STRING}          {yylval.sval = strdup(yytext); return 'STRING'; }
+"and"               { return 'AND';}
+"not"               { return 'NOT';}
+"when"              { return 'WHEN';}
+#.*$                {}
+[(]                 { return 'LPAREN'; }
+[)]                 { return 'RPAREN'; }
+[\t ]               {}
+\n                  {}
+\-                  {return 'HYPHEN';}
+{VARIABLE}          {return 'VARIABLE';}
+{STRING}            {return 'STRING'; }
+
 
 /lex
 
@@ -48,7 +50,7 @@ start
     domain_definitions
     domain_types
     domain_body
-    RPAREN {console.log("Domain: %s\n", $5);}
+    RPAREN {console.log("Domain: %s\n", $5); console.log("Test: \n", JSON.stringify(ActionList)); return [$8,$9];}
 ;
 
 domain_body
@@ -70,7 +72,7 @@ domain_definitions
   {}
 ;
 
-/*I can ignore these but I might as well store them somewhere for lulz*/
+/*I can ignore these but I might as well store them somewhere*/
 definition
   : REQUIREMENTS definition
   |  TYPING  definition {requirements.push("types");}
@@ -118,7 +120,7 @@ predicate_list
 predicate
 /* $2 is the predicate name, argument_list is the list of arguments*/
   : LPAREN STRING argument_list RPAREN
-  {predicates.push(new Predicate($2,$3);)}
+  {predicates.push(new Predicate($2,$3));}
   | LPAREN NOT LPAREN STRING argument_list RPAREN RPAREN
   {predicates.push(new Predicate($4,$5));}
 ;
@@ -127,11 +129,14 @@ predicate
 /*Variables ?i*/
 argument_list
   : argument_list VARIABLE
-  { $1.push(new Argument($2, ""));
+  { var x = [$1]; x.push(new Argument($2, ""));
     $$ = $1;}
   | argument_list VARIABLE HYPHEN STRING
-  { $1.push(new Argument($2,$3));
+  { var x = [$1]; x.push(new Argument($2,$4));
     $$=$1;}
+  | argument_list STRING
+    { var x = [$1]; x.push(new Argument($2,""));
+      $$=$1;}
   |
 ;
 
@@ -187,7 +192,7 @@ list_fluents
   : fluent
   {$$=$1;}
   | list_fluents fluent
-  {$1.push($2); $$ = $1;}
+  {[$1].push($2); $$ = $1;}
 ;
 
 fluent
@@ -209,7 +214,7 @@ of constants the type was denoted (so I can attach types to constants at a
 later stage )*/
 
 function Constant(constantsList, types, typeIndex){
-  this.constantsList = constants;
+  this.constantsList = constantsList;
   this.types = types;
   this.typeIndex = typeIndex;
 }

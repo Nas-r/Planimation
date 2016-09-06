@@ -1,7 +1,7 @@
 # Planimation
 A tool to animate plans generated from PDDL definitions
 
-#Notes to self:
+##Notes to self:
 Objects and Constants are treated the same
 
 predicates must have animation annotations of the form
@@ -18,7 +18,7 @@ objects and constants use the annotation to denote the image/s
 used to represent them, predicates should have the ability to change
 this image. there are also sizing options.
 
-#TODO (stared, see: PDDL.jison):
+##TODO (stared, see: PDDL.jison):
 REDO the lexer/parser. Currently I throw away what I don't want by
 getting the lexer to ignore it using start conditions in a way I'm guessing
 they were never intended to be used.
