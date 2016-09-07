@@ -7,14 +7,11 @@
 ;; Created with PreInstancerAirportExporter 0.5 by Sebastian Trueg <trueg@informatik.uni-freiburg.de>
 ;;
 
-
-
 (define (problem PROBLEM_X)
 
 (:domain airport_fixed_structure)
 
-(:objects
-)
+(:objects)
 
 (:init
 
@@ -28,8 +25,6 @@
       (has-type airplane_CFBEG medium)
 
       (is-moving airplane_CFBEG)
-
-
 
       (not_blocked seg_pp_0_60 airplane_CFBEG)
       (not_blocked seg_ppdoor_0_40 airplane_CFBEG)
@@ -69,9 +64,6 @@
 
 (:goal
       (and
-
-
-
             (is-parked airplane_CFBEG seg_pp_0_60)
       )
 )

@@ -12,7 +12,8 @@
   <!-- Import D3js -->
   <script src="https://d3js.org/d3.v4.min.js"></script>
   <!-- Import development JS Files -->
-  <script src="PDDL.js"></script>
+  <script src="PDDL_Parser.js"></script>
+  <script src="Plan_Parser.js"></script>
   <script src="stage1.js"></script>
 
   <style>
@@ -30,11 +31,15 @@
   <input id="inputplan" type="file">
 
   <p></p>
-  <input id="hehe" type="button" value="Dog Fud" onclick="doParsing();">
+  <input id="b1" type="button" value="Parse Domain" onclick="parseDomain();">
+  <p></p>
+  <input id="b2" type="button" value="Parse Problem" onclick="parseProblem();">
+  <p></p>
+  <input id="b3" type="button" value="Parse Solution" onclick="parseSolution();">
 
   <div id="domain"></div>
   <div id="problem"></div>
-  <div id="plan"></div>
+  <div id="solution"></div>
   <div id="testoutput"></div>
   <div id="animation"></div>
 

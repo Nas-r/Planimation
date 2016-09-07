@@ -19,6 +19,7 @@ VARIABLE = {QUESTION_TAG}+(\-|{CHAR}|{DIGIT})*;
 ":strips"           { return 'STRIPS';}
 ":typing"           { return 'TYPING';}
 
+":domain"           { return 'DOMAIN';}
 ":types"            { return 'TYPES';}
 ":predicates"       { return 'PREDICATES';}
 ":constants"        { return 'CONSTANTS';}
@@ -27,8 +28,15 @@ VARIABLE = {QUESTION_TAG}+(\-|{CHAR}|{DIGIT})*;
 ":precondition"     { return 'PRECONDITION';}
 ":effect"           { return 'EFFECT';}
 ":observe"          { return 'OBSERVE';}
+":objects"          { return 'OBJECTS';}
+
+":init"             { return 'INIT';}
+":INIT"             { return 'INIT';}
+":goal"             { return 'GOAL';}
 
 "and"               { return 'AND';}
+"AND"               { return 'AND';}
+
 "not"               { return 'NOT';}
 "when"              { return 'WHEN';}
 #.*$                {}
@@ -48,20 +56,75 @@ VARIABLE = {QUESTION_TAG}+(\-|{CHAR}|{DIGIT})*;
 start
   : LPAREN DEFINE LPAREN DOMAIN domain_name RPAREN
     domain_definitions
-    domain_types
     domain_body
-    RPAREN {console.log("Domain: %s\n", $5); console.log("Test: \n", JSON.stringify(actionList)); return [types, constants, predicates, actionList];}
+    RPAREN
+    {console.log([types, constants, predicates, actionList]); return [types, constants, predicates, actionList];}
+  | LPAREN DEFINE LPAREN PROBLEM problem_name RPAREN
+    LPAREN DOMAIN domain_name RPAREN
+    problem_body
+    RPAREN
+    {console.log([objects, startPredicates]); return [objects, startPredicates];}
 ;
 
 domain_body
-  : predicates_def domain_body
+  : domain_types domain_body
+  | predicates_def domain_body
   | constants_def domain_body
   | action_def domain_body
   |
 ;
 
-/*Throw the domain name up a level and print it to console*/
+problem_body
+  : object_definitions problem_body
+  | init_state problem_body
+  | goal_state problem_body
+  |
+;
+
+object_definitions
+  : LPAREN OBJECTS object_list RPAREN
+  ;
+
+object_list
+  : STRING object_list
+  { objects.names.push($1)}
+  | HYPHEN STRING object_list
+  { objects.types.push($2); objects.typeIndex.push(objects.names.length);}
+  |
+;
+
+init_state
+  : LPAREN INIT initial_predicates RPAREN
+  | LPAREN INIT LPAREN AND initial_predicates RPAREN RPAREN
+;
+
+initial_predicates
+  : LPAREN STRING argument_list RPAREN initial_predicates
+  {startPredicates.push(new Predicate($2,$3));}
+  | LPAREN NOT LPAREN STRING argument_list RPAREN RPAREN initial_predicates
+  {startPredicates.push(new Predicate($4,$5));}
+  |
+;
+
+goal_state
+  : LPAREN GOAL goal_predicates RPAREN
+  | LPAREN GOAL LPAREN AND goal_predicates RPAREN RPAREN
+;
+
+goal_predicates
+  : LPAREN STRING argument_list RPAREN goal_predicates
+  {goalPredicates.push(new Predicate($2,$3));}
+  | LPAREN NOT LPAREN STRING argument_list RPAREN RPAREN goal_predicates
+  {goalPredicates.push(new Predicate($4,$5));}
+  |
+;
+
 domain_name
+  : STRING
+  {$$ = $1;}
+;
+
+problem_name
   : STRING
   {$$ = $1;}
 ;
@@ -82,15 +145,13 @@ definition
 
 /*Types*/
 domain_types
-  : LPAREN types RPAREN
-  {console.log("Parsed types:\n"); console.log(types);}
+  : LPAREN TYPES types RPAREN {console.log("Parsed types:\n"); console.log(types);}
 ;
 
 /*Keep track of the available types in the types array.*/
 types
-  : TYPES types
-  | STRING types {types.push($1);}
-  |
+  : types STRING {types.push($2);}
+  | STRING {types.push($1);}
 ;
 
 /*Constants*/
@@ -100,9 +161,9 @@ constants_def
 
 constants_list
   : STRING constants_list
-  { constants.constantsList.push($1)}
+  { constants.names.push($1)}
   | HYPHEN STRING constants_list
-  { constants.types.push($2);constants.typeIndex.push(constants.constantsList.length);}
+  { constants.types.push($2);constants.typeIndex.push(constants.names.length);}
   |
 ;
 
@@ -127,17 +188,21 @@ predicate
 
 
 /*Variables ?i*/
+
+/*TODO: This only returns one argument instead of all of them*/
 argument_list
-  : argument_list VARIABLE
-  { var x = [$1]; x.push(new Argument($2, ""));
-    $$ = $1;}
-  | argument_list VARIABLE HYPHEN STRING
-  { var x = [$1]; x.push(new Argument($2,$4));
-    $$=$1;}
-  | argument_list STRING
-    { var x = [$1]; x.push(new Argument($2,""));
-      $$=$1;}
+  : argument argument_list
+  { if ($2!=null) {$$ = [$1].concat($2);} else {$$=[$1]};}
   |
+;
+
+argument
+  : VARIABLE
+  {$$ = new Argument($1, "");}
+  | VARIABLE HYPHEN STRING
+  {$$ = new Argument($1, $3);}
+  | STRING
+  {$$ = new Argument($1, "");}
 ;
 
 /*Actions*/
@@ -213,13 +278,14 @@ var parameters = [];
 of constants the type was denoted (so I can attach types to constants at a
 later stage )*/
 
-function Constant(constantsList, types, typeIndex){
-  this.constantsList = constantsList;
+function Constant(names, types, typeIndex){
+  this.names = names;
   this.types = types;
   this.typeIndex = typeIndex;
 }
 
 var constants = new Constant([], [], []);
+var objects = new Constant([],[],[]);
 
 function Argument(name, type){
   this.name = name;
@@ -233,6 +299,8 @@ function Predicate(name, arguments){
 };
 
 var predicates = [];
+var startPredicates = [];
+var goalPredicates = [];
 
 function Action(name, parameters, effects){
   this.name = name;

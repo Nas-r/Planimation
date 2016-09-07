@@ -40,9 +40,24 @@ function readFile(file, callback){
     reader.readAsText(file);
 }
 
-function doParsing() {
-  output = PDDL.parse($('#domain').text());
-  console.log(output);
+function parseDomain() {
+  readFile(domain_file, function(e) {
+  PDDL_Parser.parse(e.target.result);
+});
+}
+
+
+function parseProblem() {
+  readFile(problem_file, function(e) {
+  PDDL_Parser.parse(e.target.result);
+});
+}
+
+
+function parseSolution() {
+  readFile(plan_file, function(e) {
+  Plan_Parser.parse(e.target.result);
+  });
 }
 
 
