@@ -43,12 +43,12 @@ VARIABLE = {QUESTION_TAG}+(\-|{CHAR}|{DIGIT})*;
 [(]                 { return 'LPAREN'; }
 [)]                 { return 'RPAREN'; }
 [\t ]               {}
-\n                  {}
-\-                  {return 'HYPHEN';}
+[\n]                  {}
+[\-]                  {return 'HYPHEN';}
 {VARIABLE}          {return 'VARIABLE';}
 {STRING}            {return 'STRING'; }
 
-
+"$"                 {return 'EOF';}
 /lex
 
 %%
@@ -238,13 +238,21 @@ action_result
   | OBSERVE list_fluents
 ;
 
-/*TODO:ASK NIR ABOUT CONDITIONAL ACTION EFFECTS*/
+/*TODO:Conditional effects are uncommon and used to represent nondeterministic
+planning problems, only worry about it if there's time/*/
+
 /*Action effects: can be conditional or not*/
 /*action_effect
   : LPAREN WHEN list_effects list_effects RPAREN
   {}
 ;
 */
+
+/*fluents in pddl would be predicates without parameters,
+fluents are already grounded*/
+
+/*NOTE: The use of the word fluents here is probably a misnomer*/
+
 list_effects
   : fluent
   | LPAREN list_fluents RPAREN

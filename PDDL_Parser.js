@@ -775,10 +775,12 @@ case 30:return 44;
 break;
 case 31:return 23; 
 break;
+case 32:return 'EOF';
+break;
 }
 },
-rules: [/^(?:[;;].*)/,/^(?:domain\b)/,/^(?:define\b)/,/^(?:problem\b)/,/^(?::requirements\b)/,/^(?::strips\b)/,/^(?::typing\b)/,/^(?::domain\b)/,/^(?::types\b)/,/^(?::predicates\b)/,/^(?::constants\b)/,/^(?::parameters\b)/,/^(?::action\b)/,/^(?::precondition\b)/,/^(?::effect\b)/,/^(?::observe\b)/,/^(?::objects\b)/,/^(?::init\b)/,/^(?::INIT\b)/,/^(?::goal\b)/,/^(?:and\b)/,/^(?:AND\b)/,/^(?:not\b)/,/^(?:when\b)/,/^(?:.*$)/,/^(?:[(])/,/^(?:[)])/,/^(?:[\t ])/,/^(?:\n)/,/^(?:-)/,/^(?:(([?])+(-|([a-zA-Z_])|([0-9]))*))/,/^(?:(([a-zA-Z_])+(-|([a-zA-Z_])|([0-9]))*))/],
-conditions: {"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31],"inclusive":true}}
+rules: [/^(?:[;;].*)/,/^(?:domain\b)/,/^(?:define\b)/,/^(?:problem\b)/,/^(?::requirements\b)/,/^(?::strips\b)/,/^(?::typing\b)/,/^(?::domain\b)/,/^(?::types\b)/,/^(?::predicates\b)/,/^(?::constants\b)/,/^(?::parameters\b)/,/^(?::action\b)/,/^(?::precondition\b)/,/^(?::effect\b)/,/^(?::observe\b)/,/^(?::objects\b)/,/^(?::init\b)/,/^(?::INIT\b)/,/^(?::goal\b)/,/^(?:and\b)/,/^(?:AND\b)/,/^(?:not\b)/,/^(?:when\b)/,/^(?:.*$)/,/^(?:[(])/,/^(?:[)])/,/^(?:[\t ])/,/^(?:[\n])/,/^(?:[\-])/,/^(?:(([?])+(-|([a-zA-Z_])|([0-9]))*))/,/^(?:(([a-zA-Z_])+(-|([a-zA-Z_])|([0-9]))*))/,/^(?:\$)/],
+conditions: {"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32],"inclusive":true}}
 });
 return lexer;
 })();

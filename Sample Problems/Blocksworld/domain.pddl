@@ -4,12 +4,13 @@
 
 (define (domain BLOCKS)
   (:requirements :strips)
-  (:predicates (on ?x ?y)
-	       (ontable ?x)
-	       (clear ?x)
-	       (handempty)
-	       (holding ?x)
-	       )
+  (:predicates
+        (on ?x ?y)      ;;animate: ?x ontop ?y, ?x swap image1
+	      (ontable ?x)      ;;animate: move ?x to (0,100)
+	      (clear ?x)       ;;animate
+	      (handempty)
+	      (holding ?x)
+	      )
 
   (:action pick-up
 	     :parameters (?x)
