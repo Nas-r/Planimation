@@ -597,10 +597,14 @@ case 6:
 break;
 case 7:
 break;
+case 8:
+break;
+case 9:
+break;
 }
 },
-rules: [/^(?:Found Plan\b)/,/^(?:\(output\))/,/^(?:(([a-zA-Z_])+(-|([a-zA-Z_])|([0-9]))*))/,/^(?:.*$)/,/^(?:[(])/,/^(?:[)])/,/^(?:[\t ])/,/^(?:\n)/],
-conditions: {"INITIAL":{"rules":[0,1,2,3,4,5,6,7],"inclusive":true}}
+rules: [/^(?:Found Plan\b)/,/^(?:\(output\))/,/^(?:(([a-zA-Z_])+(-|([a-zA-Z_])|([0-9]))*))/,/^(?:.*$)/,/^(?:[(])/,/^(?:[)])/,/^(?:[\t ])/,/^(?:[\n])/,/^(?:[\r])/,/^(?:[\r\n])/],
+conditions: {"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9],"inclusive":true}}
 });
 return lexer;
 })();

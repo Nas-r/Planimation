@@ -71,112 +71,31 @@
     recoverable: (boolean: TRUE when the parser has a error recovery rule available for this particular error)
   }
 */
-var PDDL_Parser = (function(){
-var o=function(k,v,o,l){for(o=o||{},l=k.length;l--;o[k[l]]=v);return o},$V0=[1,8],$V1=[1,21],$V2=[2,7],$V3=[2,32],$V4=[1,23],$V5=[1,24],$V6=[1,25],$V7=[1,45],$V8=[2,42],$V9=[2,39],$Va=[1,47],$Vb=[1,48],$Vc=[4,8],$Vd=[8,23],$Ve=[1,66],$Vf=[2,11],$Vg=[2,46],$Vh=[1,70],$Vi=[1,69],$Vj=[8,23,44],$Vk=[2,15],$Vl=[1,97],$Vm=[1,98],$Vn=[2,20],$Vo=[2,25],$Vp=[1,109],$Vq=[8,53,55],$Vr=[1,112],$Vs=[1,113],$Vt=[1,120],$Vu=[1,121],$Vv=[1,124],$Vw=[1,125],$Vx=[1,135],$Vy=[1,139],$Vz=[4,8,53,55];
+var Plan_Parser = (function(){
+var o=function(k,v,o,l){for(o=o||{},l=k.length;l--;o[k[l]]=v);return o},$V0=[2,3],$V1=[1,4],$V2=[1,7],$V3=[2,5];
 var parser = {trace: function trace() { },
 yy: {},
-symbols_: {"error":2,"start":3,"LPAREN":4,"DEFINE":5,"DOMAIN":6,"domain_name":7,"RPAREN":8,"domain_definitions":9,"domain_body":10,"PROBLEM":11,"problem_name":12,"problem_body":13,"domain_types":14,"predicates_def":15,"constants_def":16,"action_def":17,"object_definitions":18,"init_state":19,"goal_state":20,"OBJECTS":21,"object_list":22,"STRING":23,"HYPHEN":24,"INIT":25,"initial_predicates":26,"AND":27,"argument_list":28,"NOT":29,"GOAL":30,"goal_predicates":31,"definition":32,"REQUIREMENTS":33,"TYPING":34,"STRIPS":35,"TYPES":36,"types":37,"CONSTANTS":38,"constants_list":39,"PREDICATES":40,"predicate_list":41,"predicate":42,"argument":43,"VARIABLE":44,"ACTION":45,"parameters_action":46,"action_def_body":47,"PARAMETERS":48,"action_preconditions":49,"action_result":50,"PRECONDITION":51,"list_effects":52,"EFFECT":53,"action_effect":54,"OBSERVE":55,"list_fluents":56,"fluent":57,"$accept":0,"$end":1},
-terminals_: {2:"error",4:"LPAREN",5:"DEFINE",6:"DOMAIN",8:"RPAREN",11:"PROBLEM",21:"OBJECTS",23:"STRING",24:"HYPHEN",25:"INIT",27:"AND",29:"NOT",30:"GOAL",33:"REQUIREMENTS",34:"TYPING",35:"STRIPS",36:"TYPES",38:"CONSTANTS",40:"PREDICATES",44:"VARIABLE",45:"ACTION",48:"PARAMETERS",51:"PRECONDITION",53:"EFFECT",54:"action_effect",55:"OBSERVE"},
-productions_: [0,[3,9],[3,12],[10,2],[10,2],[10,2],[10,2],[10,0],[13,2],[13,2],[13,2],[13,0],[18,4],[22,2],[22,3],[22,0],[19,4],[19,7],[26,5],[26,8],[26,0],[20,4],[20,7],[31,5],[31,8],[31,0],[7,1],[12,1],[9,3],[32,2],[32,2],[32,2],[32,0],[14,4],[37,2],[37,1],[16,4],[39,2],[39,3],[39,0],[15,4],[41,2],[41,0],[42,4],[42,7],[28,2],[28,0],[43,1],[43,3],[43,1],[17,6],[46,4],[47,2],[49,2],[50,2],[50,5],[50,2],[52,1],[52,3],[52,4],[56,1],[56,2],[57,4],[57,7]],
+symbols_: {"error":2,"start":3,"BEGIN":4,"actions":5,"LPAREN":6,"STRING":7,"argument_list":8,"RPAREN":9,"$accept":0,"$end":1},
+terminals_: {2:"error",4:"BEGIN",6:"LPAREN",7:"STRING",9:"RPAREN"},
+productions_: [0,[3,2],[5,5],[5,0],[8,2],[8,0]],
 performAction: function anonymous(yytext, yyleng, yylineno, yy, yystate /* action[1] */, $$ /* vstack */, _$ /* lstack */) {
 /* this == yyval */
 
 var $0 = $$.length - 1;
 switch (yystate) {
 case 1:
-console.log([types, constants, predicates, actionList]); return [types, constants, predicates, actionList];
+console.log(actions); return actions;
 break;
 case 2:
-console.log([objects, startPredicates]); return [objects, startPredicates];
+actions.push($$[$0-3], $$[$0-2]);
 break;
-case 13:
- objects.names.push($$[$0-1])
-break;
-case 14:
- objects.types.push($$[$0-1]); objects.typeIndex.push(objects.names.length);
-break;
-case 18:
-startPredicates.push(new Predicate($$[$0-3],$$[$0-2]));
-break;
-case 19:
-startPredicates.push(new Predicate($$[$0-4],$$[$0-3]));
-break;
-case 23:
-goalPredicates.push(new Predicate($$[$0-3],$$[$0-2]));
-break;
-case 24:
-goalPredicates.push(new Predicate($$[$0-4],$$[$0-3]));
-break;
-case 26: case 27: case 52:
-this.$ = $$[$0];
-break;
-case 30:
-requirements.push("types");
-break;
-case 31:
-requirements.push("strips");
-break;
-case 33:
-console.log("Parsed types:\n"); console.log(types);
-break;
-case 34: case 35:
-types.push($$[$0]);
-break;
-case 37:
- constants.names.push($$[$0-1])
-break;
-case 38:
- constants.types.push($$[$0-1]);constants.typeIndex.push(constants.names.length);
-break;
-case 43:
-predicates.push(new Predicate($$[$0-2],$$[$0-1]));
-break;
-case 44:
-predicates.push(new Predicate($$[$0-3],$$[$0-2]));
-break;
-case 45:
+case 4:
  if ($$[$0]!=null) {this.$ = [$$[$0-1]].concat($$[$0]);} else {this.$=[$$[$0-1]]};
-break;
-case 47: case 49:
-this.$ = new Argument($$[$0], "");
-break;
-case 48:
-this.$ = new Argument($$[$0-2], $$[$0]);
-break;
-case 50:
-actionList.push(new Action($$[$0-3],$$[$0-2],$$[$0-1]));
-break;
-case 51:
-this.$=$$[$0-1];
-break;
-case 53:
-/* Don't care about predconditions */ 
-break;
-case 54:
- this.$ = $$[$0];
-break;
-case 55:
- this.$ = $$[$0-1];
-break;
-case 58: case 59:
-this.$ = $$[$0-1];
-break;
-case 60:
-this.$=$$[$0];
-break;
-case 61:
-[$$[$0-1]].push($$[$0]); this.$ = $$[$0-1];
-break;
-case 62:
- this.$ = new Fluent($$[$0-2], $$[$0-1], false); 
-break;
-case 63:
- this.$ = new Fluent($$[$0-3], $$[$0-2], true) 
 break;
 }
 },
-table: [{3:1,4:[1,2]},{1:[3]},{5:[1,3]},{4:[1,4]},{6:[1,5],11:[1,6]},{7:7,23:$V0},{12:9,23:[1,10]},{8:[1,11]},{8:[2,26]},{8:[1,12]},{8:[2,27]},{4:[1,14],9:13},{4:[1,15]},{4:$V1,8:$V2,10:16,14:17,15:18,16:19,17:20},{8:$V3,32:22,33:$V4,34:$V5,35:$V6},{6:[1,26]},{8:[1,27]},{4:$V1,8:$V2,10:28,14:17,15:18,16:19,17:20},{4:$V1,8:$V2,10:29,14:17,15:18,16:19,17:20},{4:$V1,8:$V2,10:30,14:17,15:18,16:19,17:20},{4:$V1,8:$V2,10:31,14:17,15:18,16:19,17:20},{36:[1,32],38:[1,34],40:[1,33],45:[1,35]},{8:[1,36]},{8:$V3,32:37,33:$V4,34:$V5,35:$V6},{8:$V3,32:38,33:$V4,34:$V5,35:$V6},{8:$V3,32:39,33:$V4,34:$V5,35:$V6},{7:40,23:$V0},{1:[2,1]},{8:[2,3]},{8:[2,4]},{8:[2,5]},{8:[2,6]},{23:[1,42],37:41},{4:$V7,8:$V8,41:43,42:44},{8:$V9,23:$Va,24:$Vb,39:46},{23:[1,49]},o($Vc,[2,28]),{8:[2,29]},{8:[2,30]},{8:[2,31]},{8:[1,50]},{8:[1,51],23:[1,52]},o($Vd,[2,35]),{8:[1,53]},{4:$V7,8:$V8,41:54,42:44},{23:[1,55],29:[1,56]},{8:[1,57]},{8:$V9,23:$Va,24:$Vb,39:58},{23:[1,59]},{46:60,48:[1,61]},{4:$Ve,8:$Vf,13:62,18:63,19:64,20:65},o($Vc,[2,33]),o($Vd,[2,34]),o($Vc,[2,40]),{8:[2,41]},{8:$Vg,23:$Vh,28:67,43:68,44:$Vi},{4:[1,71]},o($Vc,[2,36]),{8:[2,37]},{8:$V9,23:$Va,24:$Vb,39:72},{47:73,49:74,51:[1,75]},{4:[1,76]},{8:[1,77]},{4:$Ve,8:$Vf,13:78,18:63,19:64,20:65},{4:$Ve,8:$Vf,13:79,18:63,19:64,20:65},{4:$Ve,8:$Vf,13:80,18:63,19:64,20:65},{21:[1,81],25:[1,82],30:[1,83]},{8:[1,84]},{8:$Vg,23:$Vh,28:85,43:68,44:$Vi},o($Vj,[2,47],{24:[1,86]}),o($Vj,[2,49]),{23:[1,87]},{8:[2,38]},{8:[1,88]},{50:89,53:[1,90],55:[1,91]},{4:[1,94],52:92,57:93},{8:$Vg,23:$Vh,28:95,43:68,44:$Vi},{1:[2,2]},{8:[2,8]},{8:[2,9]},{8:[2,10]},{8:$Vk,22:96,23:$Vl,24:$Vm},{4:[1,100],8:$Vn,26:99},{4:[1,102],8:$Vo,31:101},o($Vc,[2,43]),{8:[2,45]},{23:[1,103]},{8:$Vg,23:$Vh,28:104,43:68,44:$Vi},o($Vc,[2,50]),{8:[2,52]},{4:[1,106],52:105,57:93},{4:$Vp,56:107,57:108},o([53,55],[2,53]),o($Vq,[2,57]),{4:$Vp,23:$Vr,27:[1,111],29:$Vs,56:110,57:108},{8:[1,114]},{8:[1,115]},{8:$Vk,22:116,23:$Vl,24:$Vm},{23:[1,117]},{8:[1,118]},{23:$Vt,27:[1,119],29:$Vu},{8:[1,122]},{23:$Vv,27:[1,123],29:$Vw},o($Vj,[2,48]),{8:[1,126]},{8:[2,54]},{4:$Vp,23:$Vr,27:[1,127],29:$Vs,56:110,57:108},{4:$Vp,8:[2,56],57:128},o($Vc,[2,60]),{23:$Vr,29:$Vs},{4:$Vp,8:[1,129],57:128},{4:$Vp,56:130,57:108},{8:$Vg,23:$Vh,28:131,43:68,44:$Vi},{4:[1,132]},{51:[2,51]},o($Vc,[2,12]),{8:[2,13]},{8:$Vk,22:133,23:$Vl,24:$Vm},o($Vc,[2,16]),{4:$Vx,8:$Vn,26:134},{8:$Vg,23:$Vh,28:136,43:68,44:$Vi},{4:[1,137]},o($Vc,[2,21]),{4:$Vy,8:$Vo,31:138},{8:$Vg,23:$Vh,28:140,43:68,44:$Vi},{4:[1,141]},{8:[1,142]},{4:$Vp,54:[1,143],56:130,57:108},o($Vc,[2,61]),o($Vq,[2,58]),{4:$Vp,8:[1,144],57:128},{8:[1,145]},{23:[1,146]},{8:[2,14]},{8:[1,147]},{23:$Vt,29:$Vu},{8:[1,148]},{23:[1,149]},{8:[1,150]},{23:$Vv,29:$Vw},{8:[1,151]},{23:[1,152]},o($Vc,[2,44]),{8:[1,153]},o($Vq,[2,59]),o($Vz,[2,62]),{8:$Vg,23:$Vh,28:154,43:68,44:$Vi},{8:[1,155]},{4:$Vx,8:$Vn,26:156},{8:$Vg,23:$Vh,28:157,43:68,44:$Vi},{8:[1,158]},{4:$Vy,8:$Vo,31:159},{8:$Vg,23:$Vh,28:160,43:68,44:$Vi},{8:[2,55]},{8:[1,161]},o($Vc,[2,17]),{8:[2,18]},{8:[1,162]},o($Vc,[2,22]),{8:[2,23]},{8:[1,163]},{8:[1,164]},{8:[1,165]},{8:[1,166]},o($Vz,[2,63]),{4:$Vx,8:$Vn,26:167},{4:$Vy,8:$Vo,31:168},{8:[2,19]},{8:[2,24]}],
-defaultActions: {8:[2,26],10:[2,27],27:[2,1],28:[2,3],29:[2,4],30:[2,5],31:[2,6],37:[2,29],38:[2,30],39:[2,31],54:[2,41],58:[2,37],72:[2,38],77:[2,2],78:[2,8],79:[2,9],80:[2,10],85:[2,45],89:[2,52],105:[2,54],114:[2,51],116:[2,13],133:[2,14],153:[2,55],156:[2,18],159:[2,23],167:[2,19],168:[2,24]},
+table: [{3:1,4:[1,2]},{1:[3]},{1:$V0,5:3,6:$V1},{1:[2,1]},{7:[1,5]},{7:$V2,8:6,9:$V3},{9:[1,8]},{7:$V2,8:9,9:$V3},{1:$V0,5:10,6:$V1},{9:[2,4]},{1:[2,2]}],
+defaultActions: {3:[2,1],9:[2,4],10:[2,2]},
 parseError: function parseError(str, hash) {
     if (hash.recoverable) {
         this.trace(str);
@@ -328,61 +247,12 @@ parse: function parse(input) {
     return true;
 }};
 
-
-var requirements = [];
-var types = [];
-var parameters = [];
-
-/*list of constants followed by a list of types followed by where in the list
-of constants the type was denoted (so I can attach types to constants at a
-later stage )*/
-
-function Constant(names, types, typeIndex){
-  this.names = names;
-  this.types = types;
-  this.typeIndex = typeIndex;
-}
-
-var constants = new Constant([], [], []);
-var objects = new Constant([],[],[]);
-
-function Argument(name, type){
-  this.name = name;
-  this.type = type;
-};
-
-/*arguments may be typed*/
-function Predicate(name, arguments){
+function Action(name, arguments){
   this.name = name;
   this.arguments = arguments;
-};
-
-var predicates = [];
-var startPredicates = [];
-var goalPredicates = [];
-
-function Action(name, parameters, effects){
-  this.name = name;
-  this.parameters = parameters;
-  this.effects = effects;
 }
 
-var actionList = [];
-
-function Effect(effectlist) {
-  this.effectlist = effectlist;
-}
-
-function Variable(name, type) {
-  this.name = name;
-  this.type = type;
-}
-
-function Fluent(predicate, arguments, negated){
-  this.predicate = predicate;
-  this.arguments = arguments;
-  this.negated = negated;
-}
+var actions = [];
 /* generated by jison-lex 0.3.4 */
 var lexer = (function(){
 var lexer = ({
@@ -711,78 +581,26 @@ options: {},
 performAction: function anonymous(yy,yy_,$avoiding_name_collisions,YY_START) {
 var YYSTATE=YY_START;
 switch($avoiding_name_collisions) {
-case 0: /* ignore non animation comments */
+case 0:
 break;
-case 1: return 6;
+case 1:return 4;
 break;
-case 2: return 5;
+case 2:return 7;
 break;
-case 3: return 11;
+case 3:
 break;
-case 4: return 33;
+case 4: return 6; 
 break;
-case 5: return 35;
+case 5: return 9; 
 break;
-case 6: return 34;
+case 6:
 break;
-case 7: return 6;
-break;
-case 8: return 36;
-break;
-case 9: return 40;
-break;
-case 10: return 38;
-break;
-case 11: return 48;
-break;
-case 12: return 45;
-break;
-case 13: return 51;
-break;
-case 14: return 53;
-break;
-case 15: return 55;
-break;
-case 16: return 21;
-break;
-case 17: return 25;
-break;
-case 18: return 25;
-break;
-case 19: return 30;
-break;
-case 20: return 27;
-break;
-case 21: return 27;
-break;
-case 22: return 29;
-break;
-case 23: return 'WHEN';
-break;
-case 24:
-break;
-case 25: return 4; 
-break;
-case 26: return 8; 
-break;
-case 27:
-break;
-case 28:
-break;
-case 29:
-break;
-case 30:return 24;
-break;
-case 31:return 44;
-break;
-case 32:return 23; 
-break;
-case 33:return 'EOF';
+case 7:
 break;
 }
 },
-rules: [/^(?:[;;].*)/,/^(?:domain\b)/,/^(?:define\b)/,/^(?:problem\b)/,/^(?::requirements\b)/,/^(?::strips\b)/,/^(?::typing\b)/,/^(?::domain\b)/,/^(?::types\b)/,/^(?::predicates\b)/,/^(?::constants\b)/,/^(?::parameters\b)/,/^(?::action\b)/,/^(?::precondition\b)/,/^(?::effect\b)/,/^(?::observe\b)/,/^(?::objects\b)/,/^(?::init\b)/,/^(?::INIT\b)/,/^(?::goal\b)/,/^(?:and\b)/,/^(?:AND\b)/,/^(?:not\b)/,/^(?:when\b)/,/^(?:.*$)/,/^(?:[(])/,/^(?:[)])/,/^(?:[\t ])/,/^(?:[\n])/,/^(?:[\r])/,/^(?:[\-])/,/^(?:(([?])+(-|([a-zA-Z_])|([0-9]))*))/,/^(?:(([a-zA-Z_])+(-|([a-zA-Z_])|([0-9]))*))/,/^(?:\$)/],
-conditions: {"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33],"inclusive":true}}
+rules: [/^(?:Found Plan\b)/,/^(?:\(output\))/,/^(?:(([a-zA-Z_])+(-|([a-zA-Z_])|([0-9]))*))/,/^(?:.*$)/,/^(?:[(])/,/^(?:[)])/,/^(?:[\t ])/,/^(?:\n)/],
+conditions: {"INITIAL":{"rules":[0,1,2,3,4,5,6,7],"inclusive":true}}
 });
 return lexer;
 })();
@@ -796,9 +614,9 @@ return new Parser;
 
 
 if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
-exports.parser = PDDL_Parser;
-exports.Parser = PDDL_Parser.Parser;
-exports.parse = function () { return PDDL_Parser.parse.apply(PDDL_Parser, arguments); };
+exports.parser = Plan_Parser;
+exports.Parser = Plan_Parser.Parser;
+exports.parse = function () { return Plan_Parser.parse.apply(Plan_Parser, arguments); };
 exports.main = function commonjsMain(args) {
     if (!args[1]) {
         console.log('Usage: '+args[0]+' FILE');

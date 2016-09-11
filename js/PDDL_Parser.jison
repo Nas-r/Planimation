@@ -43,8 +43,9 @@ VARIABLE = {QUESTION_TAG}+(\-|{CHAR}|{DIGIT})*;
 [(]                 { return 'LPAREN'; }
 [)]                 { return 'RPAREN'; }
 [\t ]               {}
-[\n]                  {}
-[\-]                  {return 'HYPHEN';}
+[\n]                {}
+[\r]                {}
+[\-]                {return 'HYPHEN';}
 {VARIABLE}          {return 'VARIABLE';}
 {STRING}            {return 'STRING'; }
 

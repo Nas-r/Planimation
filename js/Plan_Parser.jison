@@ -9,14 +9,16 @@ STRING = {CHAR}+(\-|{CHAR}|{DIGIT})*;
 
 "Found Plan"        {}
 "(output)"          {return 'BEGIN';}
-{STRING}              {return 'STRING';}
+{STRING}            {return 'STRING';}
 
 #.*$                {}
 [(]                 { return 'LPAREN'; }
 [)]                 { return 'RPAREN'; }
 [\t ]               {}
-\n                  {}
-
+[\n]                {}
+[\r]                {}
+[\r\n]              {}
+    
 /lex
 %%
 

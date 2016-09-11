@@ -2,31 +2,29 @@
 <!DOCTYPE html>
 <html lang="en-US">
 <head>
-  <title>PDDL Animator 0.1</title>
+  <title>Planimation</title>
 
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- Import JQuery -->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-  <!-- Import D3js -->
-  <script src="https://d3js.org/d3.v4.min.js"></script>
-  <!-- Import Pixi.js -->
-  <script src="/js/pixi.min.js"></script>
-
-  <!-- Import PDDL Parsers -->
-  <script src="PDDL_Parser.js"></script>
-  <script src="Plan_Parser.js"></script>
-
-  <!-- Import Planimation.js-->
-  <script src="planimation.js"></script>
-
   <style>
   </style>
+
+  <!-- Import JQuery -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <!-- Import Pixi.js -->
+  <script src="js/pixi.js"></script>
+
+  <!-- Import PDDL Parsers -->
+  <script src="js/PDDL_Parser.js"></script>
+  <script src="js/Plan_Parser.js"></script>
+
+  <!-- Import Planimation.js-->
+  <script src="js/planimation.js"></script>
 </head>
 
 <body>
-  <h1> PDDL Animator 0.1 Pre-Alpha </h1>
+  <h1>Planimation PDDL Animator (In Development) </h1>
     <!-- File Input -->
   <p>Please Load a Domain File</p>
   <input id="inputdomain" type="file">
@@ -41,13 +39,15 @@
   <input id="b2" type="button" value="Parse Problem" onclick="parseProblem();">
   <p></p>
   <input id="b3" type="button" value="Parse Solution" onclick="parseSolution();">
+  <p></p>
+  <input id="b4" type="button" value="Parse All" onclick="parseInputFiles();">
 
   <div id="domain"></div>
   <div id="problem"></div>
   <div id="solution"></div>
   <div id="testoutput"></div>
   <div id="animation"></div>
-
+<p></p>
 </body>
 
 </html>
