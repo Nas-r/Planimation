@@ -17,14 +17,13 @@ STRING = {CHAR}+(\-|{CHAR}|{DIGIT})*;
 [\t ]               {}
 [\n]                {}
 [\r]                {}
-[\r\n]              {}
-    
+
 /lex
 %%
 
 start
   : BEGIN actions
-  {console.log(actions); return actions;}
+  {return actions;}
 ;
 
 actions

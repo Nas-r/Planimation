@@ -49,7 +49,6 @@ VARIABLE = {QUESTION_TAG}+(\-|{CHAR}|{DIGIT})*;
 {VARIABLE}          {return 'VARIABLE';}
 {STRING}            {return 'STRING'; }
 
-"$"                 {return 'EOF';}
 /lex
 
 %%
@@ -59,12 +58,12 @@ start
     domain_definitions
     domain_body
     RPAREN
-    {console.log([types, constants, predicates, actionList]); return [types, constants, predicates, actionList];}
+    {return [types, constants, predicates, actionList];}
   | LPAREN DEFINE LPAREN PROBLEM problem_name RPAREN
     LPAREN DOMAIN domain_name RPAREN
     problem_body
     RPAREN
-    {console.log([objects, startPredicates]); return [objects, startPredicates];}
+    {return [objects, startPredicates];}
 ;
 
 domain_body

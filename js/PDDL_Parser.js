@@ -84,10 +84,10 @@ performAction: function anonymous(yytext, yyleng, yylineno, yy, yystate /* actio
 var $0 = $$.length - 1;
 switch (yystate) {
 case 1:
-console.log([types, constants, predicates, actionList]); return [types, constants, predicates, actionList];
+return [types, constants, predicates, actionList];
 break;
 case 2:
-console.log([objects, startPredicates]); return [objects, startPredicates];
+return [objects, startPredicates];
 break;
 case 13:
  objects.names.push($$[$0-1])
@@ -769,17 +769,17 @@ case 27:
 break;
 case 28:
 break;
-case 29:return 24;
+case 29:
 break;
-case 30:return 44;
+case 30:return 24;
 break;
-case 31:return 23; 
+case 31:return 44;
 break;
-case 32:return 'EOF';
+case 32:return 23; 
 break;
 }
 },
-rules: [/^(?:[;;].*)/,/^(?:domain\b)/,/^(?:define\b)/,/^(?:problem\b)/,/^(?::requirements\b)/,/^(?::strips\b)/,/^(?::typing\b)/,/^(?::domain\b)/,/^(?::types\b)/,/^(?::predicates\b)/,/^(?::constants\b)/,/^(?::parameters\b)/,/^(?::action\b)/,/^(?::precondition\b)/,/^(?::effect\b)/,/^(?::observe\b)/,/^(?::objects\b)/,/^(?::init\b)/,/^(?::INIT\b)/,/^(?::goal\b)/,/^(?:and\b)/,/^(?:AND\b)/,/^(?:not\b)/,/^(?:when\b)/,/^(?:.*$)/,/^(?:[(])/,/^(?:[)])/,/^(?:[\t ])/,/^(?:[\n])/,/^(?:[\-])/,/^(?:(([?])+(-|([a-zA-Z_])|([0-9]))*))/,/^(?:(([a-zA-Z_])+(-|([a-zA-Z_])|([0-9]))*))/,/^(?:\$)/],
+rules: [/^(?:[;;].*)/,/^(?:domain\b)/,/^(?:define\b)/,/^(?:problem\b)/,/^(?::requirements\b)/,/^(?::strips\b)/,/^(?::typing\b)/,/^(?::domain\b)/,/^(?::types\b)/,/^(?::predicates\b)/,/^(?::constants\b)/,/^(?::parameters\b)/,/^(?::action\b)/,/^(?::precondition\b)/,/^(?::effect\b)/,/^(?::observe\b)/,/^(?::objects\b)/,/^(?::init\b)/,/^(?::INIT\b)/,/^(?::goal\b)/,/^(?:and\b)/,/^(?:AND\b)/,/^(?:not\b)/,/^(?:when\b)/,/^(?:.*$)/,/^(?:[(])/,/^(?:[)])/,/^(?:[\t ])/,/^(?:[\n])/,/^(?:[\r])/,/^(?:[\-])/,/^(?:(([?])+(-|([a-zA-Z_])|([0-9]))*))/,/^(?:(([a-zA-Z_])+(-|([a-zA-Z_])|([0-9]))*))/],
 conditions: {"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32],"inclusive":true}}
 });
 return lexer;

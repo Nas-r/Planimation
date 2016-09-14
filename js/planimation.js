@@ -2,15 +2,9 @@ var domain_file;
 var problem_file;
 var plan_file;
 
-var domain;
-// [[types], [constants], [predicates], [actionList]]
-
-var problem;
-// [[objects], [startPredicates]]
-
-var plan;
-// [actions]
-
+var readDomain = false;
+var readProblem = false;
+var readPlan = false;
 /*
 ****************      LOAD TEST FILES     **********************
 */
@@ -22,7 +16,7 @@ $(document).ready(function(){
         try {
           readFile(this.files[0], function(e) {
             //manipulate with result...
-            $('#domain').text(e.target.result);
+            // $('#domain').text(e.target.result);
           });
         } catch (x) { alert(x);}
     });
@@ -32,7 +26,7 @@ $(document).ready(function(){
         try {
           readFile(this.files[0], function(e) {
             //manipulate with result...
-            $('#problem').text(e.target.result);
+            // $('#problem').text(e.target.result);
           });
         } catch (x) { alert(x); }
       });
@@ -42,7 +36,7 @@ $(document).ready(function(){
         try {
           readFile(this.files[0], function(e) {
               //manipulate with result...
-              $('#plan').text(e.target.result);
+              // $('#plan').text(e.target.result);
           });
         } catch (x) { alert(x);}
     });
@@ -55,22 +49,41 @@ function readFile(file, callback){
     reader.readAsText(file);
 }
 
-
 /*
 ****************      PARSE LOADED FILES     **********************
 */
 
+// TODO: Fix problem with ASYNC FileReader Calls by nesting functions below
+// in callbacks, currently the code below the parsing functions
+// is executed before the parser has finished its job since calls to readFile
+// are not blocking. Solution = Callbacks.
+
+// I can use currying to pass arguments down through the callbacks.
+// ty google: https://www.sitepoint.com/currying-in-functional-javascript/
 
 /*Parses the loaded domain file and returns
 [types, constants, predicates, actionList]*/
-function parseDomain() {
-  readFile(domain_file, function(e) {
-    try {
-      domain = PDDL_Parser.parse(e.target.result);
-    } catch (x) {
-      console.log(x);
-    }
-  });
+
+
+var domain;
+// [types, constants, predicates, actionList]
+var problem;
+// [objects, startPredicates]
+var plan;
+// [actions]
+
+
+/*Prases the loaded plan and returns a list of actions*/
+function parseSolution(domain, problem, callback) {
+    readFile(plan_file, function(e) {
+      try {
+        plan = Plan_Parser.parse(e.target.result);
+        console.log(plan);
+
+      } catch (x) {
+        console.log(x);
+      } finally {callback(domain,problem,plan);}
+    });
 }
 
 /*Parses the loaded problem file and returns
@@ -79,42 +92,56 @@ function parseDomain() {
 NOTE: Sometimes has problems if the file ends in an RPAREN,
 I think the parser misses the EOF token when this is the case, adding a
 whitespace character at the end seems to fix it.*/
-function parseProblem() {
-  readFile(problem_file, function(e) {
+
+function parseProblem(domain, callback) {
+      readFile(problem_file, function(e) {
+        try {
+          problem = PDDL_Parser.parse(e.target.result);
+          console.log(problem);
+
+        } catch (x) {
+          console.log(x);
+        } finally {return parseSolution(domain,problem,callback);}
+      });
+}
+
+function parseDomain(callback) {
+  readFile(domain_file, function(e) {
     try {
-      problem = PDDL_Parser.parse(e.target.result);
+      domain = PDDL_Parser.parse(e.target.result);
+      console.log(domain);
+
     } catch (x) {
       console.log(x);
-    }
+    } finally {parseProblem(domain, callback);}
   });
 }
 
-/*Prases the loaded plan and returns a list of actions*/
-function parseSolution() {
-  readFile(plan_file, function(e) {
-    try {
-      plan = Plan_Parser.parse(e.target.result);
-    } catch (x) {
-      console.log(x);
-    }
-     });
-}
-
 function parseInputFiles() {
-  parseDomain();
-  parseProblem();
-  parseSolution();
+  // domain;
+  // [[types], [constants], [predicates], [actionList]]
+
+  // problem;
+  // [[objects], [startPredicates]]
+
+  // plan;
+  // [actions]
+  function getInput(domain,problem,plan) {
+    console.log([domain,problem,plan]);
+    console.log("so far so good");
+    generateInputForm(domain);
+
+  }
+    parseDomain(getInput);
 }
 
 /*Create interface for setting up the animation
 Each object, constant and predicate should be listed with the following options
 General Options:
-- Objects/constants Inherit Image from type?
 - spatial layout (grid, network, free)
 */
 
-function GlobalOptions(imageAssignment, spatialLayout) {
-    this.imageAssignment = imageAssignment;
+function GlobalOptions(spatialLayout) {
     this.spatialLayout = spatialLayout;
 }
 
@@ -164,13 +191,31 @@ function relativePosition(object, relativePosition) {
 These options should be exportable via JSON.
 */
 
-function populateObjectsInput(objects) {
-  var elements = [];
-  arrayLength = objects.length;
-  for (var i = 0; i < arrayLength; i++) {
 
+function generateInputForm(domain) {
+  if(domain != null){
+
+    // typeOptions.appendChild("<p>Type Options</p>");
+    var typeInput = "<table>  <tr>  <th>Type</th> <th>Default Image URL</th>  </tr>";
+    for(var i=0; i<domain[0].length; i++){
+        var typeInput = "<tr><td>" + domain[0][i] + "</td>";
+        typeInput += "<td><textarea name=\"Image URL\" rows=\"256\" cols=\"1\"></textarea></td>";
+        typeInput += "</tr>";
+        //Set input options here.
+    }
+
+    typeInput += "</table";
+    console.log(typeInput);
+    $("#typeOptions").append(typeInput);
+
+    for(var i = 0; i<domain[2].length; i++){
+      var objectInput = "<p> " + domain[2][i] + "</p>";
+      //Set input options here.
+      $("#typeOptions").append(objectInput);
+    }
   }
 }
+
 /*********************************************
             Pixi.js playground
 **********************************************/
