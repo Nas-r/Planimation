@@ -8,7 +8,7 @@ var readPlan = false;
 
 
 var globalOptions = new GlobalOptions();
-var typeOptions = new TypeOptions();
+var typeOptions;
 var animatedObjects;
 var animatedPredicates;
 /*
@@ -103,12 +103,15 @@ function parseDomain(callback) {
 function parseInputFiles() {
   /*
     domain  = [[types], [constants], [predicates], [actionList]]
+              types =
+              constants = [[names],[typeIndex],[types]]
+
     problem = [[objects], [startPredicates]]
     plan    = [actions]
   */
   function getInput(domain,problem,plan) {
-    populateAnimationObjects(domain,problem,plan);
-    generateInputForm(domain);
+    createAnimationObjects(domain,problem,plan);
+    generateInputForm(domain,problem,plan);
     $("#submitInputs").append("<p></p><input id=\"submitInputs\" type=\"button\" "
           + "value=\"Submit Input\" onclick=\"createAnimationObjects();\">");
   }
@@ -118,54 +121,162 @@ function parseInputFiles() {
 /*
 ****************      GENERATE INPUT FORM    **********************
 */
-function generateInputForm(domain) {
-  var spatialOptions
-            = "<select name=\"spatialLayout\"><option value=\"free\">Free</option>"
-            + "<option value=\"network\">Network</option>"
-            + "<option value=\"grid\">Grid</option>"
-            ;
+function generateInputForm(domain,problem,plan) {
+  //option input format:
+  var imageUrlInput = "<td><textarea name=\"imageURL\" rows=\"1\" cols=\"25\"></textarea></td>";
+  var visibilityInput = "<td><input name=\"visible\"type=\"checkbox\" checked></td>";
+  var positionInput = "<td><textarea name=\"position\" rows=\"1\" cols=\"25\"></textarea></td>"
+  var scaleInput = "<td><input name=\"scale\" type=\"number\" step=\"0.01\"></td>"
+  var zInput = "<td><input name=\"zInput\" type=\"number\"></td>"
+  var animationInput =
+      = "<select name=\"animation\"><option value=\"animation1\">Animation 1</option>"
+      + "<option value=\"animation2\">Animation 2</option>"
+      + "<option value=\"animation3\">Animation 3</option>"
+      ;
+  var spatialOptionsInput
+      = "<select name=\"spatialLayout\"><option value=\"free\">Free</option>"
+      + "<option value=\"network\">Network</option>"
+      + "<option value=\"grid\">Grid</option>"
+      ;
 
   var globalOptionsInput
-            = "<p>Global Options</p><table><tr>"
-            + "<th>Spatial Layout</th>"
-            + "</tr>"
-            + "<tr><td>"+ spatialOptions +"</td></tr>"
-            + "</table>"
-            ;
+      = "<table><tr>"
+      + "<th>Spatial Layout</th>"
+      + "</tr>"
+      + "<tr><td>"+ spatialOptionsInput +"</td></tr>"
+      + "</table>"
+      ;
+
+  var  constantOptionsInput
+      = "<table><tr>"
+      + "<th>Constant</th>"
+      + "<th>Image URL</th>"
+      + "<th>Visible?</th>"
+      + "<th>Initial Position</th>"
+      + "<th>Scale</th>"
+      + "<th>Z-Ordering</th>"
+      //relative positioning options?
+      + "</tr>"
+      ;
+
+  var constantOptions
+      = imageUrlInput
+      + visibilityInput
+      + positionInput
+      + scaleInput
+      + zInput
+      ;
+
+  var  constantOptionsInput
+      = "<table><tr>"
+      + "<th>Object</th>"
+      + "<th>Image URL</th>"
+      + "<th>Visible?</th>"
+      + "<th>Initial Position</th>"
+      + "<th>Scale</th>"
+      + "<th>Z-Ordering</th>"
+      //relative positioning options?
+      + "</tr>"
+      ;
+  var  objectOptionsInput
+      = "<table><tr>"
+      + "<th>Object</th>"
+      + "<th>Image URL</th>"
+      + "<th>Visible?</th>"
+      + "<th>Initial Position</th>"
+      + "<th>Scale</th>"
+      + "<th>Z-Ordering</th>"
+      //relative positioning options?
+      + "</tr>"
+      ;
+
+  var  predicateOptionsInput
+      = "<table><tr>"
+      + "<th>Predicate</th>"
+      + "<th>Value</th>"
+      + "<th>Argument</th>"
+      + "<th>Substitute Image URL</th>"
+      + "<th>Animate Image</th>"
+      + "<th>Move To Position</th>"
+      + "<th>Scale</th>"
+      + "<th>Z-Ordering</th>"
+      //relative positioning options?
+      + "</tr>"
+      ;
+
+  var predicateOptions
+      = imageUrlInput
+      + animationInput
+      + positionInput
+      + scaleInput
+      + zInput
+      ;
+
+  var typeOptionsInput
+      = "<table><tr>"
+      + "<th>Type</th>"
+      + "<th>Default Image URL</th>"
+      + "<th>Visible?</th>"
+      + "</tr>";
+
+  var typeOptions
+      = imageUrlInput
+      + visibilityInput
+      ;
 
   $("#globalOptions").append(globalOptionsInput);
 
   if(domain != null){
+    var types = domain[0];
+    var constants = domain[1];
+    var predicates = domain[2];
+
     //Input form for types
-    if(domain[0].length>0){
+    if(types.length>0){
       //Option Headings
-      var typeOptionsInput
-          = "<table><tr>"
-          + "<th>Type</th>"
-          + "<th>Default Image URL</th>"
-          + "<th>Visible?</th>"
-          + "</tr>";
-
-      var typeOptions
-          = "<td><textarea name=\"imageURL\" rows=\"1\" cols=\"25\"></textarea></td>"
-          + "<td><input name=\"visible\"type=\"checkbox\" checked></td>"
-          ;
-
-      for(var i=0; i<domain[0].length; i++){
-          typeOptionsInput += "<tr id=\"type_"+i+"\"><td>" + domain[0][i] + "</td>";
+      for(var i=0; i<types.length; i++){
+          typeOptionsInput += "<tr id=\""+types[i]+"\"><td>" + types[i] + "</td>";
           typeOptionsInput += typeOptions;
           typeOptionsInput += "</tr>";
       }
-      typeOptionsInput += "</table";
+      typeOptionsInput += "</table>";
       $("#typeOptions").append(typeOptionsInput);
     }
 
-    if(domain[2].length>0) {
-      for(var i = 0; i<domain[2].length; i++){
-        var objectInput = "<p> " + domain[2][i] + "</p>";
-        //Set input options here.
-        $("#typeOptions").append(objectInput);
+    //Input form for constants
+    if(constants.names.length>0) {
+      for(var i = 0; i<constants.names.length; i++){
+        constantOptionsInput += "<tr id=\"" + constants.names[i] + "\"><td>" + constants.names[i] + "</td>";
+        constantOptionsInput += constantOptions;
+        constantOptionsInput += "</tr>";
       }
+      constantOptionsInput += "</table>";
+      $("#constantOptions").append(constantOptionsInput);
+    }
+
+    //Input form for predicates
+    if(predicates.length>0){
+      for(var i = 0; i<predicates.length; i++){
+        predicateOptionsInput += "<tr name=\""+predicates[i].name+"\"><td rowspan=\""
+                              + (predicates[i].arguments.length)*2 + "\">"
+                              + predicates[i].name+"</td>";
+        predicateOptionsInput +=
+      }
+    }
+  }
+
+  if(problem!=null){
+    var objects = problem[0];
+
+    //Input form for objects
+    if (objects.names.length>0){
+      for(var i = 0; i<objects.names.length; i++){
+        objectOptionsInput += "<tr id=\"" + objects.names[i] + "\"><td>" + objects.names[i] + "</td>";
+        objectOptionsInput += constantOptions;
+        objectOptionsInput += "</tr>";
+      }
+      constantOptionsInput += "</table>";
+      $("#objectOptions").append(objectOptionsInput);
     }
   }
 }
@@ -181,9 +292,19 @@ function getInputValues() {
   console.log(globalOptions);
 
   if(domain!=null){
-  }
-  //typeOptions
+    //typeOptions
+    if(domain[0].length>0){
+      for(var i=0; i<domain[0].length; i++){
+        var thisOption =  $("#"+domain[0][i]);
+        var visible = thisOption.find("textarea[name=visible]").val();
+        var imageURL = thisOption.find("textarea[name=imageURL]").val();
+        typeOptions.push(new typeOption(domain[0][i],visible,imageURL));
+      }
+    console.log(typeOptions);
+    }
 
+
+  }
 }
 
 /*
@@ -200,7 +321,7 @@ function getInputValues() {
 ****************      POPULATE OBJECTS       **********************
 */
 
-function populateAnimationObjects(domain,problem,plan){
+function createAnimationObjects(domain,problem,plan){
 
   globalOptions = new GlobalOptions();
 
@@ -212,7 +333,7 @@ General Options:
 - spatial layout (grid, network, free)
 */
 
-function TypeOptions(typeName, visible, defaultImageURL) {
+function TypeOption(typeName, visible, defaultImageURL) {
   this.typeName=typeName;
   this.visible=visible;
   this.defaultImageURL=defaultImageURL;
