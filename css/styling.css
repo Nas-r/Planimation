@@ -1,0 +1,25 @@
+#wrapper {
+  width: 100%;     /* specify a width! */
+  margin: 0 auto; /* center */
+  text-align: center;
+
+}
+
+h1 {
+  width: 100%;     /* specify a width! */
+  margin: 0 auto; /* center */
+  text-align: center;
+}
+
+p {
+  width: 100%;     /* specify a width! */
+  margin: 0 auto; /* center */
+  text-align: center;
+  min-height: 10px;
+}
+
+input {
+  width: 60%;     /* specify a width! */
+  margin: auto; /* center */
+  text-align: center;
+}

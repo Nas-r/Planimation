@@ -21,41 +21,63 @@
 
   <!-- Import Planimation.js-->
   <script src="js/planimation.js"></script>
+
+  <!-- Import Pure Tables stylesheet -->
+  <link rel="stylesheet" href="css/pure-min.css">
+  <!-- Import custom stylesheet -->
+  <link rel="stylesheet" href="css/styling.css">
+
 </head>
 
 <body>
-  <h1>Planimation PDDL Animator (In Development) </h1>
-    <!-- File Input -->
-  <p>Please Load a Domain File</p>
-  <input id="inputdomain" type="file">
-  <p>Please Load a Problem File</p>
-  <input id="inputproblem" type="file">
-  <p>Please Load a Solution File</p>
-  <input id="inputplan" type="file">
+  <div id="wrapper">
+    <h1>Planimation PDDL Animator (In Development) </h1>
+    <p></p><p></p>
 
-  <p></p>
-  <input id="b1" type="button" value="Parse Domain" onclick="parseDomain();">
-  <p></p>
-  <input id="b2" type="button" value="Parse Problem" onclick="parseProblem();">
-  <p></p>
-  <input id="b3" type="button" value="Parse Solution" onclick="parseSolution();">
-  <p></p>
-  <input id="b4" type="button" value="Parse All" onclick="parseInputFiles();">
+      <!-- File Input -->
+    <p>Please Load a Domain File</p>
+    <input id="inputdomain" type="file">
+    <p></p>
+    <p>Please Load a Problem File</p>
+    <input id="inputproblem" type="file">
+    <p></p>
 
-  <div id="domain"></div>
-  <div id="problem"></div>
-  <div id="solution"></div>
-  <div id="testoutput"></div>
-  <div id="animation"></div>
+    <p>Please Load a Solution File</p>
+    <input id="inputplan" type="file">
+    <p></p>
 
-  <div id="globalOptions"></div>
-  <div id="typeOptions"></div>
-  <div id="constantOptions"></div>
-  <div id="objectOptions"></div>
 
-  <div id="submitInputs"></div>
+    <p></p>
+    <input id="b1" type="button" value="Parse Domain" onclick="parseDomain();">
+    <p></p>
+    <input id="b2" type="button" value="Parse Problem" onclick="parseProblem();">
+    <p></p>
+    <input id="b3" type="button" value="Parse Solution" onclick="parseSolution();">
+    <p></p>
+    <input id="b4" type="button" value="Parse All" onclick="parseInputFiles();">
+    <p></p>
+    <p></p>
+    <div id="domain"></div>
+    <div id="problem"></div>
+    <div id="solution"></div>
+    <div id="testoutput"></div>
+    <div id="animation"></div>
 
-<p></p>
+    <div id="globalOptions"></div>
+    <p></p>
+    <div id="typeOptions"></div>
+    <p></p>
+    <div id="constantOptions"></div>
+    <p></p>
+    <div id="objectOptions"></div>
+    <p></p>
+    <div id="predicateOptions"></div>
+    <p></p>
+    <p></p>
+    <div id="submitInputs"></div>
+
+    <p></p>
+  </div>
 </body>
 
 </html>

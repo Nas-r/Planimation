@@ -122,16 +122,24 @@ function parseInputFiles() {
 ****************      GENERATE INPUT FORM    **********************
 */
 function generateInputForm(domain,problem,plan) {
+  function PrintIfNotNull(inputstring){
+    if(inputstring!=null){
+      return inputstring;
+    }
+  }
   //option input format:
   var imageUrlInput = "<td><textarea name=\"imageURL\" rows=\"1\" cols=\"25\"></textarea></td>";
   var visibilityInput = "<td><input name=\"visible\"type=\"checkbox\" checked></td>";
   var positionInput = "<td><textarea name=\"position\" rows=\"1\" cols=\"25\"></textarea></td>"
   var scaleInput = "<td><input name=\"scale\" type=\"number\" step=\"0.01\"></td>"
   var zInput = "<td><input name=\"zInput\" type=\"number\"></td>"
+
+  var imagePreview = "<td name=\"preview\"></td>";
+
   var animationInput
-      = "<select name=\"animation\"><option value=\"animation1\">Animation 1</option>"
+      = "<td><select name=\"animation\"><option value=\"animation1\">Animation 1</option>"
       + "<option value=\"animation2\">Animation 2</option>"
-      + "<option value=\"animation3\">Animation 3</option>"
+      + "<option value=\"animation3\">Animation 3</option></td>"
       ;
   var spatialOptionsInput
       = "<select name=\"spatialLayout\"><option value=\"free\">Free</option>"
@@ -140,23 +148,28 @@ function generateInputForm(domain,problem,plan) {
       ;
 
   var globalOptionsInput
-      = "<table><tr>"
+      = "<table align=\"center\" class=\"pure-table pure-table-bordered\">"
+      + "<thead><tr>"
       + "<th>Spatial Layout</th>"
       + "</tr>"
+      + "</thead>"
       + "<tr><td>"+ spatialOptionsInput +"</td></tr>"
       + "</table>"
       ;
 
   var  constantOptionsInput
-      = "<table><tr>"
+      = "<table align=\"center\" class=\"pure-table pure-table-striped pure-table-bordered\">"
+      + "<thead><tr>"
       + "<th>Constant</th>"
       + "<th>Image URL</th>"
       + "<th>Visible?</th>"
       + "<th>Initial Position</th>"
       + "<th>Scale</th>"
       + "<th>Z-Ordering</th>"
+      + "<th>Image Preview</th>"
       //relative positioning options?
       + "</tr>"
+      + "</thead>"
       ;
 
   var constantOptions
@@ -165,33 +178,43 @@ function generateInputForm(domain,problem,plan) {
       + positionInput
       + scaleInput
       + zInput
+      + imagePreview
       ;
 
   var  constantOptionsInput
-      = "<table><tr>"
-      + "<th>Object</th>"
+      = "<table align=\"center\" class=\"pure-table pure-table-striped pure-table-bordered\">"
+      + "<thead><tr>"
+  + "<th>Object</th>"
       + "<th>Image URL</th>"
       + "<th>Visible?</th>"
       + "<th>Initial Position</th>"
       + "<th>Scale</th>"
       + "<th>Z-Ordering</th>"
+      + "<th>Image Preview</th>"
       //relative positioning options?
       + "</tr>"
+      + "</thead>"
+
       ;
   var  objectOptionsInput
-      = "<table><tr>"
-      + "<th>Object</th>"
+      = "<table align=\"center\" class=\"pure-table pure-table-striped pure-table-bordered\">"
+      + "<thead><tr>"
+    + "<th>Object</th>"
       + "<th>Image URL</th>"
       + "<th>Visible?</th>"
       + "<th>Initial Position</th>"
       + "<th>Scale</th>"
       + "<th>Z-Ordering</th>"
+      + "<th>Image Preview</th>"
       //relative positioning options?
       + "</tr>"
+      + "</thead>"
+
       ;
 
   var  predicateOptionsInput
-      = "<table><tr>"
+      = "<table align=\"center\" class=\"pure-table pure-table-striped pure-table-bordered\">"
+      + "<thead><tr>"
       + "<th>Predicate</th>"
       + "<th>Value</th>"
       + "<th>Argument</th>"
@@ -200,8 +223,11 @@ function generateInputForm(domain,problem,plan) {
       + "<th>Move To Position</th>"
       + "<th>Scale</th>"
       + "<th>Z-Ordering</th>"
+      + "<th>Image Preview</th>"
       //relative positioning options?
       + "</tr>"
+      + "</thead>"
+
       ;
 
   var predicateOptions
@@ -210,18 +236,24 @@ function generateInputForm(domain,problem,plan) {
       + positionInput
       + scaleInput
       + zInput
+      + imagePreview
       ;
 
   var typeOptionsInput
-      = "<table><tr>"
+      = "<table align=\"center\" class=\"pure-table pure-table-bordered\">"
+      + "<thead><tr>"
       + "<th>Type</th>"
       + "<th>Default Image URL</th>"
       + "<th>Visible?</th>"
-      + "</tr>";
+      + "<th>Image Preview</th>"
+      + "</tr>"
+      + "</thead>"
+      ;
 
   var typeOptions
       = imageUrlInput
       + visibilityInput
+      + imagePreview
       ;
 
   $("#globalOptions").append(globalOptionsInput);
@@ -260,8 +292,23 @@ function generateInputForm(domain,problem,plan) {
         predicateOptionsInput += "<tr name=\""+predicates[i].name+"\"><td rowspan=\""
                               + (predicates[i].arguments.length)*2 + "\">"
                               + predicates[i].name + "</td>";
-        predicateOptionsInput += "";
+
+        predicateOptionsInput += "<td>True</td><td rowspan=\"2\">"+ predicates[i].arguments[0].name+ " " +PrintIfNotNull(predicates[i].arguments[0].type);+"</td>";
+        predicateOptionsInput += predicateOptions + "</tr>"
+        predicateOptionsInput += "<tr><td>False</td>";
+        predicateOptionsInput += predicateOptions + "</tr>";
+
+        for(var j = 1; j<predicates[i].arguments.length; j++) {
+          predicateOptionsInput += "<tr><td>True</td><td rowspan=\"2\">"+ predicates[i].arguments[j].name + " " +PrintIfNotNull(predicates[i].arguments[j].type);+"</td>";
+          predicateOptionsInput += predicateOptions + "</tr>"
+          predicateOptionsInput += "<tr><td>False</td>";
+          predicateOptionsInput += predicateOptions + "</tr>";
+        }
       }
+
+      predicateOptionsInput += "</table>";
+      $("#predicateOptions").append(predicateOptionsInput);
+
     }
   }
 

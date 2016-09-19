@@ -39,6 +39,10 @@ Layout is configured on a per object or per type basis, with object specific ann
 
 Actions combine the predicate animations and can also have their own animation annotation to animate the group of objects acted upon also order the predicate animation.
 
+Using typed objects is recommended.
+
 ##For Future Me:
 
 The parser has some rules that are right recursive. I should rewrite these to be left recursive since this better suits Jison's LALR parsing mechanism. Honestly haven't noticed any performance issues so this is pretty low on the priorities list ATM.
+
+Using typed objects is recommended. Animating is tedious without types. I should write something to apply general or default settings using regex on object/constant names.
