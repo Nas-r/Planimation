@@ -128,7 +128,7 @@ function generateInputForm(domain,problem,plan) {
   var positionInput = "<td><textarea name=\"position\" rows=\"1\" cols=\"25\"></textarea></td>"
   var scaleInput = "<td><input name=\"scale\" type=\"number\" step=\"0.01\"></td>"
   var zInput = "<td><input name=\"zInput\" type=\"number\"></td>"
-  var animationInput =
+  var animationInput
       = "<select name=\"animation\"><option value=\"animation1\">Animation 1</option>"
       + "<option value=\"animation2\">Animation 2</option>"
       + "<option value=\"animation3\">Animation 3</option>"
@@ -259,8 +259,8 @@ function generateInputForm(domain,problem,plan) {
       for(var i = 0; i<predicates.length; i++){
         predicateOptionsInput += "<tr name=\""+predicates[i].name+"\"><td rowspan=\""
                               + (predicates[i].arguments.length)*2 + "\">"
-                              + predicates[i].name+"</td>";
-        predicateOptionsInput +=
+                              + predicates[i].name + "</td>";
+        predicateOptionsInput += "";
       }
     }
   }
