@@ -12,6 +12,11 @@
 
   <!-- Import JQuery -->
   <script src="js/jquery.min.js"></script>
+
+  <!-- Import Bootstrap -->
+  <script src="js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+
   <!-- Import Pixi.js -->
   <script src="js/pixi.js"></script>
 
@@ -22,8 +27,6 @@
   <!-- Import Planimation.js-->
   <script src="js/planimation.js"></script>
 
-  <!-- Import Pure Tables stylesheet -->
-  <link rel="stylesheet" href="css/pure-min.css">
   <!-- Import custom stylesheet -->
   <link rel="stylesheet" href="css/styling.css">
 
@@ -48,31 +51,49 @@
 </head>
 
 <body>
-  <div id="wrapper">
-    <h1>Planimation PDDL Animator (In Development) </h1>
-    <p></p><p></p>
+    <div id="wrapper" class="container" style="padding:0;margin:0;width:100%;height:100%;background-image: url(images/background.jpg);background-size:cover;">
+        <div id="Window1" class="row" style="margin:0;padding:0;">
+            <div class="col-md-6" style="height:100%;">
+                <div class="row" style="height:50%;">
+                </div>
+                <div class="row" style="transform:translateY(-50%);">
 
-      <!-- File Input -->
-    <p>Please Load a Domain File</p>
-    <input id="inputdomain" type="file">
-    <p></p>
-    <p>Please Load a Problem File</p>
-    <input id="inputproblem" type="file">
-    <p></p>
+                <h1 id="title">PLANIMATION</h1>
+                <p id="subtitle">Animate your PDDL Plans</p>
+            </div>
+            </div>
 
-    <p>Please Load a Solution File</p>
-    <input id="inputplan" type="file">
-    <p></p>
+            <div class="col-md-6" style="height:100%;background-color:white;">
+
+                <div class="row" style="height:50%;">
+                </div>
+
+                <div class="row" style="transform:translateY(-50%);">
+                <!-- File Input -->
+                <div id="fileInputWindow">
+
+                    <h2>Please Load a Domain File</h2>
+                    <input id="inputdomain" type="file">
+                    <p></p>
+
+                    <h2>Please Load a Problem File</h2>
+                    <input id="inputproblem" type="file">
+                    <p></p>
+
+                    <h2>Please Load a Solution File</h2>
+                    <input id="inputplan" type="file">
+                    <p></p>
+
+                </div>
+
+                <input id="b4" type="button" value="Parse All" onclick="parseInputFiles();">
+
+                </div>
 
 
-    <p></p>
-    <input id="b1" type="button" value="Parse Domain" onclick="parseDomain();">
-    <p></p>
-    <input id="b2" type="button" value="Parse Problem" onclick="parseProblem();">
-    <p></p>
-    <input id="b3" type="button" value="Parse Solution" onclick="parseSolution();">
-    <p></p>
-    <input id="b4" type="button" value="Parse All" onclick="parseInputFiles();">
+            </div>
+        </section>
+
     <p></p>
     <p></p>
     <div id="domain"></div>

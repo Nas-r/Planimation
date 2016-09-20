@@ -17,32 +17,14 @@ var animatedPredicates;
 $(document).ready(function(){
     $('#inputdomain').on('change', function(e){
         domain_file=this.files[0];
-
-        // try {
-        //   readFile(this.files[0], function(e) {
-        //     //manipulate with result...
-        //     // $('#domain').text(e.target.result);
-        //   });
-        // } catch (x) { alert(x);}
     });
 
     $('#inputproblem').on('change', function(e){
         problem_file=this.files[0];
-        // try {
-        //   readFile(this.files[0], function(e) {
-        //     //manipulate with result...
-        //     // $('#problem').text(e.target.result);
-        //   });
-        // } catch (x) { alert(x); }
       });
 
     $('#inputplan').on('change', function(e){
         plan_file=this.files[0];
-        // try {
-        //   readFile(this.files[0], function(e) {
-        //       // $('#plan').text(e.target.result);
-        //   });
-        // } catch (x) { alert(x);}
     });
 });
 
@@ -128,48 +110,30 @@ function generateInputForm(domain,problem,plan) {
     }
   }
   //option input format:
-  var imageUrlInput = "<td><textarea name=\"imageURL\" rows=\"1\" cols=\"25\"></textarea></td>";
-  var visibilityInput = "<td><input name=\"visible\"type=\"checkbox\" checked></td>";
-  var positionInput = "<td><textarea name=\"position\" rows=\"1\" cols=\"25\"></textarea></td>"
-  var scaleInput = "<td><input name=\"scale\" type=\"number\" step=\"0.01\"></td>"
-  var zInput = "<td><input name=\"zInput\" type=\"number\"></td>"
+  var imageUrlInput = "<tr>ImageURL<textarea name=\"imageURL\" rows=\"1\" cols=\"25\"></textarea></tr>";
+  var visibilityInput = "<tr>Is Visible?<input name=\"visible\"type=\"checkbox\" checked></tr>";
+  var positionInput = "<tr>Initial Position<textarea name=\"position\" rows=\"1\" cols=\"25\"></textarea></tr>"
+  var scaleInput = "<tr>Scale<input name=\"scale\" type=\"number\" step=\"0.01\"></tr>"
+  var zInput = "<tr>Z Ordering<input name=\"zInput\" type=\"number\"></tr>"
 
-  var imagePreview = "<td name=\"preview\"></td>";
+  var imagePreview = "<tr name=\"preview\"></tr>";
 
   var animationInput
-      = "<td><select name=\"animation\"><option value=\"animation1\">Animation 1</option>"
+      = "<tr><select name=\"animation\"><option value=\"animation1\">Animation 1</option>"
       + "<option value=\"animation2\">Animation 2</option>"
-      + "<option value=\"animation3\">Animation 3</option></td>"
+      + "<option value=\"animation3\">Animation 3</option></tr>"
       ;
+
   var spatialOptionsInput
-      = "<select name=\"spatialLayout\"><option value=\"free\">Free</option>"
+      = "<tr>Spatial Layout<select name=\"spatialLayout\"><option value=\"free\">Free</option>"
       + "<option value=\"network\">Network</option>"
-      + "<option value=\"grid\">Grid</option>"
+      + "<option value=\"grid\">Grid</option></tr>"
       ;
 
   var globalOptionsInput
       = "<table align=\"center\" class=\"pure-table pure-table-bordered\">"
-      + "<thead><tr>"
-      + "<th>Spatial Layout</th>"
-      + "</tr>"
-      + "</thead>"
-      + "<tr><td>"+ spatialOptionsInput +"</td></tr>"
+      + spatialOptionsInput
       + "</table>"
-      ;
-
-  var  constantOptionsInput
-      = "<table align=\"center\" class=\"pure-table pure-table-striped pure-table-bordered\">"
-      + "<thead><tr>"
-      + "<th>Constant</th>"
-      + "<th>Image URL</th>"
-      + "<th>Visible?</th>"
-      + "<th>Initial Position</th>"
-      + "<th>Scale</th>"
-      + "<th>Z-Ordering</th>"
-      + "<th>Image Preview</th>"
-      //relative positioning options?
-      + "</tr>"
-      + "</thead>"
       ;
 
   var constantOptions
