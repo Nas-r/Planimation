@@ -93,6 +93,10 @@ function parseInputFiles() {
   */
   function getInput(domain,problem,plan) {
     createAnimationObjects(domain,problem,plan);
+    var inputSelector = createInputSelector(domain,problem);
+    document.getElementById("Window1").style.display="none";
+    document.getElementById("Window2").style.display="block";
+    $("#inputSelector").append(inputSelector);
     generateInputForm(domain,problem,plan);
     $("#submitInputs").append("<p></p><input id=\"submitInputs\" type=\"button\" "
           + "value=\"Submit Input\" onclick=\"createAnimationObjects();\">");
@@ -103,6 +107,34 @@ function parseInputFiles() {
 /*
 ****************      GENERATE INPUT FORM    **********************
 */
+function setInputForm(inputform) {
+    $('#optionsInput').innerHTML(inputform);
+}
+
+function createInputSelector(domain,problem) {
+  var types = domain[0];
+  var constants = domain[1];
+  var predicates = domain[2];
+  var output = "";
+  output += "<table><tbody><tr><td class=\"itemGroup\">Global Options</td></tr>";
+  //Input form for types
+  if(types.length>0){
+    output += "<tr><td class=\"itemGroup\">Type Options</td></tr>";
+    for(var i=0; i<types.length; i++){
+        output += "<tr><td class=\"item\">"+types[i]+"</td></tr>";
+    }
+  }
+  if(constants.names.length>0) {
+    output += "<tr><td class=\"itemGroup\">Constants</td></tr>";
+    for(var i = 0; i<constants.names.length; i++){
+      output += "<tr><td class=\"item\">"+ constants.names[i] +"</td></tr>";
+    }
+  }
+
+  output += "</tbody></table>";
+  return output;
+}
+
 function generateInputForm(domain,problem,plan) {
   function PrintIfNotNull(inputstring){
     if(inputstring!=null){
@@ -412,7 +444,7 @@ var renderer = PIXI.autoDetectRenderer(width, height);
 
 //Add the canvas to the HTML document
 $(document).ready(function(){
-document.body.appendChild(renderer.view);
+$('#animation').append(renderer.view);
 });
 
 //Create a container object called the `stage`

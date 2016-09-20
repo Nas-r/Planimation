@@ -58,64 +58,74 @@
                 </div>
                 <div class="row" style="transform:translateY(-50%);">
 
-                <h1 id="title">PLANIMATION</h1>
+                <div id="bigP">P</div><div id="title">LANIMATION</div>
                 <p id="subtitle">Animate your PDDL Plans</p>
-            </div>
+                </div>
             </div>
 
             <div class="col-md-6" style="height:100%;background-color:white;">
-
                 <div class="row" style="height:50%;">
                 </div>
-
                 <div class="row" style="transform:translateY(-50%);">
                 <!-- File Input -->
                 <div id="fileInputWindow">
-
                     <h2>Please Load a Domain File</h2>
                     <input id="inputdomain" type="file">
-                    <p></p>
+                    <p></p><p></p>
 
                     <h2>Please Load a Problem File</h2>
                     <input id="inputproblem" type="file">
-                    <p></p>
+                    <p></p><p></p>
 
                     <h2>Please Load a Solution File</h2>
                     <input id="inputplan" type="file">
-                    <p></p>
+                    <p></p><p></p>
+                </div>
+                <p></p><p></p><p></p><p></p><p></p>
+                <input id="loadfiles" type="button" value="BEGIN" onclick="parseInputFiles();">
 
                 </div>
-
-                <input id="b4" type="button" value="Parse All" onclick="parseInputFiles();">
-
-                </div>
-
-
             </div>
-        </section>
+          </div>
+          <div id="Window2" class="row" style="margin:0;padding:0;">
 
-    <p></p>
-    <p></p>
-    <div id="domain"></div>
-    <div id="problem"></div>
-    <div id="solution"></div>
-    <div id="testoutput"></div>
-    <div id="animation"></div>
+            <div class="col-md-7" style="height:100%;background-color:white;">
 
-    <div id="globalOptions"></div>
-    <p></p>
-    <div id="typeOptions"></div>
-    <p></p>
-    <div id="constantOptions"></div>
-    <p></p>
-    <div id="objectOptions"></div>
-    <p></p>
-    <div id="predicateOptions"></div>
-    <p></p>
-    <p></p>
-    <div id="submitInputs"></div>
+                <div class="col-md-5" style="padding:0;">
+                  <div id="inputSelector"></div>
+                </div>
+                <div class="col-md-7">
+                <div class="row">
+                  <input id="savebutton" type="button" value="Save Animation Settings to File" onclick="">
+                  <input id="loadbutton" type="button" value="Load Animation Settings from File" onclick="">
+                </div>
+              </div>
+            </div>
 
-    <p></p>
+            <div class="col-md-5" style="height:100%;">
+                <div class="row" style="height:50%;">
+                </div>
+                <div class="row" style="transform:translateY(-50%);">
+                </div>
+            </div>
+            </div>
+            <div id="Window3" class="row" style="margin:0;padding:0;">
+                <div id="testoutput"></div>
+                <div id="animation"></div>
+
+                <div id="globalOptions"></div>
+                <p></p>
+                <div id="typeOptions"></div>
+                <p></p>
+                <div id="constantOptions"></div>
+                <p></p>
+                <div id="objectOptions"></div>
+                <p></p>
+                <div id="predicateOptions"></div>
+                <p></p>
+                <p></p>
+                <div id="submitInputs"></div>
+            </div>
   </div>
 </body>
 

@@ -16,6 +16,10 @@ html, body{
   text-align: center;
 }
 
+#Window2, #Window3 {
+    display:none;
+}
+
 h1{
   width: 100%;     /* specify a width! */
   margin: 0 auto; /* center */
@@ -23,14 +27,20 @@ h1{
   color: #666;
 }
 
+#bigP {
+    color: #ffffff;
+    font-size:5em;
+    display: inline;
+}
 #title {
     color: #ffffff;
-    font-size:3em;
+    font-size:5em;
+    display: inline;
 }
 
 #subtitle {
     color: #ffffff;
-    font-size:1.5em;
+    font-size:2em;
 }
 
 p {
@@ -60,8 +70,38 @@ input {
 }
 
 @import url(http://fonts.googleapis.com/css?family=Open+Sans);
+@import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro);
 
 body {
-  font-family: 'Open Sans', sans-serif;
+  font-family: 'Source Sans Pro', sans-serif;
   color: #666;
+}
+
+/*Styling for items in the selection list (Objects, predicates, etc)*/
+.item {
+  font-size: 1.5em;
+  padding: 5px;
+}
+
+.itemGroup {
+  font-size: 1.7em;
+  font-weight: bold;
+  padding: 5px;
+
+}
+
+#inputSelector {
+  overflow:auto;
+}
+
+#loadfiles {
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 2em;
+  border-radius: 25px;
 }
