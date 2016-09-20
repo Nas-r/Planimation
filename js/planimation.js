@@ -6,7 +6,6 @@ var readDomain = false;
 var readProblem = false;
 var readPlan = false;
 
-
 var globalOptions = new GlobalOptions();
 var typeOptions;
 var animatedObjects;
@@ -18,6 +17,7 @@ var animatedPredicates;
 $(document).ready(function(){
     $('#inputdomain').on('change', function(e){
         domain_file=this.files[0];
+
         // try {
         //   readFile(this.files[0], function(e) {
         //     //manipulate with result...

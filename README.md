@@ -46,3 +46,5 @@ Using typed objects is recommended.
 The parser has some rules that are right recursive. I should rewrite these to be left recursive since this better suits Jison's LALR parsing mechanism. Honestly haven't noticed any performance issues so this is pretty low on the priorities list ATM.
 
 Using typed objects is recommended. Animating is tedious without types. I should write something to apply general or default settings using regex on object/constant names.
+
+Replace table based input with a form with a dropdown selector and then the options on that input based on its type (predicate, object, type, constant, etc). Might make it a little less intimidating to look at. 
