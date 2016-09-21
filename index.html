@@ -29,25 +29,6 @@
 
   <!-- Import custom stylesheet -->
   <link rel="stylesheet" href="css/styling.css">
-
-  <!-- Smooth Scrolling -->
-  <script>
-    $(function() {
-      $('a[href*="#"]:not([href="#"])').click(function() {
-        if (location.pathname.replace(/^\//,'') == this.pathname.replace(/^\//,'') && location.hostname == this.hostname) {
-          var target = $(this.hash);
-          target = target.length ? target : $('[name=' + this.hash.slice(1) +']');
-          if (target.length) {
-            $('html, body').animate({
-              scrollTop: target.offset().top
-            }, 1000);
-            return false;
-          }
-        }
-      });
-    });
-	</script>
-
 </head>
 
 <body>
@@ -91,13 +72,20 @@
 
             <div class="col-md-7" style="height:100%;background-color:white;">
 
-                <div class="col-md-5" style="padding:0;">
+                <div class="col-md-3" style="padding:0;border-right: 2px solid grey;height:100%; text-align: center;">
                   <div id="inputSelector"></div>
                 </div>
-                <div class="col-md-7">
+                <div class="col-md-9">
                 <div class="row">
+                  <p></p>
                   <input id="savebutton" type="button" value="Save Animation Settings to File" onclick="">
+                  <p></p>
                   <input id="loadbutton" type="button" value="Load Animation Settings from File" onclick="">
+                  <p></p>
+                </div>
+                <div class="row">
+                  <div id="inputOptions">
+                  </div>
                 </div>
               </div>
             </div>

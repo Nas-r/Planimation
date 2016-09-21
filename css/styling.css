@@ -91,7 +91,9 @@ body {
 }
 
 #inputSelector {
-  overflow:auto;
+  overflow-y:scroll;
+  text-align:center;
+  height:100%;
 }
 
 #loadfiles {
@@ -104,4 +106,19 @@ body {
   display: inline-block;
   font-size: 2em;
   border-radius: 25px;
+}
+
+#inputTable {
+  margin: 25px auto auto auto;
+}
+
+#inputOptions {
+}
+
+.selected {
+  background-color: rgb(176, 255, 186);
+}
+
+.item:hover {
+  background-color: rgb(222, 222, 222);
 }

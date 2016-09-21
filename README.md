@@ -47,4 +47,8 @@ The parser has some rules that are right recursive. I should rewrite these to be
 
 Using typed objects is recommended. Animating is tedious without types. I should write something to apply general or default settings using regex on object/constant names.
 
-Replace table based input with a form with a dropdown selector and then the options on that input based on its type (predicate, object, type, constant, etc). Might make it a little less intimidating to look at. 
+Replace table based input with a form with a dropdown selector and then the options on that input based on its type (predicate, object, type, constant, etc). Might make it a little less intimidating to look at.
+
+
+Objects, constants and predicate need unique names for this to work, does PDDL require this? If not, I'll need to attach the items type to its animation object so that they're all uniquely identifiable. I should probably do this anyway.
+See: http://stackoverflow.com/questions/1735230/can-i-add-custom-attribute-to-html-tag
