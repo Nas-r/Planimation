@@ -17,7 +17,7 @@ html, body{
 }
 
 #Window2, #Window3 {
-    display:none;
+  display:none;
 }
 
 h1{
@@ -113,6 +113,7 @@ body {
 }
 
 #inputOptions {
+  text-align:center;
 }
 
 .selected {

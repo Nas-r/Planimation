@@ -107,10 +107,6 @@ function parseInputFiles() {
 /*
 ****************      GENERATE INPUT FORM    **********************
 */
-function setInputForm(inputform) {
-    $('#optionsInput').innerHTML(inputform);
-}
-
 function createInputSelector(domain,problem) {
   var types = domain[0];
   var constants = domain[1];
@@ -119,7 +115,8 @@ function createInputSelector(domain,problem) {
 
   var itemCell = "<td class=\"item\" onclick=\"selectInput(event);\"";
   var output = "";
-  output += "<table id=\"inputTable\"><tbody><tr><td class=\"item\">Global Options</td></tr>";
+  output += "<table id=\"inputTable\"><tbody><tr>"
+          + itemCell + ">Global Options</td></tr>";
   //Input form for types
   if(types.length>0){
     output += "<tr><td class=\"itemGroup\">Types</td></tr>";
@@ -160,41 +157,41 @@ function createInputSelector(domain,problem) {
 /*This is the function that runs when an item from the list of objects/types
 is clicked. It loads the available options into the #inputOptions div*/
 function selectInput(e) {
-  var select = e.target.innerHTML;
-  console.log(select);
+  var name = e.target.innerHTML;
+  var type = e.target.getAttribute('data-type');
+  console.log(type + " : "  + name);
+
+  var form = "";
+  form += "<h1>" + type + "</h1>";
+  form += "<h2>" + name + "</h2><p></p>";
+  form += generateInputForm(type);
+
+  console.log(form)
+  $('#inputOptions').html(form);
 }
 
-function generateInputForm(domain,problem,plan) {
-  function PrintIfNotNull(inputstring){
-    if(inputstring!=null){
-      return inputstring;
-    }
-  }
+function generateInputForm(inputtype) {
+
   //option input format:
-  var imageUrlInput = "<tr>ImageURL<textarea name=\"imageURL\" rows=\"1\" cols=\"25\"></textarea></tr>";
-  var visibilityInput = "<tr>Is Visible?<input name=\"visible\"type=\"checkbox\" checked></tr>";
-  var positionInput = "<tr>Initial Position<textarea name=\"position\" rows=\"1\" cols=\"25\"></textarea></tr>"
-  var scaleInput = "<tr>Scale<input name=\"scale\" type=\"number\" step=\"0.01\"></tr>"
-  var zInput = "<tr>Z Ordering<input name=\"zInput\" type=\"number\"></tr>"
-
-  var imagePreview = "<tr name=\"preview\"></tr>";
-
+  var imageUrlInput = "<tr><td>ImageURL</td><td><textarea name=\"imageURL\" rows=\"1\" cols=\"25\"></textarea></td></tr>";
+  var visibilityInput = "<tr><td>Is Visible?</td><td><input name=\"visible\"type=\"checkbox\" checked></td></tr>";
+  var positionInput = "<tr><td>Initial Position</td><td><textarea name=\"position\" rows=\"1\" cols=\"25\"></textarea></td></tr>"
+  var scaleInput = "<tr><td>Scale</td><td><input name=\"scale\" type=\"number\" step=\"0.01\"></td></tr>"
+  var zInput = "<tr><td>Z Ordering</td><td><input name=\"zInput\" type=\"number\"></td></tr>"
   var animationInput
-      = "<tr><select name=\"animation\"><option value=\"animation1\">Animation 1</option>"
+      = "<tr><td>Select an Animation</td><td><select name=\"animation\"><option value=\"animation1\">Animation 1</option>"
       + "<option value=\"animation2\">Animation 2</option>"
-      + "<option value=\"animation3\">Animation 3</option></tr>"
+      + "<option value=\"animation3\">Animation 3</option></td></tr>"
       ;
 
   var spatialOptionsInput
-      = "<tr>Spatial Layout<select name=\"spatialLayout\"><option value=\"free\">Free</option>"
+      = "<tr><td>Spatial Layout</td><td><select name=\"spatialLayout\"><option value=\"free\">Free</option>"
       + "<option value=\"network\">Network</option>"
-      + "<option value=\"grid\">Grid</option></tr>"
+      + "<option value=\"grid\">Grid</option></td></tr>"
       ;
 
   var globalOptionsInput
-      = "<table align=\"center\" class=\"pure-table pure-table-bordered\">"
-      + spatialOptionsInput
-      + "</table>"
+      = spatialOptionsInput
       ;
 
   var constantOptions
@@ -203,56 +200,6 @@ function generateInputForm(domain,problem,plan) {
       + positionInput
       + scaleInput
       + zInput
-      + imagePreview
-      ;
-
-  var  constantOptionsInput
-      = "<table align=\"center\" class=\"pure-table pure-table-striped pure-table-bordered\">"
-      + "<thead><tr>"
-  + "<th>Object</th>"
-      + "<th>Image URL</th>"
-      + "<th>Visible?</th>"
-      + "<th>Initial Position</th>"
-      + "<th>Scale</th>"
-      + "<th>Z-Ordering</th>"
-      + "<th>Image Preview</th>"
-      //relative positioning options?
-      + "</tr>"
-      + "</thead>"
-
-      ;
-  var  objectOptionsInput
-      = "<table align=\"center\" class=\"pure-table pure-table-striped pure-table-bordered\">"
-      + "<thead><tr>"
-    + "<th>Object</th>"
-      + "<th>Image URL</th>"
-      + "<th>Visible?</th>"
-      + "<th>Initial Position</th>"
-      + "<th>Scale</th>"
-      + "<th>Z-Ordering</th>"
-      + "<th>Image Preview</th>"
-      //relative positioning options?
-      + "</tr>"
-      + "</thead>"
-
-      ;
-
-  var  predicateOptionsInput
-      = "<table align=\"center\" class=\"pure-table pure-table-striped pure-table-bordered\">"
-      + "<thead><tr>"
-      + "<th>Predicate</th>"
-      + "<th>Value</th>"
-      + "<th>Argument</th>"
-      + "<th>Substitute Image URL</th>"
-      + "<th>Animate Image</th>"
-      + "<th>Move To Position</th>"
-      + "<th>Scale</th>"
-      + "<th>Z-Ordering</th>"
-      + "<th>Image Preview</th>"
-      //relative positioning options?
-      + "</tr>"
-      + "</thead>"
-
       ;
 
   var predicateOptions
@@ -261,96 +208,29 @@ function generateInputForm(domain,problem,plan) {
       + positionInput
       + scaleInput
       + zInput
-      + imagePreview
-      ;
-
-  var typeOptionsInput
-      = "<table align=\"center\" class=\"pure-table pure-table-bordered\">"
-      + "<thead><tr>"
-      + "<th>Type</th>"
-      + "<th>Default Image URL</th>"
-      + "<th>Visible?</th>"
-      + "<th>Image Preview</th>"
-      + "</tr>"
-      + "</thead>"
       ;
 
   var typeOptions
       = imageUrlInput
       + visibilityInput
-      + imagePreview
       ;
 
-  $("#globalOptions").append(globalOptionsInput);
+  var result = "";
 
-  if(domain != null){
-    var types = domain[0];
-    var constants = domain[1];
-    var predicates = domain[2];
-
-    //Input form for types
-    if(types.length>0){
-      //Option Headings
-      for(var i=0; i<types.length; i++){
-          typeOptionsInput += "<tr id=\""+types[i]+"\"><td>" + types[i] + "</td>";
-          typeOptionsInput += typeOptions;
-          typeOptionsInput += "</tr>";
-      }
-      typeOptionsInput += "</table>";
-      $("#typeOptions").append(typeOptionsInput);
-    }
-
-    //Input form for constants
-    if(constants.names.length>0) {
-      for(var i = 0; i<constants.names.length; i++){
-        constantOptionsInput += "<tr id=\"" + constants.names[i] + "\"><td>" + constants.names[i] + "</td>";
-        constantOptionsInput += constantOptions;
-        constantOptionsInput += "</tr>";
-      }
-      constantOptionsInput += "</table>";
-      $("#constantOptions").append(constantOptionsInput);
-    }
-
-    //Input form for predicates
-    if(predicates.length>0){
-      for(var i = 0; i<predicates.length; i++){
-        predicateOptionsInput += "<tr name=\""+predicates[i].name+"\"><td rowspan=\""
-                              + (predicates[i].arguments.length)*2 + "\">"
-                              + predicates[i].name + "</td>";
-
-        predicateOptionsInput += "<td>True</td><td rowspan=\"2\">"+ predicates[i].arguments[0].name+ " " +PrintIfNotNull(predicates[i].arguments[0].type);+"</td>";
-        predicateOptionsInput += predicateOptions + "</tr>"
-        predicateOptionsInput += "<tr><td>False</td>";
-        predicateOptionsInput += predicateOptions + "</tr>";
-
-        for(var j = 1; j<predicates[i].arguments.length; j++) {
-          predicateOptionsInput += "<tr><td>True</td><td rowspan=\"2\">"+ predicates[i].arguments[j].name + " " +PrintIfNotNull(predicates[i].arguments[j].type);+"</td>";
-          predicateOptionsInput += predicateOptions + "</tr>"
-          predicateOptionsInput += "<tr><td>False</td>";
-          predicateOptionsInput += predicateOptions + "</tr>";
-        }
+      switch (inputtype) {
+        case 'type':      result += typeOptions;
+                          break;
+        case 'object':    result += objectOptions;
+                          break;
+        case 'constant':  result += constantOptions;
+                          break;
+        case 'predicate': result += predicateOptions;
+                          break;
+        default:          result += globalOptions;
+                          break;
       }
 
-      predicateOptionsInput += "</table>";
-      $("#predicateOptions").append(predicateOptionsInput);
-
-    }
-  }
-
-  if(problem!=null){
-    var objects = problem[0];
-
-    //Input form for objects
-    if (objects.names.length>0){
-      for(var i = 0; i<objects.names.length; i++){
-        objectOptionsInput += "<tr id=\"" + objects.names[i] + "\"><td>" + objects.names[i] + "</td>";
-        objectOptionsInput += constantOptions;
-        objectOptionsInput += "</tr>";
-      }
-      constantOptionsInput += "</table>";
-      $("#objectOptions").append(objectOptionsInput);
-    }
-  }
+      return "<table style=\"margin:auto;\">" + result + "</table>"
 }
 
 /*Gets the values from the HTML form and attaches them to the relevant

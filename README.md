@@ -52,3 +52,25 @@ Replace table based input with a form with a dropdown selector and then the opti
 
 Objects, constants and predicate need unique names for this to work, does PDDL require this? If not, I'll need to attach the items type to its animation object so that they're all uniquely identifiable. I should probably do this anyway.
 See: http://stackoverflow.com/questions/1735230/can-i-add-custom-attribute-to-html-tag
+
+##Add action based options
+
+walk(from,to) effect: staright line
+Pre: at(robot, from)
+Add: at(robot, to)
+del: at(robot, from)
+
+jump(from,to) effect: bezier curve
+Pre: at(robot, from),
+Add: at(robot, to)
+del: at(robot, from)
+
+predicate animation should be defined based on the predicate int he context of the calling action;
+Figure out how to do this nicely
+
+Animations should be action dependant because it intuitively imparts more about the movement or
+state change of the requisite objects
+
+use predicates to propogate animation options down to their instance in an action!
+
+this just gives you a bit more power.
