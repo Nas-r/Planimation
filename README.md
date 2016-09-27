@@ -74,3 +74,5 @@ state change of the requisite objects
 use predicates to propogate animation options down to their instance in an action!
 
 this just gives you a bit more power.
+
+Mention reason for choosing anime.js over popmotion and pixi. pixi is 800kb! all other js combines is ~150kb, not worth tripling the size of the page as a whole.

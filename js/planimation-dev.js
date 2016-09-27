@@ -2,10 +2,6 @@ var domain_file;
 var problem_file;
 var plan_file;
 
-var readDomain = false;
-var readProblem = false;
-var readPlan = false;
-
 var globalOptions = new GlobalOptions();
 var typeOptions;
 var animatedObjects;
@@ -15,17 +11,21 @@ var animatedPredicates;
 */
 
 $(document).ready(function(){
-    $('#inputdomain').on('change', function(e){
-        domain_file=this.files[0];
-    });
 
-    $('#inputproblem').on('change', function(e){
-        problem_file=this.files[0];
-      });
+        console.log(domain_file);
 
-    $('#inputplan').on('change', function(e){
-        plan_file=this.files[0];
-    });
+        $('#inputdomain').on('change', function(e){
+            domain_file=this.files[0];
+        });
+
+        $('#inputproblem').on('change', function(e){
+            problem_file=this.files[0];
+          });
+
+        $('#inputplan').on('change', function(e){
+            plan_file=this.files[0];
+        });
+
 });
 
 function readFile(file, callback){
@@ -42,6 +42,7 @@ function readFile(file, callback){
 function parseSolution(domain, problem, callback) {
     readFile(plan_file, function(e) {
       try {
+        plan=null;
         plan = Plan_Parser.parse(e.target.result);
         console.log(plan);
 
@@ -59,6 +60,7 @@ whitespace character at the end seems to fix it.*/
 function parseProblem(domain, callback) {
       readFile(problem_file, function(e) {
         try {
+          problem=null;
           problem = PDDL_Parser.parse(e.target.result);
           console.log(problem);
 
@@ -73,6 +75,7 @@ function parseProblem(domain, callback) {
 function parseDomain(callback) {
   readFile(domain_file, function(e) {
     try {
+      domain=null;
       domain = PDDL_Parser.parse(e.target.result);
       console.log(domain);
 
@@ -80,6 +83,20 @@ function parseDomain(callback) {
       console.log(x);
     } finally {parseProblem(domain, callback);}
   });
+}
+
+/*Shouldmt ne called getInput, this function is [assed as a callbasck to
+parseDomain becasue FileReader runs ASYNC and I need to ensure files are prased
+before the rest of the script is exectured]*/
+function getInput(domain,problem,plan) {
+  createAnimationObjects(domain,problem,plan);
+  var inputSelector = createInputSelector(domain,problem);
+  document.getElementById("Window1").style.display="none";
+  document.getElementById("Window2").style.display="block";
+  $("#inputSelector").append(inputSelector);
+  generateInputForm(domain,problem,plan);
+  $("#submitInputs").append("<p></p><input id=\"submitInputs\" type=\"button\" "
+        + "value=\"Submit Input\" onclick=\"createAnimationObjects();\">");
 }
 
 function parseInputFiles() {
@@ -91,16 +108,6 @@ function parseInputFiles() {
     problem = [[objects], [startPredicates]]
     plan    = [actions]
   */
-  function getInput(domain,problem,plan) {
-    createAnimationObjects(domain,problem,plan);
-    var inputSelector = createInputSelector(domain,problem);
-    document.getElementById("Window1").style.display="none";
-    document.getElementById("Window2").style.display="block";
-    $("#inputSelector").append(inputSelector);
-    generateInputForm(domain,problem,plan);
-    $("#submitInputs").append("<p></p><input id=\"submitInputs\" type=\"button\" "
-          + "value=\"Submit Input\" onclick=\"createAnimationObjects();\">");
-  }
     parseDomain(getInput);
 }
 
@@ -170,109 +177,6 @@ function selectInput(e) {
   $('#inputOptions').html(form);
 }
 
-function generateInputForm(inputtype) {
-
-  //option input format:
-  var imageUrlInput = "<tr><td>ImageURL</td><td><textarea name=\"imageURL\" rows=\"1\" cols=\"25\"></textarea></td></tr>";
-  var visibilityInput = "<tr><td>Is Visible?</td><td><input name=\"visible\"type=\"checkbox\" checked></td></tr>";
-  var positionInput = "<tr><td>Initial Position</td><td><textarea name=\"position\" rows=\"1\" cols=\"25\"></textarea></td></tr>"
-  var scaleInput = "<tr><td>Scale</td><td><input name=\"scale\" type=\"number\" step=\"0.01\"></td></tr>"
-  var zInput = "<tr><td>Z Ordering</td><td><input name=\"zInput\" type=\"number\"></td></tr>"
-  var animationInput
-      = "<tr><td>Select an Animation</td><td><select name=\"animation\"><option value=\"animation1\">Animation 1</option>"
-      + "<option value=\"animation2\">Animation 2</option>"
-      + "<option value=\"animation3\">Animation 3</option></td></tr>"
-      ;
-
-  var spatialOptionsInput
-      = "<tr><td>Spatial Layout</td><td><select name=\"spatialLayout\"><option value=\"free\">Free</option>"
-      + "<option value=\"network\">Network</option>"
-      + "<option value=\"grid\">Grid</option></td></tr>"
-      ;
-
-  var globalOptionsInput
-      = spatialOptionsInput
-      ;
-
-  var constantOptions
-      = imageUrlInput
-      + visibilityInput
-      + positionInput
-      + scaleInput
-      + zInput
-      ;
-
-  var predicateOptions
-      = imageUrlInput
-      + animationInput
-      + positionInput
-      + scaleInput
-      + zInput
-      ;
-
-  var typeOptions
-      = imageUrlInput
-      + visibilityInput
-      ;
-
-  var result = "";
-
-      switch (inputtype) {
-        case 'type':      result += typeOptions;
-                          break;
-        case 'object':    result += objectOptions;
-                          break;
-        case 'constant':  result += constantOptions;
-                          break;
-        case 'predicate': result += predicateOptions;
-                          break;
-        default:          result += globalOptions;
-                          break;
-      }
-
-      return "<table style=\"margin:auto;\">" + result + "</table>"
-}
-
-/*Gets the values from the HTML form and attaches them to the relevant
-objects*/
-function getInputValues() {
-//When adding something here, don't forget to add an equivalent entry in
-//setInputValues()
-
-  //globalOptions
-  globalOptions.spatialLayout = $("#globalOptions").find("select[name=spatialLayout]").val();
-  console.log(globalOptions);
-
-  if(domain!=null){
-    //typeOptions
-    if(domain[0].length>0){
-      for(var i=0; i<domain[0].length; i++){
-        var thisOption =  $("#"+domain[0][i]);
-        var visible = thisOption.find("textarea[name=visible]").val();
-        var imageURL = thisOption.find("textarea[name=imageURL]").val();
-        typeOptions.push(new typeOption(domain[0][i],visible,imageURL));
-      }
-    console.log(typeOptions);
-    }
-
-
-  }
-}
-
-/*
-****************      SAVE FORM INPUT        **********************
-*/
-
-
-/*
-****************      LOAD FORM INPUT        **********************
-*/
-
-
-/*
-****************      POPULATE OBJECTS       **********************
-*/
-
 function createAnimationObjects(domain,problem,plan){
 
   globalOptions = new GlobalOptions();
@@ -337,27 +241,65 @@ function relativePosition(object, relativePosition) {
 
 }
 
-/*
-These options should be exportable via JSON.
-*/
+function generateInputForm(inputtype) {
 
-/*********************************************
-            Pixi.js playground
-**********************************************/
-var width = 256;
-var height = 256;
-var center = [width/2, height/2];
+  //option input format:
+  var imageUrlInput = "<tr><td>ImageURL</td><td><textarea name=\"imageURL\" rows=\"1\" cols=\"25\"></textarea></td></tr>";
+  var visibilityInput = "<tr><td>Is Visible?</td><td><input name=\"visible\"type=\"checkbox\" checked></td></tr>";
+  var positionInput = "<tr><td>Initial Position</td><td><textarea name=\"position\" rows=\"1\" cols=\"25\"></textarea></td></tr>"
+  var scaleInput = "<tr><td>Scale</td><td><input name=\"scale\" type=\"number\" step=\"0.01\"></td></tr>"
+  var zInput = "<tr><td>Z Ordering</td><td><input name=\"zInput\" type=\"number\"></td></tr>"
+  var animationInput
+      = "<tr><td>Select an Animation</td><td><select name=\"animation\"><option value=\"animation1\">Animation 1</option>"
+      + "<option value=\"animation2\">Animation 2</option>"
+      + "<option value=\"animation3\">Animation 3</option></td></tr>"
+      ;
 
-//Create the renderer
-var renderer = PIXI.autoDetectRenderer(width, height);
+  var spatialOptionsInput
+      = "<tr><td>Spatial Layout</td><td><select name=\"spatialLayout\"><option value=\"free\">Free</option>"
+      + "<option value=\"network\">Network</option>"
+      + "<option value=\"grid\">Grid</option></td></tr>"
+      ;
 
-//Add the canvas to the HTML document
-$(document).ready(function(){
-$('#animation').append(renderer.view);
-});
+  var globalOptionsInput
+      = spatialOptionsInput
+      ;
 
-//Create a container object called the `stage`
-var stage = new PIXI.Container();
+  var constantOptions
+      = imageUrlInput
+      + visibilityInput
+      + positionInput
+      + scaleInput
+      + zInput
+      ;
 
-//Tell the `renderer` to `render` the `stage`
-renderer.render(stage);
+  var predicateOptions
+      = imageUrlInput
+      + animationInput
+      + positionInput
+      + scaleInput
+      + zInput
+      ;
+
+  var typeOptions
+      = imageUrlInput
+      + visibilityInput
+      ;
+
+  var result = "";
+
+      switch (inputtype) {
+        case 'type':      result += typeOptions;
+                          break;
+        case 'object':    result += objectOptions;
+                          break;
+        case 'constant':  result += constantOptions;
+                          break;
+        case 'predicate': result += predicateOptions;
+                          break;
+        default:          result += globalOptions;
+                          break;
+      }
+
+      return "<table style=\"margin:auto;\">" + result + "</table>"
+}
