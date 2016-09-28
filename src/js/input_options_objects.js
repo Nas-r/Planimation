@@ -1,64 +1,41 @@
-
 function createAnimationObjects(domain,problem,plan){
-
   globalOptions = new GlobalOptions();
-
-
 }
-/*Create interface for setting up the animation
-Each object, constant and predicate should be listed with the following options
-General Options:
-- spatial layout (grid, network, free)
-*/
 
-function TypeOption(typeName, visible, defaultImageURL) {
-  this.typeName=typeName;
+
+function TypeOption(typeName, visible, image ,zplane) {
+  this.name=typeName;
   this.visible=visible;
-  this.defaultImageURL=defaultImageURL;
+  this.defaultImageURL=image;
+  this.zplane=zplane;
 }
 
-function GlobalOptions(spatialLayout) {
+function GlobalOption(spatialLayout) {
     this.spatialLayout = spatialLayout;
 }
 
-/*
-For objects/constants
-- Visible?
-- Set Image
-- Set initial position
-- relative positioning options (above ?x, etc)
-(maybe whether or not the relative positioning is persistant throughout
-the animation)
-- relative ordering (could probably use a z-property for this)
-*/
-
-function AnimatedObject(object, visible, imageURL, location, z) {
-
+function objectOption(name, visible, image, location, zplane) {
+    this.name=name;
+    this.visible=visible;
+    this.image=image;
+    this.location=location;
+    this.zplane;
 }
 
-/*
-for predicates:
-- set image?
-- set position
-- sprite swap arguments when true/false and/or when value changes
-- animate argument/s when true/false
-- translate argument/s when true/false
-- set relative position of argument/s when true/false
-- set z-property of argument/s
-*/
-
-function AnimatedPredicate(predicate, animatedArgument, isTrue) {
-
+//NOTE: If constants and objects share the same namespace I'll get rid of this
+function constantOption(name, visible, image, location, zplane) {
+    this.name=name;
+    this.visible=visible;
+    this.image=image;
+    this.location=location;
+    this.zplane;
 }
 
-/*all setX arguments are arrays with the first value corresponding to
-when the predicate evaluates to true and the second when it's false.
-*/
-function animatedArgument(argument, type, setImage, setTransitionImage,
-  setAnimation, setTranslation, setZ, setRelativePosition){
-    this.argument = argument;
-}
-
-function relativePosition(object, relativePosition) {
-
+function predicateOption(name, value, argument1, argument2, argumentValue, animation) {
+  this.name = name;
+  this.value = value;
+  this.argument1 = argument1;
+  this.argument2 = argument2;
+  this.argumentValue = argumentValue;
+  this.animation = animation;
 }
