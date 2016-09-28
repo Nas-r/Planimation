@@ -12,6 +12,7 @@ function createAnimationObjects(domain,problem,plan){
   var objects = problem[0];
   var actions = plan;
 
+  //types objects and constants
   if (types.length>0){
     for (var i =0; i<types.length;i++) {
       typeOptions[types[i]] = new TypeOption(types[i]);
@@ -40,13 +41,17 @@ function createAnimationObjects(domain,problem,plan){
       objectOptions[name] = new ObjectOption(name, type);
     }
   } else {
-    for (constant in constants.name) {
-      objectOptions[constant] = new ObjectOption(constant);
+    for (var i=0;i<constants.names.length;i++) {
+      objectOptions[constants.names[i]] = new ObjectOption(constants.names[i]);
     }
-    for (object in objects.name) {
-      objectOptions[object] = new ObjectOption(object);
+    for (var i=0;i<objects.names.length;i++) {
+      objectOptions[objects.names[i]] = new ObjectOption(objects.names[i]);
     }
   }
+
+//I won't do this prepopulation for predicate and action options because
+//they need to be created upon input submission. In fact this was probably
+//entirely unnecessary except for allowing me to attach the types easily
 
   console.log(typeOptions);
   console.log(objectOptions);

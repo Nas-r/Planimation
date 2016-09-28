@@ -194,11 +194,11 @@ function createAnimationObjects(domain,problem,plan){
   var objects = problem[0];
   var actions = plan;
 
+  //types objects and constants
   if (types.length>0){
     for (var i =0; i<types.length;i++) {
       typeOptions[types[i]] = new TypeOption(types[i]);
     }
-
     var typeCounter = 0;
     var type = "";
     for (var i=0;i<constants.names.length;i++) {
@@ -223,16 +223,20 @@ function createAnimationObjects(domain,problem,plan){
       objectOptions[name] = new ObjectOption(name, type);
     }
   } else {
-    for (constant in constants.name) {
-      objectOptions[constant] = new ObjectOption(constant);
+    for (var i=0;i<constants.names.length;i++) {
+      objectOptions[constants.names[i]] = new ObjectOption(constants.names[i]);
     }
-    for (object in objects.name) {
-      objectOptions[object] = new ObjectOption(object);
+    for (var i=0;i<objects.names.length;i++) {
+      objectOptions[objects.names[i]] = new ObjectOption(objects.names[i]);
     }
   }
 
+//I won't do this prepopulation for predicate and action options because
+//they need to be created upon input submission. In fact this was probably
+//entirely unnecessary except for allowing me to attach the types easily
+
   console.log(typeOptions);
-    console.log(objectOptions);
+  console.log(objectOptions);
 }
 
 function TypeOption(typeName, visible, image ,zplane) {
@@ -255,15 +259,8 @@ function ObjectOption(name, type, visible, image, location, zplane) {
     this.zplane;
 }
 
-//NOTE: If constants and objects share the same namespace I'll get rid of this
-function ConstantOption(name, type, visible, image, location, zplane) {
-    this.name=name;
-    this.type=type;
-    this.visible=visible;
-    this.image=image;
-    this.location=location;
-    this.zplane;
-}
+//NOTE: If constants and objects don't share the same namespace
+//I'll have to create a separate type and store for constants.
 
 //predicate options apply on conditionals consisting of at most two arguments,
 //as well as a (truth)value
@@ -278,7 +275,10 @@ function PredicateOption(name, value, argument1, argument2, argumentValue, anima
 
 //parameterS ?
 function ActionOption(name, parameter){
-
+  this.name=name;
+  this.parameter=parameter;
+  //hmm, how do I handle an arbitrary number of parameters?
+  //do I treat action rules the same as predicate rules?
 }
 
 function generateInputForm(inputtype) {
@@ -343,7 +343,13 @@ function generateInputForm(inputtype) {
 
       return "<table style=\"margin:auto;\">" + result + "</table>"
 }
-function translate(item, destination, path, relativePosition){
+/*all animations should accept a duration parameter.
+Perhaps I should a) store this as a multiple of itself
+and scale using anime.speed, (to allow fast forwarding)
+and b) replace with with a 'speed' input with 3/5 discrete
+steps.*/
+
+function translate(item, destination, path, relativePosition, duration){
   /*destination can be a set of coordinates or an identifier
   relativePosition is an optional argument (for example, if target is
   an identifier relatePosition might be onTop so the object moves ontop
@@ -357,7 +363,7 @@ function animate(item, animation){
 }
 
 function scale(item, factor){
-  
+
 }
 function getInputValues() {
   // if
