@@ -2,17 +2,11 @@ var domain_file;
 var problem_file;
 var plan_file;
 
-var globalOptions = new GlobalOptions();
-var typeOptions;
-var animatedObjects;
-var animatedPredicates;
 /*
 ****************      LOAD TEST FILES     **********************
 */
 
 $(document).ready(function(){
-
-        console.log(domain_file);
 
         $('#inputdomain').on('change', function(e){
             domain_file=this.files[0];
@@ -56,7 +50,8 @@ function parseSolution(domain, problem, callback) {
 [objects, startPredicates]
 NOTE: Sometimes has problems if the file ends in an RPAREN,
 I think the parser misses the EOF token when this is the case, adding a
-whitespace character at the end seems to fix it.*/
+whitespace character at the end seems to fix it. Could be some weird
+CRLF v LF based bug, but I've covered both line endings in the parser*/
 function parseProblem(domain, callback) {
       readFile(problem_file, function(e) {
         try {
@@ -85,7 +80,7 @@ function parseDomain(callback) {
   });
 }
 
-/*Shouldmt ne called getInput, this function is [assed as a callbasck to
+/*Shouldmt ne called getInput, this function is passed as a callbasck to
 parseDomain becasue FileReader runs ASYNC and I need to ensure files are prased
 before the rest of the script is exectured]*/
 function getInput(domain,problem,plan) {

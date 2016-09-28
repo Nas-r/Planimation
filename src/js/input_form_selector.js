@@ -49,6 +49,13 @@ function createInputSelector(domain,problem) {
   return output;
 }
 
+function SelectedInput(name,type){
+  this.name = name;
+  this.type = type;
+}
+
+var selectedInput = new SelectedInput('', '');
+
 /*This is the function that runs when an item from the list of objects/types
 is clicked. It loads the available options into the #inputOptions div*/
 function selectInput(e) {
@@ -63,4 +70,6 @@ function selectInput(e) {
 
   console.log(form)
   $('#inputOptions').html(form);
+  selectedInput.type=type;
+  selectedInput.name=name;
 }

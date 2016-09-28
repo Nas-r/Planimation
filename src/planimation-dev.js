@@ -2,17 +2,11 @@ var domain_file;
 var problem_file;
 var plan_file;
 
-var globalOptions = new GlobalOptions();
-var typeOptions;
-var animatedObjects;
-var animatedPredicates;
 /*
 ****************      LOAD TEST FILES     **********************
 */
 
 $(document).ready(function(){
-
-        console.log(domain_file);
 
         $('#inputdomain').on('change', function(e){
             domain_file=this.files[0];
@@ -56,7 +50,8 @@ function parseSolution(domain, problem, callback) {
 [objects, startPredicates]
 NOTE: Sometimes has problems if the file ends in an RPAREN,
 I think the parser misses the EOF token when this is the case, adding a
-whitespace character at the end seems to fix it.*/
+whitespace character at the end seems to fix it. Could be some weird
+CRLF v LF based bug, but I've covered both line endings in the parser*/
 function parseProblem(domain, callback) {
       readFile(problem_file, function(e) {
         try {
@@ -85,7 +80,7 @@ function parseDomain(callback) {
   });
 }
 
-/*Shouldmt ne called getInput, this function is [assed as a callbasck to
+/*Shouldmt ne called getInput, this function is passed as a callbasck to
 parseDomain becasue FileReader runs ASYNC and I need to ensure files are prased
 before the rest of the script is exectured]*/
 function getInput(domain,problem,plan) {
@@ -161,6 +156,13 @@ function createInputSelector(domain,problem) {
   return output;
 }
 
+function SelectedInput(name,type){
+  this.name = name;
+  this.type = type;
+}
+
+var selectedInput = new SelectedInput('', '');
+
 /*This is the function that runs when an item from the list of objects/types
 is clicked. It loads the available options into the #inputOptions div*/
 function selectInput(e) {
@@ -175,69 +177,107 @@ function selectInput(e) {
 
   console.log(form)
   $('#inputOptions').html(form);
+  selectedInput.type=type;
+  selectedInput.name=name;
 }
+var globalOptions;
+//Creating assosciative arrays to store option inputs for simple,
+//fast name based ulookup.
+var typeOptions = {};
+var objectOptions = {};
+var predicateOptions = {};
 
 function createAnimationObjects(domain,problem,plan){
+  var types = domain[0];
+  var constants = domain[1];
+  var predicates = domain[2];
+  var objects = problem[0];
+  var actions = plan;
 
-  globalOptions = new GlobalOptions();
+  if (types.length>0){
+    for (var i =0; i<types.length;i++) {
+      typeOptions[types[i]] = new TypeOption(types[i]);
+    }
 
+    var typeCounter = 0;
+    var type = "";
+    for (var i=0;i<constants.names.length;i++) {
+      if(i<constants.typeIndex[typeCounter]) {
+        type=constants.types[typeCounter];
+      } else {
+        typeCounter++;
+        type=constants.types[typeCounter];
+      }
+      var name = constants.names[i];
+      objectOptions[name] = new ObjectOption(name, type);
+    }
+    typeCounter=0;
+    for (var i=0;i<objects.names.length;i++) {
+      if(i<objects.typeIndex[typeCounter]) {
+        type=objects.types[typeCounter];
+      } else {
+        typeCounter++;
+        type=objects.types[typeCounter];
+      }
+      var name = objects.names[i];
+      objectOptions[name] = new ObjectOption(name, type);
+    }
+  } else {
+    for (constant in constants.name) {
+      objectOptions[constant] = new ObjectOption(constant);
+    }
+    for (object in objects.name) {
+      objectOptions[object] = new ObjectOption(object);
+    }
+  }
 
+  console.log(typeOptions);
+    console.log(objectOptions);
 }
-/*Create interface for setting up the animation
-Each object, constant and predicate should be listed with the following options
-General Options:
-- spatial layout (grid, network, free)
-*/
 
-function TypeOption(typeName, visible, defaultImageURL) {
-  this.typeName=typeName;
+function TypeOption(typeName, visible, image ,zplane) {
+  this.name=typeName;
   this.visible=visible;
-  this.defaultImageURL=defaultImageURL;
+  this.defaultImageURL=image;
+  this.zplane=zplane;
 }
 
-function GlobalOptions(spatialLayout) {
+function GlobalOption(spatialLayout) {
     this.spatialLayout = spatialLayout;
 }
 
-/*
-For objects/constants
-- Visible?
-- Set Image
-- Set initial position
-- relative positioning options (above ?x, etc)
-(maybe whether or not the relative positioning is persistant throughout
-the animation)
-- relative ordering (could probably use a z-property for this)
-*/
-
-function AnimatedObject(object, visible, imageURL, location, z) {
-
+function ObjectOption(name, type, visible, image, location, zplane) {
+    this.name=name;
+    this.type=type;
+    this.visible=visible;
+    this.image=image;
+    this.location=location;
+    this.zplane;
 }
 
-/*
-for predicates:
-- set image?
-- set position
-- sprite swap arguments when true/false and/or when value changes
-- animate argument/s when true/false
-- translate argument/s when true/false
-- set relative position of argument/s when true/false
-- set z-property of argument/s
-*/
-
-function AnimatedPredicate(predicate, animatedArgument, isTrue) {
-
+//NOTE: If constants and objects share the same namespace I'll get rid of this
+function ConstantOption(name, type, visible, image, location, zplane) {
+    this.name=name;
+    this.type=type;
+    this.visible=visible;
+    this.image=image;
+    this.location=location;
+    this.zplane;
 }
 
-/*all setX arguments are arrays with the first value corresponding to
-when the predicate evaluates to true and the second when it's false.
-*/
-function animatedArgument(argument, type, setImage, setTransitionImage,
-  setAnimation, setTranslation, setZ, setRelativePosition){
-    this.argument = argument;
+//predicate options apply on conditionals consisting of at most two arguments,
+//as well as a (truth)value
+function PredicateOption(name, value, argument1, argument2, argumentValue, animation) {
+  this.name = name;
+  this.value = value;
+  this.argument1 = argument1;
+  this.argument2 = argument2;
+  this.argumentValue = argumentValue;
+  this.animation = animation;
 }
 
-function relativePosition(object, relativePosition) {
+//parameterS ?
+function ActionOption(name, parameter){
 
 }
 
@@ -302,4 +342,23 @@ function generateInputForm(inputtype) {
       }
 
       return "<table style=\"margin:auto;\">" + result + "</table>"
+}
+function translate(item, destination, path, relativePosition){
+  /*destination can be a set of coordinates or an identifier
+  relativePosition is an optional argument (for example, if target is
+  an identifier relatePosition might be onTop so the object moves ontop
+  of the target position)*/
+  /*Path will be a user defined SVG line definition to allow non-linear
+   movement*/
+}
+
+function animate(item, animation){
+
+}
+
+function scale(item, factor){
+  
+}
+function getInputValues() {
+  // if
 }
