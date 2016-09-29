@@ -84,7 +84,6 @@ function parseDomain(callback) {
 parseDomain becasue FileReader runs ASYNC and I need to ensure files are prased
 before the rest of the script is exectured]*/
 function getInput(domain,problem,plan) {
-  createAnimationObjects(domain,problem,plan);
   var inputSelector = createInputSelector(domain,problem);
   document.getElementById("Window1").style.display="none";
   document.getElementById("Window2").style.display="block";
@@ -187,58 +186,6 @@ var typeOptions = {};
 var objectOptions = {};
 var predicateOptions = {};
 
-function createAnimationObjects(domain,problem,plan){
-  var types = domain[0];
-  var constants = domain[1];
-  var predicates = domain[2];
-  var objects = problem[0];
-  var actions = plan;
-
-  //types objects and constants
-  if (types.length>0){
-    for (var i =0; i<types.length;i++) {
-      typeOptions[types[i]] = new TypeOption(types[i]);
-    }
-    var typeCounter = 0;
-    var type = "";
-    for (var i=0;i<constants.names.length;i++) {
-      if(i<constants.typeIndex[typeCounter]) {
-        type=constants.types[typeCounter];
-      } else {
-        typeCounter++;
-        type=constants.types[typeCounter];
-      }
-      var name = constants.names[i];
-      objectOptions[name] = new ObjectOption(name, type);
-    }
-    typeCounter=0;
-    for (var i=0;i<objects.names.length;i++) {
-      if(i<objects.typeIndex[typeCounter]) {
-        type=objects.types[typeCounter];
-      } else {
-        typeCounter++;
-        type=objects.types[typeCounter];
-      }
-      var name = objects.names[i];
-      objectOptions[name] = new ObjectOption(name, type);
-    }
-  } else {
-    for (var i=0;i<constants.names.length;i++) {
-      objectOptions[constants.names[i]] = new ObjectOption(constants.names[i]);
-    }
-    for (var i=0;i<objects.names.length;i++) {
-      objectOptions[objects.names[i]] = new ObjectOption(objects.names[i]);
-    }
-  }
-
-//I won't do this prepopulation for predicate and action options because
-//they need to be created upon input submission. In fact this was probably
-//entirely unnecessary except for allowing me to attach the types easily
-
-  console.log(typeOptions);
-  console.log(objectOptions);
-}
-
 function TypeOption(typeName, visible, image ,zplane) {
   this.name=typeName;
   this.visible=visible;
@@ -261,7 +208,8 @@ function ObjectOption(name, type, visible, image, location, zplane) {
 
 //NOTE: If constants and objects don't share the same namespace
 //I'll have to create a separate type and store for constants.
-
+//: Usually you use either constants or objects depending if you want them
+//in the problem def or domain file.
 //predicate options apply on conditionals consisting of at most two arguments,
 //as well as a (truth)value
 function PredicateOption(name, value, argument1, argument2, argumentValue, animation) {
@@ -284,19 +232,20 @@ function ActionOption(name, parameter){
 function generateInputForm(inputtype) {
 
   //option input format:
-  var imageUrlInput = "<tr><td>ImageURL</td><td><textarea name=\"imageURL\" rows=\"1\" cols=\"25\"></textarea></td></tr>";
-  var visibilityInput = "<tr><td>Is Visible?</td><td><input name=\"visible\"type=\"checkbox\" checked></td></tr>";
-  var positionInput = "<tr><td>Initial Position</td><td><textarea name=\"position\" rows=\"1\" cols=\"25\"></textarea></td></tr>"
-  var scaleInput = "<tr><td>Scale</td><td><input name=\"scale\" type=\"number\" step=\"0.01\"></td></tr>"
-  var zInput = "<tr><td>Z Ordering</td><td><input name=\"zInput\" type=\"number\"></td></tr>"
+  var imageUrlInput = "<tr><td>ImageURL</td><td><textarea id=\"imageURL\" rows=\"1\" cols=\"25\"></textarea></td></tr>";
+  var visibilityInput = "<tr><td>Is Visible?</td><td><input id=\"visible\"type=\"checkbox\" checked></td></tr>";
+  var positionInput = "<tr><td>Initial Position</td><td><textarea id=\"position\" rows=\"1\" cols=\"25\"></textarea></td></tr>";
+  var scaleInput = "<tr><td>Scale</td><td><input id=\"scale\" type=\"number\" step=\"0.01\"></td></tr>";
+  var zInput = "<tr><td>Z Ordering</td><td><input id=\"zInput\" type=\"number\"></td></tr>";
+  var customCSS = "<tr><td>Custom CSS Properties</td><td><textarea id=\"customCSS\" rows=\"1\" cols=\"25\"></textarea></td></tr>";
   var animationInput
-      = "<tr><td>Select an Animation</td><td><select name=\"animation\"><option value=\"animation1\">Animation 1</option>"
+      = "<tr><td>Select an Animation</td><td><select id=\"animation\"><option value=\"animation1\">Animation 1</option>"
       + "<option value=\"animation2\">Animation 2</option>"
       + "<option value=\"animation3\">Animation 3</option></td></tr>"
       ;
 
   var spatialOptionsInput
-      = "<tr><td>Spatial Layout</td><td><select name=\"spatialLayout\"><option value=\"free\">Free</option>"
+      = "<tr><td>Spatial Layout</td><td><select id=\"spatialLayout\"><option value=\"free\">Free</option>"
       + "<option value=\"network\">Network</option>"
       + "<option value=\"grid\">Grid</option></td></tr>"
       ;
@@ -311,6 +260,7 @@ function generateInputForm(inputtype) {
       + positionInput
       + scaleInput
       + zInput
+      + customCSS
       ;
 
   var predicateOptions
@@ -319,11 +269,13 @@ function generateInputForm(inputtype) {
       + positionInput
       + scaleInput
       + zInput
+      + customCSS
       ;
 
   var typeOptions
       = imageUrlInput
       + visibilityInput
+      + customCSS
       ;
 
   var result = "";
@@ -331,7 +283,7 @@ function generateInputForm(inputtype) {
       switch (inputtype) {
         case 'type':      result += typeOptions;
                           break;
-        case 'object':    result += objectOptions;
+        case 'object':    result += constantOptions;
                           break;
         case 'constant':  result += constantOptions;
                           break;
@@ -342,6 +294,43 @@ function generateInputForm(inputtype) {
       }
 
       return "<table style=\"margin:auto;\">" + result + "</table>"
+}
+
+function readInputValue(optionType) {
+  switch (optionType) {
+    case 'type': return readTypeOption();
+    case 'object': return readObjectOption();
+    case 'predicate': return readPredicateOption();
+    case 'action': return readActionOption();
+  }
+}
+
+function readTypeOption() {
+  var image = $("#imageURL").val;
+  var visible = $("#visible").checked;
+  var customCSS = $("customCSS").val;
+
+  var result = [image,visible,customCSS];
+  console.log(result);
+  return result;
+}
+
+function readObjectOption() {
+  var image = $("#imageURL").val;
+  var visible = $("#visible").checked;
+  var location = $("#position").val;
+  var scale = $("#scale").val;
+  var zLevel = $("#zInput").val;
+  var customCSS = $("customCSS").val;
+  var result = [image,visible,position,scale,zInput,customCSS];
+}
+
+function readPredicateOption() {
+
+}
+
+function writeInputValue() {
+
 }
 /*all animations should accept a duration parameter.
 Perhaps I should a) store this as a multiple of itself
@@ -364,7 +353,4 @@ function animate(item, animation){
 
 function scale(item, factor){
 
-}
-function getInputValues() {
-  // if
 }

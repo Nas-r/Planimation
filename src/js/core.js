@@ -84,7 +84,6 @@ function parseDomain(callback) {
 parseDomain becasue FileReader runs ASYNC and I need to ensure files are prased
 before the rest of the script is exectured]*/
 function getInput(domain,problem,plan) {
-  createAnimationObjects(domain,problem,plan);
   var inputSelector = createInputSelector(domain,problem);
   document.getElementById("Window1").style.display="none";
   document.getElementById("Window2").style.display="block";

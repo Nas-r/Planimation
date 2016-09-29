@@ -1,3 +1,0 @@
-function getInputValues() {
-  // if
-}
