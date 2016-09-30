@@ -63,19 +63,21 @@ function getObjectByName(name, collection) {
 /*This is the function that runs when an item from the list of objects/types
 is clicked. It loads the available options into the #inputOptions div*/
 function selectInput(e) {
+  updateInputOptionEntity($('#selectionType').html(),$('#selectionName').html());
   var name = e.target.innerHTML;
   var type = e.target.getAttribute('data-type');
   console.log(type + " : "  + name);
 
   var form = "";
-  form += "<h1>" + type + "</h1>";
-  form += "<h2>" + name + "</h2><p></p>";
+  form += "<h1 id=\"selectionType\">" + type + "</h1>";
+  form += "<h2 id=\"selectionName\">" + name + "</h2><p></p>";
   form += generateInputForm(name, type);
 
   console.log(form)
   $('#inputOptions').html(form);
 
   if(type=="predicate"){
+    $("#previewHeading").html("Existing Options");
     var predicate = getObjectByName(name, predicates);
     var argument = $("#arg1").val();
     var argtype;
@@ -102,7 +104,20 @@ function selectInput(e) {
           $("#objectSelector").html(generateObjectSelector(getObjectListFromType(argtype)));
         }
     });
-  }
+  } else {    $("#previewHeading").html("Limited Preview");
+}
+  switch (type) {
+    case 'type':      writeTypeOption(name);
+                      break;
+    case 'object':    writeObjectOption(name);
+                      break;
+    case 'constant':  writeObjectOption(name);
+                      break;
+    case 'predicate': writePredicateOption(name);
+                      break;
+    default:          
+                      break;
+   }
   selectedInput.type=type;
   selectedInput.name=name;
 }

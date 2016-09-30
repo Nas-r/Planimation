@@ -29,12 +29,12 @@ function ObjectOption(name, type, image, location, css) {
 //in the problem def or domain file.
 //predicate options apply on conditionals consisting of at most two arguments,
 //as well as a (truth)value
-function PredicateOption(name, value, argument1, argument2, argumentValue, animation) {
+function PredicateOption(name, truthiness, argument1, argument2, argumentValue, animation) {
   this.name = name; //predicate name
-  this.value = value; //truthiness
+  this.truthiness = truthiness;
   this.argument1 = argument1;
   this.argument2 = argument2;
-  this.argumentValue = argumentValue;
+  this.argument1_value = argumentValue;
   this.animation = animation;
 }
 

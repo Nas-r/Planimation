@@ -116,6 +116,9 @@ function generateInputForm(name, inputtype) {
         case 'constant':  result += objectOptions;
                           break;
         case 'predicate': result += generatePredicateInputForm(name);
+                          result += imageUrlInput
+                                  + positionInput
+                                  + customCSS;
                           break;
         default:          result += globalOptions;
                           break;
@@ -127,18 +130,25 @@ function generateInputForm(name, inputtype) {
 //this is a bad name, but what this does is takes the users input
 //for a given entity and saves them in the requisite options object
 //from those defined in input_options_objects.js
-function updateInputOptionEntity(optionType, entity) {
+function updateInputOptionEntity(optionType, name) {
   var input;
   switch (optionType) {
     case 'type':
       input = readTypeOption();
-      createTypeOption(entity, input);
+      updateTypeOption(name, input);
+      console.log(typeOptions[name]);
       break;
+    case 'constant' :
     case 'object':
       input = readObjectOption();
+      console.log(input);
+      updateObjectOption(name, input);
+      console.log(objectOptions[name]);
       break;
     case 'predicate':
       input = readPredicateOption();
+      updatePredicateOption(name, input);
+      console.log(predicateOptions[name]);
       break;
     case 'action':
       input = readActionOption();
@@ -149,22 +159,38 @@ function updateInputOptionEntity(optionType, entity) {
 }
 
 function readTypeOption() {
-  var image = $("#imageURL").val;
-  var customCSS = $("customCSS").val;
-
+  var image = $("#imageURL").val();
+  var customCSS = $("#customCSS").val();
   var result = [image,customCSS];
-  console.log(result);
   return result;
 }
 
+function writeTypeOption(name){
+
+}
+
 function readObjectOption() {
-  var image = $("#imageURL").val;
-  var location = $("#position").val;
-  var customCSS = $("customCSS").val;
+  var image = $("#imageURL").val();
+  var location = $("#position").val();
+  var customCSS = $("#customCSS").val();
   var result = [image,location,customCSS];
+  return result;
+}
+
+function writeObjectOption(name) {
+
 }
 
 function readPredicateOption() {
+    var truthiness = $("#truthiness").val();
+    var argument1 = $("#arg1").val();
+    var argument2 = $("#arg2").val();
+    var argument1_value = $("#objectSelector").val();
+    var animation = [$("#imageURL").val(), $("#position").val(), $("#customCSS").val()];
+    return [truthiness,argument1,argument2,argument1_value,animation];
+}
+
+function writePredicateOption(name) {
 
 }
 
@@ -172,12 +198,18 @@ function readActionOption() {
 
 }
 
-function updateTypeOption(entity, input) {
-  var name = entity;
+function updateTypeOption(name, input) {
   typeOptions[name] =
     new TypeOption(name, input[0], input[1]);
 }
 
-function updateObjectOption(entity, input) {
+function updateObjectOption(name, input) {
+  objectOptions[name].image=input[0];
+  objectOptions[name].location=input[1];
+  objectOptions[name].css=input[2];
+}
 
+function updatePredicateOption(name, input) {
+    predicateOptions[name] =
+      new PredicateOption(input[0], input[1], input[2], input[3], input[4], input[5]);
 }

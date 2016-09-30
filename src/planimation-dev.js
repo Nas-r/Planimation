@@ -179,19 +179,21 @@ function getObjectByName(name, collection) {
 /*This is the function that runs when an item from the list of objects/types
 is clicked. It loads the available options into the #inputOptions div*/
 function selectInput(e) {
+  updateInputOptionEntity($('#selectionType').html(),$('#selectionName').html());
   var name = e.target.innerHTML;
   var type = e.target.getAttribute('data-type');
   console.log(type + " : "  + name);
 
   var form = "";
-  form += "<h1>" + type + "</h1>";
-  form += "<h2>" + name + "</h2><p></p>";
+  form += "<h1 id=\"selectionType\">" + type + "</h1>";
+  form += "<h2 id=\"selectionName\">" + name + "</h2><p></p>";
   form += generateInputForm(name, type);
 
   console.log(form)
   $('#inputOptions').html(form);
 
   if(type=="predicate"){
+    $("#previewHeading").html("Existing Options");
     var predicate = getObjectByName(name, predicates);
     var argument = $("#arg1").val();
     var argtype;
@@ -218,7 +220,20 @@ function selectInput(e) {
           $("#objectSelector").html(generateObjectSelector(getObjectListFromType(argtype)));
         }
     });
-  }
+  } else {    $("#previewHeading").html("Limited Preview");
+}
+  switch (type) {
+    case 'type':      writeTypeOption(name);
+                      break;
+    case 'object':    writeObjectOption(name);
+                      break;
+    case 'constant':  writeObjectOption(name);
+                      break;
+    case 'predicate': writePredicateOption(name);
+                      break;
+    default:          
+                      break;
+   }
   selectedInput.type=type;
   selectedInput.name=name;
 }
@@ -253,12 +268,12 @@ function ObjectOption(name, type, image, location, css) {
 //in the problem def or domain file.
 //predicate options apply on conditionals consisting of at most two arguments,
 //as well as a (truth)value
-function PredicateOption(name, value, argument1, argument2, argumentValue, animation) {
+function PredicateOption(name, truthiness, argument1, argument2, argumentValue, animation) {
   this.name = name; //predicate name
-  this.value = value; //truthiness
+  this.truthiness = truthiness;
   this.argument1 = argument1;
   this.argument2 = argument2;
-  this.argumentValue = argumentValue;
+  this.argument1_value = argumentValue;
   this.animation = animation;
 }
 
@@ -434,6 +449,9 @@ function generateInputForm(name, inputtype) {
         case 'constant':  result += objectOptions;
                           break;
         case 'predicate': result += generatePredicateInputForm(name);
+                          result += imageUrlInput
+                                  + positionInput
+                                  + customCSS;
                           break;
         default:          result += globalOptions;
                           break;
@@ -445,18 +463,25 @@ function generateInputForm(name, inputtype) {
 //this is a bad name, but what this does is takes the users input
 //for a given entity and saves them in the requisite options object
 //from those defined in input_options_objects.js
-function updateInputOptionEntity(optionType, entity) {
+function updateInputOptionEntity(optionType, name) {
   var input;
   switch (optionType) {
     case 'type':
       input = readTypeOption();
-      createTypeOption(entity, input);
+      updateTypeOption(name, input);
+      console.log(typeOptions[name]);
       break;
+    case 'constant' :
     case 'object':
       input = readObjectOption();
+      console.log(input);
+      updateObjectOption(name, input);
+      console.log(objectOptions[name]);
       break;
     case 'predicate':
       input = readPredicateOption();
+      updatePredicateOption(name, input);
+      console.log(predicateOptions[name]);
       break;
     case 'action':
       input = readActionOption();
@@ -467,22 +492,38 @@ function updateInputOptionEntity(optionType, entity) {
 }
 
 function readTypeOption() {
-  var image = $("#imageURL").val;
-  var customCSS = $("customCSS").val;
-
+  var image = $("#imageURL").val();
+  var customCSS = $("#customCSS").val();
   var result = [image,customCSS];
-  console.log(result);
   return result;
 }
 
+function writeTypeOption(name){
+
+}
+
 function readObjectOption() {
-  var image = $("#imageURL").val;
-  var location = $("#position").val;
-  var customCSS = $("customCSS").val;
+  var image = $("#imageURL").val();
+  var location = $("#position").val();
+  var customCSS = $("#customCSS").val();
   var result = [image,location,customCSS];
+  return result;
+}
+
+function writeObjectOption(name) {
+
 }
 
 function readPredicateOption() {
+    var truthiness = $("#truthiness").val();
+    var argument1 = $("#arg1").val();
+    var argument2 = $("#arg2").val();
+    var argument1_value = $("#objectSelector").val();
+    var animation = [$("#imageURL").val(), $("#position").val(), $("#customCSS").val()];
+    return [truthiness,argument1,argument2,argument1_value,animation];
+}
+
+function writePredicateOption(name) {
 
 }
 
@@ -490,14 +531,20 @@ function readActionOption() {
 
 }
 
-function updateTypeOption(entity, input) {
-  var name = entity;
+function updateTypeOption(name, input) {
   typeOptions[name] =
     new TypeOption(name, input[0], input[1]);
 }
 
-function updateObjectOption(entity, input) {
+function updateObjectOption(name, input) {
+  objectOptions[name].image=input[0];
+  objectOptions[name].location=input[1];
+  objectOptions[name].css=input[2];
+}
 
+function updatePredicateOption(name, input) {
+    predicateOptions[name] =
+      new PredicateOption(input[0], input[1], input[2], input[3], input[4], input[5]);
 }
 /*all animations should accept a duration parameter.
 Perhaps I should a) store this as a multiple of itself

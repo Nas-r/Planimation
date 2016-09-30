@@ -133,3 +133,9 @@ body {
   text-align: center;
   font-size:1.5em;
 }
+
+#previewHeading {
+  color: #ffffff;
+  font-size:3em;
+  display: inline;
+}
