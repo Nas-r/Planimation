@@ -2,12 +2,7 @@
 /*
 ****************      GENERATE INPUT FORM    **********************
 */
-function createInputSelector(domain,problem) {
-  var types = domain[0];
-  var constants = domain[1];
-  var predicates = domain[2];
-  var objects = problem[0];
-
+function createInputSelector() {
   var itemCell = "<td class=\"item\" onclick=\"selectInput(event);\"";
   var output = "";
   output += "<table id=\"inputTable\"><tbody><tr>"
@@ -56,6 +51,15 @@ function SelectedInput(name,type){
 
 var selectedInput = new SelectedInput('', '');
 
+function getObjectByName(name, collection) {
+  for(var i=0;i<collection.length;i++){
+    if(collection[i].name==name) {
+      return collection[i];
+    }
+  }
+}
+
+
 /*This is the function that runs when an item from the list of objects/types
 is clicked. It loads the available options into the #inputOptions div*/
 function selectInput(e) {
@@ -66,10 +70,39 @@ function selectInput(e) {
   var form = "";
   form += "<h1>" + type + "</h1>";
   form += "<h2>" + name + "</h2><p></p>";
-  form += generateInputForm(type);
+  form += generateInputForm(name, type);
 
   console.log(form)
   $('#inputOptions').html(form);
+
+  if(type=="predicate"){
+    var predicate = getObjectByName(name, predicates);
+    var argument = $("#arg1").val();
+    var argtype;
+    if(types.length==0){
+      $("#objectSelector").html(generateObjectSelector(getObjectListFromType()));
+    } else {
+      for(var i=0;i<predicate.arguments.length;i++){
+          if(predicate.arguments[i].name==argument) {
+            argtype=predicate.arguments[i].type;
+          }
+      }
+      $("#objectSelector").html(generateObjectSelector(getObjectListFromType(argtype)));
+    }
+    $("#arg1").on('change', function(e) {
+        argument = this.value;
+        if(types.length==0){
+          $("#objectSelector").html(generateObjectSelector(getObjectListFromType()));
+        } else {
+          for(var i=0;i<predicate.arguments.length;i++){
+              if(predicate.arguments[i].name==argument) {
+                argtype=predicate.arguments[i].type;
+              }
+          }
+          $("#objectSelector").html(generateObjectSelector(getObjectListFromType(argtype)));
+        }
+    });
+  }
   selectedInput.type=type;
   selectedInput.name=name;
 }

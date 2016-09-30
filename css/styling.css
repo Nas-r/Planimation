@@ -123,3 +123,13 @@ body {
 .item:hover {
   background-color: rgb(222, 222, 222);
 }
+
+.predicateOptionSpecification {
+  text-align: center;
+  font-size:1.5em;
+}
+
+.inputOptions {
+  text-align: center;
+  font-size:1.5em;
+}

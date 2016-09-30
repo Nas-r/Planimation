@@ -2,6 +2,10 @@ var domain_file;
 var problem_file;
 var plan_file;
 
+var predicates;
+var objects;
+var constants;
+var types;
 /*
 ****************      LOAD TEST FILES     **********************
 */
@@ -84,11 +88,17 @@ function parseDomain(callback) {
 parseDomain becasue FileReader runs ASYNC and I need to ensure files are prased
 before the rest of the script is exectured]*/
 function getInput(domain,problem,plan) {
-  var inputSelector = createInputSelector(domain,problem);
+  types = domain[0];
+  constants = domain[1];
+  predicates = domain[2];
+  objects = problem[0];
+
+  var inputSelector = createInputSelector();
   document.getElementById("Window1").style.display="none";
   document.getElementById("Window2").style.display="block";
+  createAnimationObjects();
   $("#inputSelector").append(inputSelector);
-  generateInputForm(domain,problem,plan);
+  generateInputForm();
   $("#submitInputs").append("<p></p><input id=\"submitInputs\" type=\"button\" "
         + "value=\"Submit Input\" onclick=\"createAnimationObjects();\">");
 }
@@ -108,12 +118,7 @@ function parseInputFiles() {
 /*
 ****************      GENERATE INPUT FORM    **********************
 */
-function createInputSelector(domain,problem) {
-  var types = domain[0];
-  var constants = domain[1];
-  var predicates = domain[2];
-  var objects = problem[0];
-
+function createInputSelector() {
   var itemCell = "<td class=\"item\" onclick=\"selectInput(event);\"";
   var output = "";
   output += "<table id=\"inputTable\"><tbody><tr>"
@@ -162,6 +167,15 @@ function SelectedInput(name,type){
 
 var selectedInput = new SelectedInput('', '');
 
+function getObjectByName(name, collection) {
+  for(var i=0;i<collection.length;i++){
+    if(collection[i].name==name) {
+      return collection[i];
+    }
+  }
+}
+
+
 /*This is the function that runs when an item from the list of objects/types
 is clicked. It loads the available options into the #inputOptions div*/
 function selectInput(e) {
@@ -172,10 +186,39 @@ function selectInput(e) {
   var form = "";
   form += "<h1>" + type + "</h1>";
   form += "<h2>" + name + "</h2><p></p>";
-  form += generateInputForm(type);
+  form += generateInputForm(name, type);
 
   console.log(form)
   $('#inputOptions').html(form);
+
+  if(type=="predicate"){
+    var predicate = getObjectByName(name, predicates);
+    var argument = $("#arg1").val();
+    var argtype;
+    if(types.length==0){
+      $("#objectSelector").html(generateObjectSelector(getObjectListFromType()));
+    } else {
+      for(var i=0;i<predicate.arguments.length;i++){
+          if(predicate.arguments[i].name==argument) {
+            argtype=predicate.arguments[i].type;
+          }
+      }
+      $("#objectSelector").html(generateObjectSelector(getObjectListFromType(argtype)));
+    }
+    $("#arg1").on('change', function(e) {
+        argument = this.value;
+        if(types.length==0){
+          $("#objectSelector").html(generateObjectSelector(getObjectListFromType()));
+        } else {
+          for(var i=0;i<predicate.arguments.length;i++){
+              if(predicate.arguments[i].name==argument) {
+                argtype=predicate.arguments[i].type;
+              }
+          }
+          $("#objectSelector").html(generateObjectSelector(getObjectListFromType(argtype)));
+        }
+    });
+  }
   selectedInput.type=type;
   selectedInput.name=name;
 }
@@ -186,24 +229,22 @@ var typeOptions = {};
 var objectOptions = {};
 var predicateOptions = {};
 
-function TypeOption(typeName, visible, image ,zplane) {
+function TypeOption(typeName, image ,css) {
   this.name=typeName;
-  this.visible=visible;
   this.defaultImageURL=image;
-  this.zplane=zplane;
+  this.css=css;
 }
 
 function GlobalOption(spatialLayout) {
     this.spatialLayout = spatialLayout;
 }
 
-function ObjectOption(name, type, visible, image, location, zplane) {
+function ObjectOption(name, type, image, location, css) {
     this.name=name;
     this.type=type;
-    this.visible=visible;
     this.image=image;
     this.location=location;
-    this.zplane;
+    this.css = css;
 }
 
 //NOTE: If constants and objects don't share the same namespace
@@ -213,8 +254,8 @@ function ObjectOption(name, type, visible, image, location, zplane) {
 //predicate options apply on conditionals consisting of at most two arguments,
 //as well as a (truth)value
 function PredicateOption(name, value, argument1, argument2, argumentValue, animation) {
-  this.name = name;
-  this.value = value;
+  this.name = name; //predicate name
+  this.value = value; //truthiness
   this.argument1 = argument1;
   this.argument2 = argument2;
   this.argumentValue = argumentValue;
@@ -229,19 +270,130 @@ function ActionOption(name, parameter){
   //do I treat action rules the same as predicate rules?
 }
 
-function generateInputForm(inputtype) {
+function createAnimationObjects(){
+
+  //types objects and constants
+  if (types.length>0){
+    for (var i =0; i<types.length;i++) {
+      typeOptions[types[i]] = new TypeOption(types[i]);
+    }
+    var typeCounter = 0;
+    var type = "";
+    for (var i=0;i<constants.names.length;i++) {
+      if(i<constants.typeIndex[typeCounter]) {
+        type=constants.types[typeCounter];
+      } else {
+        typeCounter++;
+        type=constants.types[typeCounter];
+      }
+      var name = constants.names[i];
+      objectOptions[name] = new ObjectOption(name, type);
+    }
+    typeCounter=0;
+    for (var i=0;i<objects.names.length;i++) {
+      if(i<objects.typeIndex[typeCounter]) {
+        type=objects.types[typeCounter];
+      } else {
+        typeCounter++;
+        type=objects.types[typeCounter];
+      }
+      var name = objects.names[i];
+      objectOptions[name] = new ObjectOption(name, type);
+    }
+  } else {
+    for (var i=0;i<constants.names.length;i++) {
+      objectOptions[constants.names[i]] = new ObjectOption(constants.names[i]);
+    }
+    for (var i=0;i<objects.names.length;i++) {
+      objectOptions[objects.names[i]] = new ObjectOption(objects.names[i]);
+    }
+  }
+
+//I won't do this prepopulation for predicate and action options because
+//they need to be created upon input submission. In fact this was probably
+//entirely unnecessary except for allowing me to attach the types easily
+
+  console.log(typeOptions);
+  console.log(objectOptions);
+}
+function argumentDescriptor(arg){
+    if(typeof(arg.type)!="undefined"){
+      return arg.name + " - " + arg.type;
+    } else {
+      return arg.name;
+    }
+}
+
+//number will always be 1 or 2 because options apply
+// across at most two arguments
+//i.e: when ?x takes some value, ?y adopts some transformation
+function generateArgumentSelector(argumentList, number) {
+    if(typeof(argumentList) != "undefined"){
+    if(number>2||number<=0){
+      console.log("invalid number passed to form generator: "+number);
+    }
+    var result = "<select id=\"arg"+number+"\">";
+    for(var i = 0; i<argumentList.length;i++){
+      result+="<option value=\""+argumentList[i].name+"\">"
+            +   argumentDescriptor(argumentList[i])
+            + "</option>";
+    }
+    return result += "</select>";
+  } else return " null ";
+}
+
+function getObjectListFromType(type) {
+  var result = [];
+  if(typeof(type)!="undefined"){
+    Object.keys(objectOptions).forEach(function(key,index) {
+      if(objectOptions[key].type==type){
+        result.push(key);
+      }
+    });
+    return result;
+  } else {
+      Object.keys(objectOptions).forEach(function(key,index) {
+        result.push(key);
+      });
+    return result;
+  }
+}
+
+function generateObjectSelector(objectList) {
+  var result = "<select id=\"objectSelector\">";
+  for(var i=0;i<objectList.length;i++){
+      result += "<option value=\"" + objectList[i] + "\">"
+              + objectList[i] + "</option>"
+  }
+  result += "<option value=\"all\"> ** ANY ** </option>";
+  console.log("object selector : \n" + result);
+  return result + "</select>";
+}
+
+function generatePredicateInputForm(name) {
+  var predicate = getObjectByName(name, predicates);
+  var predicateHeader = "<div class=\"predicateOptionSpecification\">When "+ name + " is "
+      + "<select id=\"truthiness\">"
+      + "<option value=\"true\">True</option>"
+      + "<option value=\"false\">False</option></select>"
+      + " and " + generateArgumentSelector(predicate.arguments, 1)
+      + " is <select id=\"objectSelector\"><option value=\"all\"> ** ANY ** </option></select> then the transformation"
+      + " below will be applied to the argument " + generateArgumentSelector(predicate.arguments, 2) + " : "
+      + "</div>";
+
+      return predicateHeader;
+}
+
+function generateInputForm(name, inputtype) {
 
   //option input format:
-  var imageUrlInput = "<tr><td>ImageURL</td><td><textarea id=\"imageURL\" rows=\"1\" cols=\"25\"></textarea></td></tr>";
-  var visibilityInput = "<tr><td>Is Visible?</td><td><input id=\"visible\"type=\"checkbox\" checked></td></tr>";
-  var positionInput = "<tr><td>Initial Position</td><td><textarea id=\"position\" rows=\"1\" cols=\"25\"></textarea></td></tr>";
-  var scaleInput = "<tr><td>Scale</td><td><input id=\"scale\" type=\"number\" step=\"0.01\"></td></tr>";
-  var zInput = "<tr><td>Z Ordering</td><td><input id=\"zInput\" type=\"number\"></td></tr>";
-  var customCSS = "<tr><td>Custom CSS Properties</td><td><textarea id=\"customCSS\" rows=\"1\" cols=\"25\"></textarea></td></tr>";
+  var imageUrlInput = "<div><p>ImageURL</p><textarea id=\"imageURL\" rows=\"1\" cols=\"25\"></textarea></div>";
+  var positionInput = "<div><p>Initial Position</p><textarea id=\"position\" rows=\"1\" cols=\"25\"></textarea></div>";
+  var customCSS = "<div><p>Custom CSS Properties</p><textarea id=\"customCSS\" rows=\"1\" cols=\"25\"></textarea></div>";
   var animationInput
       = "<tr><td>Select an Animation</td><td><select id=\"animation\"><option value=\"animation1\">Animation 1</option>"
       + "<option value=\"animation2\">Animation 2</option>"
-      + "<option value=\"animation3\">Animation 3</option></td></tr>"
+      + "<option value=\"animation3\">Animation 3</option></select></td></tr>"
       ;
 
   var spatialOptionsInput
@@ -254,12 +406,9 @@ function generateInputForm(inputtype) {
       = spatialOptionsInput
       ;
 
-  var constantOptions
+  var objectOptions
       = imageUrlInput
-      + visibilityInput
       + positionInput
-      + scaleInput
-      + zInput
       + customCSS
       ;
 
@@ -267,14 +416,11 @@ function generateInputForm(inputtype) {
       = imageUrlInput
       + animationInput
       + positionInput
-      + scaleInput
-      + zInput
       + customCSS
       ;
 
   var typeOptions
       = imageUrlInput
-      + visibilityInput
       + customCSS
       ;
 
@@ -283,53 +429,74 @@ function generateInputForm(inputtype) {
       switch (inputtype) {
         case 'type':      result += typeOptions;
                           break;
-        case 'object':    result += constantOptions;
+        case 'object':    result += objectOptions;
                           break;
-        case 'constant':  result += constantOptions;
+        case 'constant':  result += objectOptions;
                           break;
-        case 'predicate': result += predicateOptions;
+        case 'predicate': result += generatePredicateInputForm(name);
                           break;
         default:          result += globalOptions;
                           break;
       }
 
-      return "<table style=\"margin:auto;\">" + result + "</table>"
+      return "<div class=\"inputOptions\" style=\"margin:auto;\">" + result + "</div>"
 }
 
-function readInputValue(optionType) {
+//this is a bad name, but what this does is takes the users input
+//for a given entity and saves them in the requisite options object
+//from those defined in input_options_objects.js
+function updateInputOptionEntity(optionType, entity) {
+  var input;
   switch (optionType) {
-    case 'type': return readTypeOption();
-    case 'object': return readObjectOption();
-    case 'predicate': return readPredicateOption();
-    case 'action': return readActionOption();
+    case 'type':
+      input = readTypeOption();
+      createTypeOption(entity, input);
+      break;
+    case 'object':
+      input = readObjectOption();
+      break;
+    case 'predicate':
+      input = readPredicateOption();
+      break;
+    case 'action':
+      input = readActionOption();
+      break;
+    default :
+      console.log("something went wrong trying to create an option entity");
   }
 }
 
 function readTypeOption() {
   var image = $("#imageURL").val;
-  var visible = $("#visible").checked;
   var customCSS = $("customCSS").val;
 
-  var result = [image,visible,customCSS];
+  var result = [image,customCSS];
   console.log(result);
   return result;
 }
 
 function readObjectOption() {
   var image = $("#imageURL").val;
-  var visible = $("#visible").checked;
   var location = $("#position").val;
-  var scale = $("#scale").val;
-  var zLevel = $("#zInput").val;
   var customCSS = $("customCSS").val;
-  var result = [image,visible,position,scale,zInput,customCSS];
+  var result = [image,location,customCSS];
 }
 
 function readPredicateOption() {
 
 }
 
-function writeInputValue() {
+function readActionOption() {
+
+}
+
+function updateTypeOption(entity, input) {
+  var name = entity;
+  typeOptions[name] =
+    new TypeOption(name, input[0], input[1]);
+}
+
+function updateObjectOption(entity, input) {
 
 }
 /*all animations should accept a duration parameter.

@@ -2,6 +2,10 @@ var domain_file;
 var problem_file;
 var plan_file;
 
+var predicates;
+var objects;
+var constants;
+var types;
 /*
 ****************      LOAD TEST FILES     **********************
 */
@@ -84,11 +88,17 @@ function parseDomain(callback) {
 parseDomain becasue FileReader runs ASYNC and I need to ensure files are prased
 before the rest of the script is exectured]*/
 function getInput(domain,problem,plan) {
-  var inputSelector = createInputSelector(domain,problem);
+  types = domain[0];
+  constants = domain[1];
+  predicates = domain[2];
+  objects = problem[0];
+
+  var inputSelector = createInputSelector();
   document.getElementById("Window1").style.display="none";
   document.getElementById("Window2").style.display="block";
+  createAnimationObjects();
   $("#inputSelector").append(inputSelector);
-  generateInputForm(domain,problem,plan);
+  generateInputForm();
   $("#submitInputs").append("<p></p><input id=\"submitInputs\" type=\"button\" "
         + "value=\"Submit Input\" onclick=\"createAnimationObjects();\">");
 }
