@@ -24,6 +24,10 @@ $(document).ready(function(){
             plan_file=this.files[0];
         });
 
+        $('#loadbutton').on('change', function(e){
+          parseSavedFile(this.files[0]);
+        });
+
 });
 
 function readFile(file, callback){

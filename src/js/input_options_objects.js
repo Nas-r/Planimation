@@ -5,10 +5,11 @@ var typeOptions = {};
 var objectOptions = {};
 var predicateOptions = {};
 
-function TypeOption(typeName, image ,css) {
+function TypeOption(typeName, image ,css, layout) {
   this.name=typeName;
-  this.defaultImageURL=image;
+  this.image=image;
   this.css=css;
+  this.layout = layout;
 }
 
 function GlobalOption(spatialLayout) {
@@ -89,6 +90,4 @@ function createAnimationObjects(){
 //they need to be created upon input submission. In fact this was probably
 //entirely unnecessary except for allowing me to attach the types easily
 
-  console.log(typeOptions);
-  console.log(objectOptions);
 }

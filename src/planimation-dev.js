@@ -24,6 +24,10 @@ $(document).ready(function(){
             plan_file=this.files[0];
         });
 
+        $('#loadbutton').on('change', function(e){
+          parseSavedFile(this.files[0]);
+        });
+
 });
 
 function readFile(file, callback){
@@ -186,7 +190,11 @@ function selectInput(e) {
 
   var form = "";
   form += "<h1 id=\"selectionType\">" + type + "</h1>";
-  form += "<h2 id=\"selectionName\">" + name + "</h2><p></p>";
+  form += "<h2 id=\"selectionName\">" + name + "</h2>";
+  if(type=="object"||type=="constant"){
+    form += "<h2 id=\"selectionObjectType\">" + objectOptions[name].type + "</h2>"
+  }
+  form+="<p></p>";
   form += generateInputForm(name, type);
 
   console.log(form)
@@ -220,7 +228,7 @@ function selectInput(e) {
           $("#objectSelector").html(generateObjectSelector(getObjectListFromType(argtype)));
         }
     });
-  } else {    $("#previewHeading").html("Limited Preview");
+  } else {    $("#previewHeading").html("Preview");
 }
   switch (type) {
     case 'type':      writeTypeOption(name);
@@ -229,9 +237,9 @@ function selectInput(e) {
                       break;
     case 'constant':  writeObjectOption(name);
                       break;
-    case 'predicate': writePredicateOption(name);
+    case 'predicate': //generateExistingPredicateOptionsList
                       break;
-    default:          
+    default:
                       break;
    }
   selectedInput.type=type;
@@ -244,10 +252,11 @@ var typeOptions = {};
 var objectOptions = {};
 var predicateOptions = {};
 
-function TypeOption(typeName, image ,css) {
+function TypeOption(typeName, image ,css, layout) {
   this.name=typeName;
-  this.defaultImageURL=image;
+  this.image=image;
   this.css=css;
+  this.layout = layout;
 }
 
 function GlobalOption(spatialLayout) {
@@ -328,8 +337,6 @@ function createAnimationObjects(){
 //they need to be created upon input submission. In fact this was probably
 //entirely unnecessary except for allowing me to attach the types easily
 
-  console.log(typeOptions);
-  console.log(objectOptions);
 }
 function argumentDescriptor(arg){
     if(typeof(arg.type)!="undefined"){
@@ -403,18 +410,18 @@ function generateInputForm(name, inputtype) {
 
   //option input format:
   var imageUrlInput = "<div><p>ImageURL</p><textarea id=\"imageURL\" rows=\"1\" cols=\"25\"></textarea></div>";
-  var positionInput = "<div><p>Initial Position</p><textarea id=\"position\" rows=\"1\" cols=\"25\"></textarea></div>";
+  var positionInput = "<div><p>Location</p><textarea id=\"position\" rows=\"1\" cols=\"25\"></textarea></div>";
   var customCSS = "<div><p>Custom CSS Properties</p><textarea id=\"customCSS\" rows=\"1\" cols=\"25\"></textarea></div>";
-  var animationInput
-      = "<tr><td>Select an Animation</td><td><select id=\"animation\"><option value=\"animation1\">Animation 1</option>"
-      + "<option value=\"animation2\">Animation 2</option>"
-      + "<option value=\"animation3\">Animation 3</option></select></td></tr>"
-      ;
+  // var animationInput
+  //     = "<tr><td>Select an Animation</td><td><select id=\"animation\"><option value=\"animation1\">Animation 1</option>"
+  //     + "<option value=\"animation2\">Animation 2</option>"
+  //     + "<option value=\"animation3\">Animation 3</option></select></td></tr>"
+  //     ;
 
   var spatialOptionsInput
-      = "<tr><td>Spatial Layout</td><td><select id=\"spatialLayout\"><option value=\"free\">Free</option>"
+      = "<div><p>Spatial Layou : </p><select id=\"spatialLayout\"><option value=\"free\">Free</option>"
       + "<option value=\"network\">Network</option>"
-      + "<option value=\"grid\">Grid</option></td></tr>"
+      + "<option value=\"grid\">Grid</option></div>"
       ;
 
   var globalOptionsInput
@@ -429,7 +436,6 @@ function generateInputForm(name, inputtype) {
 
   var predicateOptions
       = imageUrlInput
-      + animationInput
       + positionInput
       + customCSS
       ;
@@ -437,6 +443,7 @@ function generateInputForm(name, inputtype) {
   var typeOptions
       = imageUrlInput
       + customCSS
+      + spatialOptionsInput
       ;
 
   var result = "";
@@ -494,24 +501,29 @@ function updateInputOptionEntity(optionType, name) {
 function readTypeOption() {
   var image = $("#imageURL").val();
   var customCSS = $("#customCSS").val();
-  var result = [image,customCSS];
+  var layout = $("#spatialLayout").val();
+  var result = [image,customCSS, layout];
   return result;
 }
 
 function writeTypeOption(name){
-
+    $("#imageURL").val(typeOptions[name].image);
+    $("#customCSS").val(typeOptions[name].css);
+    $("#spatialLayout").val(typeOptions[name].layout);
 }
 
 function readObjectOption() {
-  var image = $("#imageURL").val();
-  var location = $("#position").val();
-  var customCSS = $("#customCSS").val();
-  var result = [image,location,customCSS];
+    var image = $("#imageURL").val();
+    var location = $("#position").val();
+    var customCSS = $("#customCSS").val();
+    var result = [image,location,customCSS];
   return result;
 }
 
 function writeObjectOption(name) {
-
+    $("#imageURL").val(objectOptions[name].image);
+    $("#position").val(objectOptions[name].location);
+    $("#customCSS").val(objectOptions[name].css);
 }
 
 function readPredicateOption() {
@@ -524,6 +536,13 @@ function readPredicateOption() {
 }
 
 function writePredicateOption(name) {
+  $("#truthiness").val(predicateOptions[name].truthiness);
+  $("#arg1").val(predicateOptions[name].argument1);
+  $("#arg2").val(predicateOptions[name].argument2);
+  $("#objectSelector").val(predicateOptions[name].argument1_value);
+  $("#imageURL").val(predicateOptions[name].animation[0]);
+  $("#position").val(predicateOptions[name].animation[1]);
+  $("#customCSS").val(predicateOptions[name].animation[2]);
 
 }
 
@@ -544,7 +563,7 @@ function updateObjectOption(name, input) {
 
 function updatePredicateOption(name, input) {
     predicateOptions[name] =
-      new PredicateOption(input[0], input[1], input[2], input[3], input[4], input[5]);
+      new PredicateOption(name, input[0], input[1], input[2], input[3], input[4], input[5]);
 }
 /*all animations should accept a duration parameter.
 Perhaps I should a) store this as a multiple of itself
@@ -567,4 +586,42 @@ function animate(item, animation){
 
 function scale(item, factor){
 
+}
+/*Serialize and output the animation options objects*/
+
+function download(text, name, type) {
+    var a = document.createElement("a");
+    var file = new Blob([text], {type: type});
+    a.href = URL.createObjectURL(file);
+    a.download = name;
+    a.click();
+}
+
+function downloadAnimationOptions() {
+  var saveFile  = JSON.stringify([typeOptions,objectOptions,predicateOptions]);
+  download(saveFile, 'animation_options.txt', 'text/plain');
+}
+/*Deserialize the saved objects from txt file and repopulate based on whether
+the objects/predicates/etc exist in the newly parsed problem. Should
+provide some feedback on things that are no longer found.*/
+
+function parseSavedFile(file){
+  readFile(file, function(e) {
+    try{
+    var objects = JSON.parse(e.target.result);
+  } catch(x){
+    console.log(x);
+  } finally {
+    console.log(Object.keys(objects[0]));
+    var typekeys = Object.keys(objects[0]);
+    var objectkeys = Object.keys(objects[1]);
+    var predicatekeys = Object.keys(objects[2]);
+
+    for(var i =0;i<typekeys.length;i++){
+      console.log(objects[0][typekeys[i]]);
+      typeOptions[typekeys[i]] = objects[0][typekeys[i]];
+    }
+  }
+  console.log(objects);
+  });
 }

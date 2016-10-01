@@ -70,7 +70,11 @@ function selectInput(e) {
 
   var form = "";
   form += "<h1 id=\"selectionType\">" + type + "</h1>";
-  form += "<h2 id=\"selectionName\">" + name + "</h2><p></p>";
+  form += "<h2 id=\"selectionName\">" + name + "</h2>";
+  if(type=="object"||type=="constant"){
+    form += "<h2 id=\"selectionObjectType\">" + objectOptions[name].type + "</h2>"
+  }
+  form+="<p></p>";
   form += generateInputForm(name, type);
 
   console.log(form)
@@ -104,7 +108,7 @@ function selectInput(e) {
           $("#objectSelector").html(generateObjectSelector(getObjectListFromType(argtype)));
         }
     });
-  } else {    $("#previewHeading").html("Limited Preview");
+  } else {    $("#previewHeading").html("Preview");
 }
   switch (type) {
     case 'type':      writeTypeOption(name);
@@ -113,9 +117,9 @@ function selectInput(e) {
                       break;
     case 'constant':  writeObjectOption(name);
                       break;
-    case 'predicate': writePredicateOption(name);
+    case 'predicate': //generateExistingPredicateOptionsList
                       break;
-    default:          
+    default:
                       break;
    }
   selectedInput.type=type;

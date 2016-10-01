@@ -70,18 +70,18 @@ function generateInputForm(name, inputtype) {
 
   //option input format:
   var imageUrlInput = "<div><p>ImageURL</p><textarea id=\"imageURL\" rows=\"1\" cols=\"25\"></textarea></div>";
-  var positionInput = "<div><p>Initial Position</p><textarea id=\"position\" rows=\"1\" cols=\"25\"></textarea></div>";
+  var positionInput = "<div><p>Location</p><textarea id=\"position\" rows=\"1\" cols=\"25\"></textarea></div>";
   var customCSS = "<div><p>Custom CSS Properties</p><textarea id=\"customCSS\" rows=\"1\" cols=\"25\"></textarea></div>";
-  var animationInput
-      = "<tr><td>Select an Animation</td><td><select id=\"animation\"><option value=\"animation1\">Animation 1</option>"
-      + "<option value=\"animation2\">Animation 2</option>"
-      + "<option value=\"animation3\">Animation 3</option></select></td></tr>"
-      ;
+  // var animationInput
+  //     = "<tr><td>Select an Animation</td><td><select id=\"animation\"><option value=\"animation1\">Animation 1</option>"
+  //     + "<option value=\"animation2\">Animation 2</option>"
+  //     + "<option value=\"animation3\">Animation 3</option></select></td></tr>"
+  //     ;
 
   var spatialOptionsInput
-      = "<tr><td>Spatial Layout</td><td><select id=\"spatialLayout\"><option value=\"free\">Free</option>"
+      = "<div><p>Spatial Layou : </p><select id=\"spatialLayout\"><option value=\"free\">Free</option>"
       + "<option value=\"network\">Network</option>"
-      + "<option value=\"grid\">Grid</option></td></tr>"
+      + "<option value=\"grid\">Grid</option></div>"
       ;
 
   var globalOptionsInput
@@ -96,7 +96,6 @@ function generateInputForm(name, inputtype) {
 
   var predicateOptions
       = imageUrlInput
-      + animationInput
       + positionInput
       + customCSS
       ;
@@ -104,6 +103,7 @@ function generateInputForm(name, inputtype) {
   var typeOptions
       = imageUrlInput
       + customCSS
+      + spatialOptionsInput
       ;
 
   var result = "";
@@ -161,24 +161,29 @@ function updateInputOptionEntity(optionType, name) {
 function readTypeOption() {
   var image = $("#imageURL").val();
   var customCSS = $("#customCSS").val();
-  var result = [image,customCSS];
+  var layout = $("#spatialLayout").val();
+  var result = [image,customCSS, layout];
   return result;
 }
 
 function writeTypeOption(name){
-
+    $("#imageURL").val(typeOptions[name].image);
+    $("#customCSS").val(typeOptions[name].css);
+    $("#spatialLayout").val(typeOptions[name].layout);
 }
 
 function readObjectOption() {
-  var image = $("#imageURL").val();
-  var location = $("#position").val();
-  var customCSS = $("#customCSS").val();
-  var result = [image,location,customCSS];
+    var image = $("#imageURL").val();
+    var location = $("#position").val();
+    var customCSS = $("#customCSS").val();
+    var result = [image,location,customCSS];
   return result;
 }
 
 function writeObjectOption(name) {
-
+    $("#imageURL").val(objectOptions[name].image);
+    $("#position").val(objectOptions[name].location);
+    $("#customCSS").val(objectOptions[name].css);
 }
 
 function readPredicateOption() {
@@ -191,6 +196,13 @@ function readPredicateOption() {
 }
 
 function writePredicateOption(name) {
+  $("#truthiness").val(predicateOptions[name].truthiness);
+  $("#arg1").val(predicateOptions[name].argument1);
+  $("#arg2").val(predicateOptions[name].argument2);
+  $("#objectSelector").val(predicateOptions[name].argument1_value);
+  $("#imageURL").val(predicateOptions[name].animation[0]);
+  $("#position").val(predicateOptions[name].animation[1]);
+  $("#customCSS").val(predicateOptions[name].animation[2]);
 
 }
 
@@ -211,5 +223,5 @@ function updateObjectOption(name, input) {
 
 function updatePredicateOption(name, input) {
     predicateOptions[name] =
-      new PredicateOption(input[0], input[1], input[2], input[3], input[4], input[5]);
+      new PredicateOption(name, input[0], input[1], input[2], input[3], input[4], input[5]);
 }
