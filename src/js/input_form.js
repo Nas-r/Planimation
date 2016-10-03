@@ -48,7 +48,6 @@ function generateObjectSelector(objectList) {
               + objectList[i] + "</option>"
   }
   result += "<option value=\"all\"> ** ANY ** </option>";
-  console.log("object selector : \n" + result);
   return result + "</select>";
 }
 
@@ -127,30 +126,52 @@ function generateInputForm(name, inputtype) {
       return "<div class=\"inputOptions\" style=\"margin:auto;\">" + result + "</div>"
 }
 
+function generateOptionPreview(name){
+  var result = '';
+  if(predicateOptions[name].length>0) {
+    for(var i = 0; i<predicateOptions[name].length;i++) {
+      var pred = predicateOptions[name][i];
+      result += "<div class=\"optionPreview\" onclick=\"writePredicateOption("+pred.name+","+i+")\"><div>"
+      + "When" + pred.name + " is " + pred.truthiness + " and "
+      + pred.argument1 + " is " + pred.argument1_value + " animate "
+      + pred.argument2 + "</div><div><img class=optionPreviewImage src=\""
+      + pred.animation.imageURL + "></img>"
+      +"</div></div>"
+    }
+  }
+  $("#optionsPreview").html(result);
+}
 //this is a bad name, but what this does is takes the users input
 //for a given entity and saves them in the requisite options object
 //from those defined in input_options_objects.js
-function updateInputOptionEntity(optionType, name) {
+function updateInputOptionEntity(name, optionType) {
   var input;
+  console.log(name+ ":"+ optionType);
   switch (optionType) {
-    case 'type':
+    case "type":
       input = readTypeOption();
       updateTypeOption(name, input);
       console.log(typeOptions[name]);
       break;
-    case 'constant' :
-    case 'object':
+    case "constant" :
       input = readObjectOption();
       console.log(input);
       updateObjectOption(name, input);
       console.log(objectOptions[name]);
       break;
-    case 'predicate':
+    case "object":
+      input = readObjectOption();
+      console.log(input);
+      updateObjectOption(name, input);
+      console.log(objectOptions[name]);
+      break;
+    case "predicate":
       input = readPredicateOption();
       updatePredicateOption(name, input);
+      generateOptionPreview(name);
       console.log(predicateOptions[name]);
       break;
-    case 'action':
+    case "action":
       input = readActionOption();
       break;
     default :
@@ -162,7 +183,7 @@ function readTypeOption() {
   var image = $("#imageURL").val();
   var customCSS = $("#customCSS").val();
   var layout = $("#spatialLayout").val();
-  var result = [image,customCSS, layout];
+  var result = [image,customCSS,layout];
   return result;
 }
 
@@ -191,18 +212,19 @@ function readPredicateOption() {
     var argument1 = $("#arg1").val();
     var argument2 = $("#arg2").val();
     var argument1_value = $("#objectSelector").val();
-    var animation = [$("#imageURL").val(), $("#position").val(), $("#customCSS").val()];
+    var animation = new AnimationOption($("#imageURL").val(), $("#position").val(), $("#customCSS").val());
     return [truthiness,argument1,argument2,argument1_value,animation];
 }
 
-function writePredicateOption(name) {
-  $("#truthiness").val(predicateOptions[name].truthiness);
-  $("#arg1").val(predicateOptions[name].argument1);
-  $("#arg2").val(predicateOptions[name].argument2);
-  $("#objectSelector").val(predicateOptions[name].argument1_value);
-  $("#imageURL").val(predicateOptions[name].animation[0]);
-  $("#position").val(predicateOptions[name].animation[1]);
-  $("#customCSS").val(predicateOptions[name].animation[2]);
+//this is more complicated, it will need to write them like cards
+function writePredicateOption(name, index) {
+  $("#truthiness").val(predicateOptions[name][index].truthiness);
+  $("#arg1").val(predicateOptions[name][index].argument1);
+  $("#arg2").val(predicateOptions[name][index].argument2);
+  $("#objectSelector").val(predicateOptions[name][index].argument1_value);
+  $("#imageURL").val(predicateOptions[name][index].animation.image);
+  $("#position").val(predicateOptions[name][index].animation.location);
+  $("#customCSS").val(predicateOptions[name][index].animation.css);
 
 }
 
@@ -212,7 +234,7 @@ function readActionOption() {
 
 function updateTypeOption(name, input) {
   typeOptions[name] =
-    new TypeOption(name, input[0], input[1]);
+    new TypeOption(name, input[0], input[1], input[2]);
 }
 
 function updateObjectOption(name, input) {
@@ -222,6 +244,20 @@ function updateObjectOption(name, input) {
 }
 
 function updatePredicateOption(name, input) {
-    predicateOptions[name] =
-      new PredicateOption(name, input[0], input[1], input[2], input[3], input[4], input[5]);
+  //if any animation properties are defined
+  if(Boolean(input[4].css) || Boolean(input[4].image) || Boolean(input[4].location)) {
+    for(var option in predicateOptions[name]){
+        if( option.argument1===input[1]
+            &&  option.truthiness===input[0]
+            &&  option.argument2===input[2]
+            &&  option.argument1_value===input[3])
+            {
+              option.animation=input[4];
+              return;
+            }
+    }
+    predicateOptions[name].push(
+      new PredicateOption(name, input[0], input[1], input[2], input[3], input[4])
+    );
+  }
 }

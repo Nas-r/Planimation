@@ -81,6 +81,8 @@
                   <p></p>
                   <input id="loadbutton" type="file">
                   <p></p>
+                  <input id="apply" type="button" value="Save and Apply Input" onclick="updateInputOptionEntity($("#selectionName").html(),$("#selectionType").html());">
+                  <p></p>
                 </div>
                 <div class="row" style="margin:auto;">
                   <div id="inputOptions">
@@ -90,10 +92,12 @@
             </div>
 
             <div class="col-md-5" style="height:100%;">
-                <div id="previewHeading" class="row" style="height:50%;">
+                <div id="previewHeading" class="row">
                   Limited Preview
+                  <p></p>
                 </div>
-                <div class="row" style="transform:translateY(-50%);">
+                <div id="optionsPreview" class="row">
+
                 </div>
             </div>
             </div>

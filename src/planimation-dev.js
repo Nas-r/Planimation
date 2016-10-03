@@ -118,6 +118,110 @@ function parseInputFiles() {
   */
     parseDomain(getInput);
 }
+var globalOptions;
+//Creating assosciative arrays to store option inputs for simple,
+//fast name based ulookup.
+var typeOptions = {};
+var objectOptions = {};
+var predicateOptions = {};
+
+function TypeOption(name, image ,css, layout) {
+  this.name=name;
+  this.image=image;
+  this.css=css;
+  this.layout = layout;
+}
+
+function GlobalOption(spatialLayout) {
+    this.spatialLayout = spatialLayout;
+}
+
+function ObjectOption(name, type, image, location, css) {
+    this.name=name;
+    this.type=type;
+    this.image=image;
+    this.location=location;
+    this.css = css;
+}
+
+//NOTE: If constants and objects don't share the same namespace
+//I'll have to create a separate type and store for constants.
+//: Usually you use either constants or objects depending if you want them
+//in the problem def or domain file.
+//predicate options apply on conditionals consisting of at most two arguments,
+//as well as a (truth)value
+function PredicateOption(name, truthiness, argument1, argument2, argumentValue, animation) {
+  this.name = name; //predicate name
+  this.truthiness = truthiness;
+  this.argument1 = argument1;
+  this.argument2 = argument2;
+  this.argument1_value = argumentValue;
+  this.animation = animation;
+}
+
+//parameterS ?
+function ActionOption(name, parameter){
+  this.name=name;
+  this.parameter=parameter;
+  //hmm, how do I handle an arbitrary number of parameters?
+  //do I treat action rules the same as predicate rules?
+}
+
+function AnimationOption(image, location, css){
+    this.image=image;
+    this.location = location;
+    this.css = css;
+}
+
+function createAnimationObjects(){
+  if (predicates.length>0){
+    for(var i=0;i<predicates.length;i++){
+      predicateOptions[predicates[i].name] = [];
+    }
+  }
+  //types objects and constants
+  if (types.length>0){
+    for (var i =0; i<types.length;i++) {
+      typeOptions[types[i]] = new TypeOption(types[i]);
+    }
+    var typeCounter = 0;
+    var type = "";
+    for (var i=0;i<constants.names.length;i++) {
+      if(i<constants.typeIndex[typeCounter]) {
+        type=constants.types[typeCounter];
+      } else {
+        typeCounter++;
+        type=constants.types[typeCounter];
+      }
+      var name = constants.names[i];
+      objectOptions[name] = new ObjectOption(name, type);
+    }
+    typeCounter=0;
+    for (var i=0;i<objects.names.length;i++) {
+      if(i<objects.typeIndex[typeCounter]) {
+        type=objects.types[typeCounter];
+      } else {
+        typeCounter++;
+        type=objects.types[typeCounter];
+      }
+      var name = objects.names[i];
+      objectOptions[name] = new ObjectOption(name, type);
+    }
+  } else {
+    for (var i=0;i<constants.names.length;i++) {
+      objectOptions[constants.names[i]] = new ObjectOption(constants.names[i]);
+    }
+    for (var i=0;i<objects.names.length;i++) {
+      objectOptions[objects.names[i]] = new ObjectOption(objects.names[i]);
+    }
+  }
+
+  console.log(objectOptions);
+//I won't do this prepopulation for predicate and action options because
+//they need to be created upon input submission. In fact this was probably
+//entirely unnecessary except for allowing me to attach the types easily
+
+}
 
 /*
 ****************      GENERATE INPUT FORM    **********************
@@ -179,15 +283,15 @@ function getObjectByName(name, collection) {
   }
 }
 
-
 /*This is the function that runs when an item from the list of objects/types
 is clicked. It loads the available options into the #inputOptions div*/
 function selectInput(e) {
-  updateInputOptionEntity($('#selectionType').html(),$('#selectionName').html());
   var name = e.target.innerHTML;
   var type = e.target.getAttribute('data-type');
   console.log(type + " : "  + name);
-
+  console.log(objectOptions[name]);
+  console.log(selectedInput.name+ ":"+ selectedInput.type);
+  updateInputOptionEntity($("#selectionName").html(),$("#selectionType").html());
   var form = "";
   form += "<h1 id=\"selectionType\">" + type + "</h1>";
   form += "<h2 id=\"selectionName\">" + name + "</h2>";
@@ -197,11 +301,11 @@ function selectInput(e) {
   form+="<p></p>";
   form += generateInputForm(name, type);
 
-  console.log(form)
   $('#inputOptions').html(form);
 
   if(type=="predicate"){
     $("#previewHeading").html("Existing Options");
+    generateOptionPreview(name);
     var predicate = getObjectByName(name, predicates);
     var argument = $("#arg1").val();
     var argtype;
@@ -237,106 +341,13 @@ function selectInput(e) {
                       break;
     case 'constant':  writeObjectOption(name);
                       break;
-    case 'predicate': //generateExistingPredicateOptionsList
+    case 'predicate': generatePredicateInputForm(name);
                       break;
     default:
                       break;
    }
   selectedInput.type=type;
   selectedInput.name=name;
-}
-var globalOptions;
-//Creating assosciative arrays to store option inputs for simple,
-//fast name based ulookup.
-var typeOptions = {};
-var objectOptions = {};
-var predicateOptions = {};
-
-function TypeOption(typeName, image ,css, layout) {
-  this.name=typeName;
-  this.image=image;
-  this.css=css;
-  this.layout = layout;
-}
-
-function GlobalOption(spatialLayout) {
-    this.spatialLayout = spatialLayout;
-}
-
-function ObjectOption(name, type, image, location, css) {
-    this.name=name;
-    this.type=type;
-    this.image=image;
-    this.location=location;
-    this.css = css;
-}
-
-//NOTE: If constants and objects don't share the same namespace
-//I'll have to create a separate type and store for constants.
-//: Usually you use either constants or objects depending if you want them
-//in the problem def or domain file.
-//predicate options apply on conditionals consisting of at most two arguments,
-//as well as a (truth)value
-function PredicateOption(name, truthiness, argument1, argument2, argumentValue, animation) {
-  this.name = name; //predicate name
-  this.truthiness = truthiness;
-  this.argument1 = argument1;
-  this.argument2 = argument2;
-  this.argument1_value = argumentValue;
-  this.animation = animation;
-}
-
-//parameterS ?
-function ActionOption(name, parameter){
-  this.name=name;
-  this.parameter=parameter;
-  //hmm, how do I handle an arbitrary number of parameters?
-  //do I treat action rules the same as predicate rules?
-}
-
-function createAnimationObjects(){
-
-  //types objects and constants
-  if (types.length>0){
-    for (var i =0; i<types.length;i++) {
-      typeOptions[types[i]] = new TypeOption(types[i]);
-    }
-    var typeCounter = 0;
-    var type = "";
-    for (var i=0;i<constants.names.length;i++) {
-      if(i<constants.typeIndex[typeCounter]) {
-        type=constants.types[typeCounter];
-      } else {
-        typeCounter++;
-        type=constants.types[typeCounter];
-      }
-      var name = constants.names[i];
-      objectOptions[name] = new ObjectOption(name, type);
-    }
-    typeCounter=0;
-    for (var i=0;i<objects.names.length;i++) {
-      if(i<objects.typeIndex[typeCounter]) {
-        type=objects.types[typeCounter];
-      } else {
-        typeCounter++;
-        type=objects.types[typeCounter];
-      }
-      var name = objects.names[i];
-      objectOptions[name] = new ObjectOption(name, type);
-    }
-  } else {
-    for (var i=0;i<constants.names.length;i++) {
-      objectOptions[constants.names[i]] = new ObjectOption(constants.names[i]);
-    }
-    for (var i=0;i<objects.names.length;i++) {
-      objectOptions[objects.names[i]] = new ObjectOption(objects.names[i]);
-    }
-  }
-
-//I won't do this prepopulation for predicate and action options because
-//they need to be created upon input submission. In fact this was probably
-//entirely unnecessary except for allowing me to attach the types easily
-
 }
 function argumentDescriptor(arg){
     if(typeof(arg.type)!="undefined"){
@@ -388,7 +399,6 @@ function generateObjectSelector(objectList) {
               + objectList[i] + "</option>"
   }
   result += "<option value=\"all\"> ** ANY ** </option>";
-  console.log("object selector : \n" + result);
   return result + "</select>";
 }
 
@@ -467,30 +477,52 @@ function generateInputForm(name, inputtype) {
       return "<div class=\"inputOptions\" style=\"margin:auto;\">" + result + "</div>"
 }
 
+function generateOptionPreview(name){
+  var result = '';
+  if(predicateOptions[name].length>0) {
+    for(var i = 0; i<predicateOptions[name].length;i++) {
+      var pred = predicateOptions[name][i];
+      result += "<div class=\"optionPreview\" onclick=\"writePredicateOption("+pred.name+","+i+")\"><div>"
+      + "When" + pred.name + " is " + pred.truthiness + " and "
+      + pred.argument1 + " is " + pred.argument1_value + " animate "
+      + pred.argument2 + "</div><div><img class=optionPreviewImage src=\""
+      + pred.animation.imageURL + "></img>"
+      +"</div></div>"
+    }
+  }
+  $("#optionsPreview").html(result);
+}
 //this is a bad name, but what this does is takes the users input
 //for a given entity and saves them in the requisite options object
 //from those defined in input_options_objects.js
-function updateInputOptionEntity(optionType, name) {
+function updateInputOptionEntity(name, optionType) {
   var input;
+  console.log(name+ ":"+ optionType);
   switch (optionType) {
-    case 'type':
+    case "type":
       input = readTypeOption();
       updateTypeOption(name, input);
       console.log(typeOptions[name]);
       break;
-    case 'constant' :
-    case 'object':
+    case "constant" :
       input = readObjectOption();
       console.log(input);
       updateObjectOption(name, input);
       console.log(objectOptions[name]);
       break;
-    case 'predicate':
+    case "object":
+      input = readObjectOption();
+      console.log(input);
+      updateObjectOption(name, input);
+      console.log(objectOptions[name]);
+      break;
+    case "predicate":
       input = readPredicateOption();
       updatePredicateOption(name, input);
+      generateOptionPreview(name);
       console.log(predicateOptions[name]);
       break;
-    case 'action':
+    case "action":
       input = readActionOption();
       break;
     default :
@@ -502,7 +534,7 @@ function readTypeOption() {
   var image = $("#imageURL").val();
   var customCSS = $("#customCSS").val();
   var layout = $("#spatialLayout").val();
-  var result = [image,customCSS, layout];
+  var result = [image,customCSS,layout];
   return result;
 }
 
@@ -531,18 +563,19 @@ function readPredicateOption() {
     var argument1 = $("#arg1").val();
     var argument2 = $("#arg2").val();
     var argument1_value = $("#objectSelector").val();
-    var animation = [$("#imageURL").val(), $("#position").val(), $("#customCSS").val()];
+    var animation = new AnimationOption($("#imageURL").val(), $("#position").val(), $("#customCSS").val());
     return [truthiness,argument1,argument2,argument1_value,animation];
 }
 
-function writePredicateOption(name) {
-  $("#truthiness").val(predicateOptions[name].truthiness);
-  $("#arg1").val(predicateOptions[name].argument1);
-  $("#arg2").val(predicateOptions[name].argument2);
-  $("#objectSelector").val(predicateOptions[name].argument1_value);
-  $("#imageURL").val(predicateOptions[name].animation[0]);
-  $("#position").val(predicateOptions[name].animation[1]);
-  $("#customCSS").val(predicateOptions[name].animation[2]);
+//this is more complicated, it will need to write them like cards
+function writePredicateOption(name, index) {
+  $("#truthiness").val(predicateOptions[name][index].truthiness);
+  $("#arg1").val(predicateOptions[name][index].argument1);
+  $("#arg2").val(predicateOptions[name][index].argument2);
+  $("#objectSelector").val(predicateOptions[name][index].argument1_value);
+  $("#imageURL").val(predicateOptions[name][index].animation.image);
+  $("#position").val(predicateOptions[name][index].animation.location);
+  $("#customCSS").val(predicateOptions[name][index].animation.css);
 
 }
 
@@ -552,7 +585,7 @@ function readActionOption() {
 
 function updateTypeOption(name, input) {
   typeOptions[name] =
-    new TypeOption(name, input[0], input[1]);
+    new TypeOption(name, input[0], input[1], input[2]);
 }
 
 function updateObjectOption(name, input) {
@@ -562,8 +595,22 @@ function updateObjectOption(name, input) {
 }
 
 function updatePredicateOption(name, input) {
-    predicateOptions[name] =
-      new PredicateOption(name, input[0], input[1], input[2], input[3], input[4], input[5]);
+  //if any animation properties are defined
+  if(Boolean(input[4].css) || Boolean(input[4].image) || Boolean(input[4].location)) {
+    for(var option in predicateOptions[name]){
+        if( option.argument1===input[1]
+            &&  option.truthiness===input[0]
+            &&  option.argument2===input[2]
+            &&  option.argument1_value===input[3])
+            {
+              option.animation=input[4];
+              return;
+            }
+    }
+    predicateOptions[name].push(
+      new PredicateOption(name, input[0], input[1], input[2], input[3], input[4])
+    );
+  }
 }
 /*all animations should accept a duration parameter.
 Perhaps I should a) store this as a multiple of itself
@@ -590,6 +637,7 @@ function scale(item, factor){
 /*Serialize and output the animation options objects*/
 
 function download(text, name, type) {
+    updateInputOptionEntity(name,type);
     var a = document.createElement("a");
     var file = new Blob([text], {type: type});
     a.href = URL.createObjectURL(file);
@@ -612,14 +660,21 @@ function parseSavedFile(file){
   } catch(x){
     console.log(x);
   } finally {
-    console.log(Object.keys(objects[0]));
     var typekeys = Object.keys(objects[0]);
     var objectkeys = Object.keys(objects[1]);
     var predicatekeys = Object.keys(objects[2]);
-
+    console.log(objectkeys);
     for(var i =0;i<typekeys.length;i++){
       console.log(objects[0][typekeys[i]]);
       typeOptions[typekeys[i]] = objects[0][typekeys[i]];
+    }
+    for(var i =0;i<objectkeys.length;i++){
+      console.log(objects[1][objectkeys[i]]);
+      objectOptions[objectkeys[i]] = objects[1][objectkeys[i]];
+    }
+    for(var i =0;i<predicatekeys.length;i++){
+      console.log(objects[2][predicatekeys[i]]);
+      predicateOptions[predicatekeys[i]] = objects[2][predicatekeys[i]];
     }
   }
   console.log(objects);

@@ -42,16 +42,16 @@ Actions combine the predicate animations and can also have their own animation a
 Using typed objects is recommended.
 
 ##For Future Me:
-
-The parser has some rules that are right recursive. I should rewrite these to be left recursive since this better suits Jison's LALR parsing mechanism. Honestly haven't noticed any performance issues so this is pretty low on the priorities list ATM.
-
 Using typed objects is recommended. Animating is tedious without types. I should write something to apply general or default settings using regex on object/constant names.
 
-Replace table based input with a form with a dropdown selector and then the options on that input based on its type (predicate, object, type, constant, etc). Might make it a little less intimidating to look at.
+Replace table based input with a form with a dropdown selector and then the options on that input based on its type (predicate, object, type, constant, etc). Might make it a little less intimidating to look at. - done
 
 
 Objects, constants and predicate need unique names for this to work, does PDDL require this? If not, I'll need to attach the items type to its animation object so that they're all uniquely identifiable. I should probably do this anyway.
 See: http://stackoverflow.com/questions/1735230/can-i-add-custom-attribute-to-html-tag
+- done, attached file types to objects
+
+Allow location extraction via regex on constant or objects name. e.g loc_1_2 is point (1,2)
 
 ##Add action based options
 

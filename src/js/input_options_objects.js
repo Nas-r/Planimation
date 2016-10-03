@@ -5,8 +5,8 @@ var typeOptions = {};
 var objectOptions = {};
 var predicateOptions = {};
 
-function TypeOption(typeName, image ,css, layout) {
-  this.name=typeName;
+function TypeOption(name, image ,css, layout) {
+  this.name=name;
   this.image=image;
   this.css=css;
   this.layout = layout;
@@ -47,8 +47,18 @@ function ActionOption(name, parameter){
   //do I treat action rules the same as predicate rules?
 }
 
-function createAnimationObjects(){
+function AnimationOption(image, location, css){
+    this.image=image;
+    this.location = location;
+    this.css = css;
+}
 
+function createAnimationObjects(){
+  if (predicates.length>0){
+    for(var i=0;i<predicates.length;i++){
+      predicateOptions[predicates[i].name] = [];
+    }
+  }
   //types objects and constants
   if (types.length>0){
     for (var i =0; i<types.length;i++) {
@@ -86,6 +96,7 @@ function createAnimationObjects(){
     }
   }
 
+  console.log(objectOptions);
 //I won't do this prepopulation for predicate and action options because
 //they need to be created upon input submission. In fact this was probably
 //entirely unnecessary except for allowing me to attach the types easily

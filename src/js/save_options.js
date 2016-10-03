@@ -1,6 +1,7 @@
 /*Serialize and output the animation options objects*/
 
 function download(text, name, type) {
+    updateInputOptionEntity(name,type);
     var a = document.createElement("a");
     var file = new Blob([text], {type: type});
     a.href = URL.createObjectURL(file);
