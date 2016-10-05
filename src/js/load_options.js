@@ -16,14 +16,17 @@ function parseSavedFile(file){
     for(var i =0;i<typekeys.length;i++){
       console.log(objects[0][typekeys[i]]);
       typeOptions[typekeys[i]] = objects[0][typekeys[i]];
+      writeTypeOption(typekeys[i]);
     }
     for(var i =0;i<objectkeys.length;i++){
       console.log(objects[1][objectkeys[i]]);
       objectOptions[objectkeys[i]] = objects[1][objectkeys[i]];
+      writeObjectOption(objectkeys[i]);
     }
     for(var i =0;i<predicatekeys.length;i++){
       console.log(objects[2][predicatekeys[i]]);
       predicateOptions[predicatekeys[i]] = objects[2][predicatekeys[i]];
+      //writePredicateOption??
     }
   }
   console.log(objects);

@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en-US">
 <head>
@@ -79,19 +78,18 @@
                   <p></p>
                   <input id="savebutton" type="button" value="Save Animation Settings to File" onclick="downloadAnimationOptions();">
                   <p></p>
-                  <input id="loadbutton" type="file">
-                  <p></p>
-                  <input id="apply" type="button" value="Save and Apply Input" onclick="updateInputOptionEntity($("#selectionName").html(),$("#selectionType").html());">
+                  <input id="apply" type="button" value="Save and Apply Input" onclick="saveAndApply();">
                   <p></p>
                 </div>
                 <div class="row" style="margin:auto;">
                   <div id="inputOptions">
+                    <div id="loadButton"><input id="loadbutton" type="file"></div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div class="col-md-5" style="height:100%;">
+            <div class="col-md-5" style="overflow-y:scroll; height:100%;">
                 <div id="previewHeading" class="row">
                   Limited Preview
                   <p></p>

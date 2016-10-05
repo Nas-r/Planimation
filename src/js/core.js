@@ -1,11 +1,33 @@
+/**The input domain text file
+ * @global
+ */
 var domain_file;
+/**The input problem text file
+ * @global
+ */
 var problem_file;
+/**The input plan text file
+ * @global
+ */
 var plan_file;
 
+/**Global store of parsed predicates
+ * @global
+ */
 var predicates;
+/**Global store of parsed objects
+ * @global
+ */
 var objects;
+/**Global store of parsed constants
+ * @global
+ */
 var constants;
+/**Global store of parsed types
+ * @global
+ */
 var types;
+
 /*
 ****************      LOAD TEST FILES     **********************
 */
@@ -40,7 +62,11 @@ function readFile(file, callback){
 ****************      PARSE LOADED FILES     **********************
 */
 
-/*Parses the loaded plan and returns a list of actions*/
+/**Parses the loaded plan and returns a list of actions
+  *@param {array} domain - Objects from parsed domain file. [types, constants, predicates, actionList]
+  *@param {array} problem - Objects from the parsed problem file. [objects, startPredicates]
+  *@param {function} callback - the function that will run on the parsed files.
+  */
 function parseSolution(domain, problem, callback) {
     readFile(plan_file, function(e) {
       try {
@@ -54,12 +80,14 @@ function parseSolution(domain, problem, callback) {
     });
 }
 
-/*Parses the loaded problem file and returns
-[objects, startPredicates]
+/**Parses the loaded problem and returns lists of objects
 NOTE: Sometimes has problems if the file ends in an RPAREN,
 I think the parser misses the EOF token when this is the case, adding a
 whitespace character at the end seems to fix it. Could be some weird
-CRLF v LF based bug, but I've covered both line endings in the parser*/
+CRLF v LF based bug, but I've covered both line endings in the parser
+  *@param {array} domain - Objects from parsed domain file. [types, constants, predicates, actionList]
+  *@param {function} callback - the function that will run on the parsed files.
+  */
 function parseProblem(domain, callback) {
       readFile(problem_file, function(e) {
         try {
@@ -73,8 +101,9 @@ function parseProblem(domain, callback) {
       });
 }
 
-/*Parses the loaded domain file and returns
-[types, constants, predicates, actionList]*/
+/**Parses the loaded domain file and returns a lists of objects
+  *@param {function} callback - the function that will run on the parsed files.
+  */
 function parseDomain(callback) {
   readFile(domain_file, function(e) {
     try {
@@ -88,9 +117,15 @@ function parseDomain(callback) {
   });
 }
 
-/*Shouldmt ne called getInput, this function is passed as a callbasck to
-parseDomain becasue FileReader runs ASYNC and I need to ensure files are prased
-before the rest of the script is exectured]*/
+/**
+ *
+ Shouldmt be called getInput, this function is passed as a callbasck to
+ parseDomain becasue FileReader runs ASYNC and I need to ensure files are prased
+ before the rest of the script is exectured]
+ *@param {array} domain - Objects from parsed domain file. [types, constants, predicates, actionList]
+ *@param {array} problem - Objects from the parsed problem file. [objects, startPredicates]
+ *@param {array} plan - Objects from parsed plan file. [actions]
+ */
 function getInput(domain,problem,plan) {
   types = domain[0];
   constants = domain[1];
@@ -108,13 +143,5 @@ function getInput(domain,problem,plan) {
 }
 
 function parseInputFiles() {
-  /*
-    domain  = [[types], [constants], [predicates], [actionList]]
-              types =
-              constants = [[names],[typeIndex],[types]]
-
-    problem = [[objects], [startPredicates]]
-    plan    = [actions]
-  */
     parseDomain(getInput);
 }

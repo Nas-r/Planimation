@@ -1,3 +1,10 @@
+function saveAndApply(){
+  updateInputOptionEntity($("#selectionName").html(),$("#selectionType").html());
+}
+
+/**Returns a string containing a passed argument object's name and type,
+if it has one.
+@param {Argument} arg - Argument object*/
 function argumentDescriptor(arg){
     if(typeof(arg.type)!="undefined"){
       return arg.name + " - " + arg.type;
@@ -6,9 +13,17 @@ function argumentDescriptor(arg){
     }
 }
 
-//number will always be 1 or 2 because options apply
-// across at most two arguments
-//i.e: when ?x takes some value, ?y adopts some transformation
+/**Generates a selector from a list of arguments.
+  *number will always be 1 or 2 because options apply
+  *across at most two arguments.
+  *i.e: when ?x takes some value, ?y adopts some transformation
+  *I should see where I've called this function,
+  *seems to me the number argument is... useless.
+  *@param {array} argumentList - List of objects of type Argument.
+  @param {number} number - The number of argument, this will always be a 1 or 2,
+  and is used to differentiate between the two argument selectors in a predicates
+  input page.
+  */
 function generateArgumentSelector(argumentList, number) {
     if(typeof(argumentList) != "undefined"){
     if(number>2||number<=0){
@@ -24,6 +39,10 @@ function generateArgumentSelector(argumentList, number) {
   } else return " null ";
 }
 
+/**Takes an object type as a string and returns all object that match as
+ * a list of names.
+ *@param {string} type - a type as specified in the pddl definition
+ */
 function getObjectListFromType(type) {
   var result = [];
   if(typeof(type)!="undefined"){
@@ -41,16 +60,26 @@ function getObjectListFromType(type) {
   }
 }
 
+/**Takes an array of object names and generates a html select object with
+ * those objects as options, as well as a catch-all option.
+ *@param {array} objectList - Array of object names
+ */
 function generateObjectSelector(objectList) {
   var result = "<select id=\"objectSelector\">";
+  result += "<option value=\"anything\"> ** ANY ** </option>";
   for(var i=0;i<objectList.length;i++){
       result += "<option value=\"" + objectList[i] + "\">"
               + objectList[i] + "</option>"
   }
-  result += "<option value=\"all\"> ** ANY ** </option>";
   return result + "</select>";
 }
 
+/**
+ * Generates the input form for a predicate option. This is broken out from the
+ * generic generateInputForm function because the predicate form is a little
+ * more complicated.
+ @param {string} name - Name of the predicate
+ */
 function generatePredicateInputForm(name) {
   var predicate = getObjectByName(name, predicates);
   var predicateHeader = "<div class=\"predicateOptionSpecification\">When "+ name + " is "
@@ -58,24 +87,24 @@ function generatePredicateInputForm(name) {
       + "<option value=\"true\">True</option>"
       + "<option value=\"false\">False</option></select>"
       + " and " + generateArgumentSelector(predicate.arguments, 1)
-      + " is <select id=\"objectSelector\"><option value=\"all\"> ** ANY ** </option></select> then the transformation"
+      + " is <select id=\"objectSelector\"><option value=\"anything\"> ** ANY ** </option></select> then the transformation"
       + " below will be applied to the argument " + generateArgumentSelector(predicate.arguments, 2) + " : "
       + "</div>";
 
       return predicateHeader;
 }
 
+/**
+ * Generates the input form from the passed arguments and returns it as an html div
+ @param {string} name - name of the entity
+ @param {string} inputtype - type of the entity
+ */
 function generateInputForm(name, inputtype) {
 
   //option input format:
   var imageUrlInput = "<div><p>ImageURL</p><textarea id=\"imageURL\" rows=\"1\" cols=\"25\"></textarea></div>";
   var positionInput = "<div><p>Location</p><textarea id=\"position\" rows=\"1\" cols=\"25\"></textarea></div>";
   var customCSS = "<div><p>Custom CSS Properties</p><textarea id=\"customCSS\" rows=\"1\" cols=\"25\"></textarea></div>";
-  // var animationInput
-  //     = "<tr><td>Select an Animation</td><td><select id=\"animation\"><option value=\"animation1\">Animation 1</option>"
-  //     + "<option value=\"animation2\">Animation 2</option>"
-  //     + "<option value=\"animation3\">Animation 3</option></select></td></tr>"
-  //     ;
 
   var spatialOptionsInput
       = "<div><p>Spatial Layou : </p><select id=\"spatialLayout\"><option value=\"free\">Free</option>"
@@ -126,24 +155,59 @@ function generateInputForm(name, inputtype) {
       return "<div class=\"inputOptions\" style=\"margin:auto;\">" + result + "</div>"
 }
 
-function generateOptionPreview(name){
+/**
+ * Generates a div containing a preview of a submitted predicate option.
+ It includes a thumbnail of an image and the specified parameters.
+ TODO: Should also contain a button to allow deletion of an option.
+ @param {string} name - name of the predicate whose options are to be displayed.
+ */
+function generatePredicateOptionPreview(name){
   var result = '';
   if(predicateOptions[name].length>0) {
     for(var i = 0; i<predicateOptions[name].length;i++) {
       var pred = predicateOptions[name][i];
-      result += "<div class=\"optionPreview\" onclick=\"writePredicateOption("+pred.name+","+i+")\"><div>"
-      + "When" + pred.name + " is " + pred.truthiness + " and "
+      result += "<div class=\"optionPreview\" onclick=\"writePredicateOption("+i+");\"><div>"
+      + "When " + pred.name + " is " + pred.truthiness + " and "
       + pred.argument1 + " is " + pred.argument1_value + " animate "
       + pred.argument2 + "</div><div><img class=optionPreviewImage src=\""
-      + pred.animation.imageURL + "></img>"
+      + pred.animation.image + "\"></img>"
       +"</div></div>"
     }
   }
   $("#optionsPreview").html(result);
 }
-//this is a bad name, but what this does is takes the users input
-//for a given entity and saves them in the requisite options object
-//from those defined in input_options_objects.js
+
+/**
+ * Generates a div containing a preview of the options for this object.
+ It includes a thumbnail of an image and the specified parameters.
+ @param {string} name - name of the object whose options are to be displayed.
+ */
+function generateObjectOptionPreview(name,type){
+  console.log("generating preview");
+  var result = '';
+  if(type == "type") {
+    if (typeOptions[name].image!="undefined"){
+      result += "<div class=\"optionPreview\"><div>"
+      +"<img class=objectOptionPreviewImage src=\""
+      + typeOptions[name].image + "\"></img>"
+      +"</div></div>"}
+  } else if (type == "object" || type == "constant") {
+    if (objectOptions[name].image!="undefined"){
+      result += "<div class=\"optionPreview\"><div>"
+      +"<img class=objectOptionPreviewImage src=\""
+      + objectOptions[name].image + "\"></img>"
+      +"</div></div>"}
+  }
+  $("#optionsPreview").html(result);
+  return;
+}
+
+/**Takes the users input
+or a given entity and saves them in the requisite options object
+from those defined in input_options_objects.js
+@param {string} name - Name of the object
+@param {string} optionType - Type of the object
+*/
 function updateInputOptionEntity(name, optionType) {
   var input;
   console.log(name+ ":"+ optionType);
@@ -168,7 +232,7 @@ function updateInputOptionEntity(name, optionType) {
     case "predicate":
       input = readPredicateOption();
       updatePredicateOption(name, input);
-      generateOptionPreview(name);
+      generatePredicateOptionPreview(name);
       console.log(predicateOptions[name]);
       break;
     case "action":
@@ -179,6 +243,9 @@ function updateInputOptionEntity(name, optionType) {
   }
 }
 
+/**
+ * Read the input from a type options input form
+ */
 function readTypeOption() {
   var image = $("#imageURL").val();
   var customCSS = $("#customCSS").val();
@@ -186,13 +253,19 @@ function readTypeOption() {
   var result = [image,customCSS,layout];
   return result;
 }
-
+/**
+ * Write the values of an existing type option object
+  @param {string} name - name of the type
+ */
 function writeTypeOption(name){
     $("#imageURL").val(typeOptions[name].image);
     $("#customCSS").val(typeOptions[name].css);
     $("#spatialLayout").val(typeOptions[name].layout);
 }
 
+/**
+ * Read the input from an object options input form
+ */
 function readObjectOption() {
     var image = $("#imageURL").val();
     var location = $("#position").val();
@@ -201,12 +274,19 @@ function readObjectOption() {
   return result;
 }
 
+/**
+ * Write the values of an existing object option object
+  @param {string} name - name of the type
+ */
 function writeObjectOption(name) {
     $("#imageURL").val(objectOptions[name].image);
     $("#position").val(objectOptions[name].location);
     $("#customCSS").val(objectOptions[name].css);
 }
 
+/**
+ * Read the input from a predicate options input form
+ */
 function readPredicateOption() {
     var truthiness = $("#truthiness").val();
     var argument1 = $("#arg1").val();
@@ -217,7 +297,13 @@ function readPredicateOption() {
 }
 
 //this is more complicated, it will need to write them like cards
-function writePredicateOption(name, index) {
+/**
+ * Write the values of existing predicate option objects to the
+ preview area
+  @param {integer} index - location of the option in the array of PredicateOption objects in predicateOptions.name
+ */
+function writePredicateOption(index) {
+  var name = selectedInput.name;
   $("#truthiness").val(predicateOptions[name][index].truthiness);
   $("#arg1").val(predicateOptions[name][index].argument1);
   $("#arg2").val(predicateOptions[name][index].argument2);
@@ -232,6 +318,7 @@ function readActionOption() {
 
 }
 
+
 function updateTypeOption(name, input) {
   typeOptions[name] =
     new TypeOption(name, input[0], input[1], input[2]);
@@ -244,18 +331,20 @@ function updateObjectOption(name, input) {
 }
 
 function updatePredicateOption(name, input) {
+  var pred = predicateOptions[name];
   //if any animation properties are defined
   if(Boolean(input[4].css) || Boolean(input[4].image) || Boolean(input[4].location)) {
-    for(var option in predicateOptions[name]){
-        if( option.argument1===input[1]
-            &&  option.truthiness===input[0]
-            &&  option.argument2===input[2]
-            &&  option.argument1_value===input[3])
+    for(var i=0;i<pred.length;i++){
+      console.log(pred[i].argument1);
+        if( pred[i].argument1==input[1]
+            &&  pred[i].truthiness==input[0]
+            &&  pred[i].argument2==input[2]
+            &&  pred[i].argument1_value==input[3])
             {
-              option.animation=input[4];
+              pred[i].animation=input[4];
               return;
             }
-    }
+    } console.log("matching predicate option not found");
     predicateOptions[name].push(
       new PredicateOption(name, input[0], input[1], input[2], input[3], input[4])
     );

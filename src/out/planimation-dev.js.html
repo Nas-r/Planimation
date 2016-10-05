@@ -1,4 +1,32 @@
-/**The input domain text file
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: planimation-dev.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: planimation-dev.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**The input domain text file
  * @global
  */
 var domain_file;
@@ -138,7 +166,7 @@ function getInput(domain,problem,plan) {
   createAnimationObjects();
   $("#inputSelector").append(inputSelector);
   generateInputForm();
-  $("#submitInputs").append("<p></p><input id=\"submitInputs\" type=\"button\" "
+  $("#submitInputs").append("&lt;p>&lt;/p>&lt;input id=\"submitInputs\" type=\"button\" "
         + "value=\"Submit Input\" onclick=\"createAnimationObjects();\">");
 }
 
@@ -254,19 +282,19 @@ function AnimationOption(image, location, css){
 
 function createAnimationObjects(){
   if (predicates.length>0){
-    for(var i=0;i<predicates.length;i++){
+    for(var i=0;i&lt;predicates.length;i++){
       predicateOptions[predicates[i].name] = [];
     }
   }
   //types objects and constants
   if (types.length>0){
-    for (var i =0; i<types.length;i++) {
+    for (var i =0; i&lt;types.length;i++) {
       typeOptions[types[i]] = new TypeOption(types[i]);
     }
     var typeCounter = 0;
     var type = "";
-    for (var i=0;i<constants.names.length;i++) {
-      if(i<constants.typeIndex[typeCounter]) {
+    for (var i=0;i&lt;constants.names.length;i++) {
+      if(i&lt;constants.typeIndex[typeCounter]) {
         type=constants.types[typeCounter];
       } else {
         typeCounter++;
@@ -277,8 +305,8 @@ function createAnimationObjects(){
       objectOptions[name].location = [0,0];
     }
     typeCounter=0;
-    for (var i=0;i<objects.names.length;i++) {
-      if(i<objects.typeIndex[typeCounter]) {
+    for (var i=0;i&lt;objects.names.length;i++) {
+      if(i&lt;objects.typeIndex[typeCounter]) {
         type=objects.types[typeCounter];
       } else {
         typeCounter++;
@@ -289,12 +317,12 @@ function createAnimationObjects(){
       objectOptions[name].location = [0,0];
     }
   } else {
-    for (var i=0;i<constants.names.length;i++) {
+    for (var i=0;i&lt;constants.names.length;i++) {
       var name = constants.names[i];
       objectOptions[name] = new ObjectOption(name);
       objectOptions[name].location = [0,0];
     }
-    for (var i=0;i<objects.names.length;i++) {
+    for (var i=0;i&lt;objects.names.length;i++) {
       var name = objects.names[i];
       objectOptions[name] = new ObjectOption(name);
       objectOptions[name].location = [0,0];
@@ -316,7 +344,7 @@ function createAnimationObjects(){
 ensure the event handler is active*/
 function loadFileSelector(){
   $("#inputOptions").html(
-    "<br><br><br><input id=\"loadbutton\" type=\"file\">");
+    "&lt;br>&lt;br>&lt;br>&lt;input id=\"loadbutton\" type=\"file\">");
     $('#loadbutton').on('change', function(e){
       parseSavedFile(this.files[0]);
     });
@@ -325,44 +353,44 @@ function loadFileSelector(){
 /*Populate the input selector with all available configurable entities such as
 constants, objects, prediucates, actions and types.*/
 function createInputSelector() {
-  var itemCell = "<td class=\"item\" onclick=\"selectInput(event);\"";
+  var itemCell = "&lt;td class=\"item\" onclick=\"selectInput(event);\"";
   var output = "";
-  output += "<table id=\"inputTable\"><tbody><tr>"
-          + "<td class=\"item\" onclick=\"loadFileSelector();\""+">Load Options</td></tr>";
+  output += "&lt;table id=\"inputTable\">&lt;tbody>&lt;tr>"
+          + "&lt;td class=\"item\" onclick=\"loadFileSelector();\""+">Load Options&lt;/td>&lt;/tr>";
 
   if(types.length>0){
-    output += "<tr><td class=\"itemGroup\">Types</td></tr>";
-    for(var i=0; i<types.length; i++){
-        output += "<tr>" + itemCell + "data-type=\"type\">"
-                + types[i] + "</td></tr>";
+    output += "&lt;tr>&lt;td class=\"itemGroup\">Types&lt;/td>&lt;/tr>";
+    for(var i=0; i&lt;types.length; i++){
+        output += "&lt;tr>" + itemCell + "data-type=\"type\">"
+                + types[i] + "&lt;/td>&lt;/tr>";
     }
   }
 
   if(constants.names.length>0) {
-    output += "<tr><td class=\"itemGroup\">Constants</td></tr>";
-    for(var i = 0; i<constants.names.length; i++){
-      output += "<tr>" + itemCell + "data-type=\"constant\">"
-              + constants.names[i] + "</td></tr>";
+    output += "&lt;tr>&lt;td class=\"itemGroup\">Constants&lt;/td>&lt;/tr>";
+    for(var i = 0; i&lt;constants.names.length; i++){
+      output += "&lt;tr>" + itemCell + "data-type=\"constant\">"
+              + constants.names[i] + "&lt;/td>&lt;/tr>";
     }
   }
 
   if (objects.names.length>0){
-    output += "<tr><td class=\"itemGroup\">Objects</td></tr>";
-    for(var i = 0; i<objects.names.length; i++){
-      output += "<tr>" + itemCell + "data-type=\"object\">"
-              + objects.names[i] + "</td></tr>";
+    output += "&lt;tr>&lt;td class=\"itemGroup\">Objects&lt;/td>&lt;/tr>";
+    for(var i = 0; i&lt;objects.names.length; i++){
+      output += "&lt;tr>" + itemCell + "data-type=\"object\">"
+              + objects.names[i] + "&lt;/td>&lt;/tr>";
     }
   }
 
   if(predicates.length>0){
-    output += "<tr><td class=\"itemGroup\">Predicates</td></tr>";
-    for(var i = 0; i<predicates.length; i++){
-      output += "<tr>" + itemCell + "data-type=\"predicate\">"
-              + predicates[i].name + "</td></tr>";
+    output += "&lt;tr>&lt;td class=\"itemGroup\">Predicates&lt;/td>&lt;/tr>";
+    for(var i = 0; i&lt;predicates.length; i++){
+      output += "&lt;tr>" + itemCell + "data-type=\"predicate\">"
+              + predicates[i].name + "&lt;/td>&lt;/tr>";
     }
   }
 
-  output += "</tbody></table>";
+  output += "&lt;/tbody>&lt;/table>";
   return output;
 }
 
@@ -381,7 +409,7 @@ var selectedInput = new SelectedInput('', '');
 /*Return an object stored in an array of objects by it's name.
 collection here refers to the arrays yielded from the parser's output.*/
 function getObjectByName(name, collection) {
-  for(var i=0;i<collection.length;i++){
+  for(var i=0;i&lt;collection.length;i++){
     if(collection[i].name==name) {
       return collection[i];
     }
@@ -402,13 +430,13 @@ function selectInput(e) {
 
   //construct the input form
   var form = "";
-  form += "<h1 id=\"selectionType\">" + type + "</h1>";
-  form += "<h2 id=\"selectionName\">" + name + "</h2>";
+  form += "&lt;h1 id=\"selectionType\">" + type + "&lt;/h1>";
+  form += "&lt;h2 id=\"selectionName\">" + name + "&lt;/h2>";
   if(type=="object"||type=="constant"){
     if(objectOptions[name].type!="undefined"){
-    form += "<h2 id=\"selectionObjectType\">" + objectOptions[name].type + "</h2>"}
+    form += "&lt;h2 id=\"selectionObjectType\">" + objectOptions[name].type + "&lt;/h2>"}
   }
-  form+="<p></p>";
+  form+="&lt;p>&lt;/p>";
   form += generateInputForm(name, type);
 
   //insert the input form
@@ -424,7 +452,7 @@ function selectInput(e) {
     if(types.length==0){
       $("#objectSelector").html(generateObjectSelector(getObjectListFromType()));
     } else {
-      for(var i=0;i<predicate.arguments.length;i++){
+      for(var i=0;i&lt;predicate.arguments.length;i++){
           if(predicate.arguments[i].name==argument) {
             argtype=predicate.arguments[i].type;
           }
@@ -438,7 +466,7 @@ function selectInput(e) {
         if(types.length==0){
           $("#objectSelector").html(generateObjectSelector(getObjectListFromType()));
         } else {
-          for(var i=0;i<predicate.arguments.length;i++){
+          for(var i=0;i&lt;predicate.arguments.length;i++){
               if(predicate.arguments[i].name==argument) {
                 argtype=predicate.arguments[i].type;
               }
@@ -499,16 +527,16 @@ function argumentDescriptor(arg){
   */
 function generateArgumentSelector(argumentList, number) {
     if(typeof(argumentList) != "undefined"){
-    if(number>2||number<=0){
+    if(number>2||number&lt;=0){
       console.log("invalid number passed to form generator: "+number);
     }
-    var result = "<select id=\"arg"+number+"\">";
-    for(var i = 0; i<argumentList.length;i++){
-      result+="<option value=\""+argumentList[i].name+"\">"
+    var result = "&lt;select id=\"arg"+number+"\">";
+    for(var i = 0; i&lt;argumentList.length;i++){
+      result+="&lt;option value=\""+argumentList[i].name+"\">"
             +   argumentDescriptor(argumentList[i])
-            + "</option>";
+            + "&lt;/option>";
     }
-    return result += "</select>";
+    return result += "&lt;/select>";
   } else return " null ";
 }
 
@@ -538,13 +566,13 @@ function getObjectListFromType(type) {
  *@param {array} objectList - Array of object names
  */
 function generateObjectSelector(objectList) {
-  var result = "<select id=\"objectSelector\">";
-  result += "<option value=\"anything\"> ** ANY ** </option>";
-  for(var i=0;i<objectList.length;i++){
-      result += "<option value=\"" + objectList[i] + "\">"
-              + objectList[i] + "</option>"
+  var result = "&lt;select id=\"objectSelector\">";
+  result += "&lt;option value=\"anything\"> ** ANY ** &lt;/option>";
+  for(var i=0;i&lt;objectList.length;i++){
+      result += "&lt;option value=\"" + objectList[i] + "\">"
+              + objectList[i] + "&lt;/option>"
   }
-  return result + "</select>";
+  return result + "&lt;/select>";
 }
 
 /**
@@ -555,14 +583,14 @@ function generateObjectSelector(objectList) {
  */
 function generatePredicateInputForm(name) {
   var predicate = getObjectByName(name, predicates);
-  var predicateHeader = "<div class=\"predicateOptionSpecification\">When "+ name + " is "
-      + "<select id=\"truthiness\">"
-      + "<option value=\"true\">True</option>"
-      + "<option value=\"false\">False</option></select>"
+  var predicateHeader = "&lt;div class=\"predicateOptionSpecification\">When "+ name + " is "
+      + "&lt;select id=\"truthiness\">"
+      + "&lt;option value=\"true\">True&lt;/option>"
+      + "&lt;option value=\"false\">False&lt;/option>&lt;/select>"
       + " and " + generateArgumentSelector(predicate.arguments, 1)
-      + " is <select id=\"objectSelector\"><option value=\"anything\"> ** ANY ** </option></select> then the transformation"
+      + " is &lt;select id=\"objectSelector\">&lt;option value=\"anything\"> ** ANY ** &lt;/option>&lt;/select> then the transformation"
       + " below will be applied to the argument " + generateArgumentSelector(predicate.arguments, 2) + " : "
-      + "</div>";
+      + "&lt;/div>";
 
       return predicateHeader;
 }
@@ -575,14 +603,14 @@ function generatePredicateInputForm(name) {
 function generateInputForm(name, inputtype) {
 
   //option input format:
-  var imageUrlInput = "<div><p>ImageURL</p><textarea id=\"imageURL\" rows=\"1\" cols=\"25\"></textarea></div>";
-  var positionInput = "<div><p>Location</p><textarea id=\"position\" rows=\"1\" cols=\"25\"></textarea></div>";
-  var customCSS = "<div><p>Custom CSS Properties</p><textarea id=\"customCSS\" rows=\"1\" cols=\"25\"></textarea></div>";
+  var imageUrlInput = "&lt;div>&lt;p>ImageURL&lt;/p>&lt;textarea id=\"imageURL\" rows=\"1\" cols=\"25\">&lt;/textarea>&lt;/div>";
+  var positionInput = "&lt;div>&lt;p>Location&lt;/p>&lt;textarea id=\"position\" rows=\"1\" cols=\"25\">&lt;/textarea>&lt;/div>";
+  var customCSS = "&lt;div>&lt;p>Custom CSS Properties&lt;/p>&lt;textarea id=\"customCSS\" rows=\"1\" cols=\"25\">&lt;/textarea>&lt;/div>";
 
   var spatialOptionsInput
-      = "<div><p>Spatial Layou : </p><select id=\"spatialLayout\"><option value=\"free\">Free</option>"
-      + "<option value=\"network\">Network</option>"
-      + "<option value=\"grid\">Grid</option></div>"
+      = "&lt;div>&lt;p>Spatial Layou : &lt;/p>&lt;select id=\"spatialLayout\">&lt;option value=\"free\">Free&lt;/option>"
+      + "&lt;option value=\"network\">Network&lt;/option>"
+      + "&lt;option value=\"grid\">Grid&lt;/option>&lt;/div>"
       ;
 
   var globalOptionsInput
@@ -625,7 +653,7 @@ function generateInputForm(name, inputtype) {
                           break;
       }
 
-      return "<div class=\"inputOptions\" style=\"margin:auto;\">" + result + "</div>"
+      return "&lt;div class=\"inputOptions\" style=\"margin:auto;\">" + result + "&lt;/div>"
 }
 
 /**
@@ -637,14 +665,14 @@ function generateInputForm(name, inputtype) {
 function generatePredicateOptionPreview(name){
   var result = '';
   if(predicateOptions[name].length>0) {
-    for(var i = 0; i<predicateOptions[name].length;i++) {
+    for(var i = 0; i&lt;predicateOptions[name].length;i++) {
       var pred = predicateOptions[name][i];
-      result += "<div class=\"optionPreview\" onclick=\"writePredicateOption("+i+");\"><div>"
+      result += "&lt;div class=\"optionPreview\" onclick=\"writePredicateOption("+i+");\">&lt;div>"
       + "When " + pred.name + " is " + pred.truthiness + " and "
       + pred.argument1 + " is " + pred.argument1_value + " animate "
-      + pred.argument2 + "</div><div><img class=optionPreviewImage src=\""
-      + pred.animation.image + "\"></img>"
-      +"</div></div>"
+      + pred.argument2 + "&lt;/div>&lt;div>&lt;img class=optionPreviewImage src=\""
+      + pred.animation.image + "\">&lt;/img>"
+      +"&lt;/div>&lt;/div>"
     }
   }
   $("#optionsPreview").html(result);
@@ -660,16 +688,16 @@ function generateObjectOptionPreview(name,type){
   var result = '';
   if(type == "type") {
     if (typeOptions[name].image!="undefined"){
-      result += "<div class=\"optionPreview\"><div>"
-      +"<img class=objectOptionPreviewImage src=\""
-      + typeOptions[name].image + "\"></img>"
-      +"</div></div>"}
+      result += "&lt;div class=\"optionPreview\">&lt;div>"
+      +"&lt;img class=objectOptionPreviewImage src=\""
+      + typeOptions[name].image + "\">&lt;/img>"
+      +"&lt;/div>&lt;/div>"}
   } else if (type == "object" || type == "constant") {
     if (objectOptions[name].image!="undefined"){
-      result += "<div class=\"optionPreview\"><div>"
-      +"<img class=objectOptionPreviewImage src=\""
-      + objectOptions[name].image + "\"></img>"
-      +"</div></div>"}
+      result += "&lt;div class=\"optionPreview\">&lt;div>"
+      +"&lt;img class=objectOptionPreviewImage src=\""
+      + objectOptions[name].image + "\">&lt;/img>"
+      +"&lt;/div>&lt;/div>"}
   }
   $("#optionsPreview").html(result);
   return;
@@ -807,12 +835,12 @@ function updatePredicateOption(name, input) {
   var pred = predicateOptions[name];
   //if any animation properties are defined
   if(Boolean(input[4].css) || Boolean(input[4].image) || Boolean(input[4].location)) {
-    for(var i=0;i<pred.length;i++){
+    for(var i=0;i&lt;pred.length;i++){
       console.log(pred[i].argument1);
         if( pred[i].argument1==input[1]
-            &&  pred[i].truthiness==input[0]
-            &&  pred[i].argument2==input[2]
-            &&  pred[i].argument1_value==input[3])
+            &amp;&amp;  pred[i].truthiness==input[0]
+            &amp;&amp;  pred[i].argument2==input[2]
+            &amp;&amp;  pred[i].argument1_value==input[3])
             {
               pred[i].animation=input[4];
               return;
@@ -875,17 +903,17 @@ function parseSavedFile(file){
     var objectkeys = Object.keys(objects[1]);
     var predicatekeys = Object.keys(objects[2]);
     console.log(objectkeys);
-    for(var i =0;i<typekeys.length;i++){
+    for(var i =0;i&lt;typekeys.length;i++){
       console.log(objects[0][typekeys[i]]);
       typeOptions[typekeys[i]] = objects[0][typekeys[i]];
       writeTypeOption(typekeys[i]);
     }
-    for(var i =0;i<objectkeys.length;i++){
+    for(var i =0;i&lt;objectkeys.length;i++){
       console.log(objects[1][objectkeys[i]]);
       objectOptions[objectkeys[i]] = objects[1][objectkeys[i]];
       writeObjectOption(objectkeys[i]);
     }
-    for(var i =0;i<predicatekeys.length;i++){
+    for(var i =0;i&lt;predicatekeys.length;i++){
       console.log(objects[2][predicatekeys[i]]);
       predicateOptions[predicatekeys[i]] = objects[2][predicatekeys[i]];
       //writePredicateOption??
@@ -894,3 +922,26 @@ function parseSavedFile(file){
   console.log(objects);
   });
 }
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="GlobalOption.html">GlobalOption</a></li><li><a href="ObjectOption.html">ObjectOption</a></li><li><a href="PredicateOption.html">PredicateOption</a></li><li><a href="TypeOption.html">TypeOption</a></li></ul><h3>Global</h3><ul><li><a href="global.html#argumentDescriptor">argumentDescriptor</a></li><li><a href="global.html#constants">constants</a></li><li><a href="global.html#domain_file">domain_file</a></li><li><a href="global.html#generateArgumentSelector">generateArgumentSelector</a></li><li><a href="global.html#generateInputForm">generateInputForm</a></li><li><a href="global.html#generateObjectOptionPreview">generateObjectOptionPreview</a></li><li><a href="global.html#generateObjectSelector">generateObjectSelector</a></li><li><a href="global.html#generatePredicateInputForm">generatePredicateInputForm</a></li><li><a href="global.html#generatePredicateOptionPreview">generatePredicateOptionPreview</a></li><li><a href="global.html#getInput">getInput</a></li><li><a href="global.html#getObjectListFromType">getObjectListFromType</a></li><li><a href="global.html#globalOptions">globalOptions</a></li><li><a href="global.html#objectOptions">objectOptions</a></li><li><a href="global.html#objects">objects</a></li><li><a href="global.html#parseDomain">parseDomain</a></li><li><a href="global.html#parseProblem">parseProblem</a></li><li><a href="global.html#parseSolution">parseSolution</a></li><li><a href="global.html#plan_file">plan_file</a></li><li><a href="global.html#predicateOptions">predicateOptions</a></li><li><a href="global.html#predicates">predicates</a></li><li><a href="global.html#problem_file">problem_file</a></li><li><a href="global.html#readObjectOption">readObjectOption</a></li><li><a href="global.html#readPredicateOption">readPredicateOption</a></li><li><a href="global.html#readTypeOption">readTypeOption</a></li><li><a href="global.html#typeOptions">typeOptions</a></li><li><a href="global.html#types">types</a></li><li><a href="global.html#updateInputOptionEntity">updateInputOptionEntity</a></li><li><a href="global.html#writeObjectOption">writeObjectOption</a></li><li><a href="global.html#writePredicateOption">writePredicateOption</a></li><li><a href="global.html#writeTypeOption">writeTypeOption</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.2</a> on Thu Oct 06 2016 01:12:24 GMT+1100 (AUS Eastern Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

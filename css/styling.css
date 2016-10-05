@@ -57,7 +57,7 @@ input {
 }
 
 
-#inputdomain, #inputproblem, #inputplan {
+#inputdomain, #inputproblem, #inputplan, #loadbutton {
   border: 3px dashed #ccc;
   padding: 10px;
   background: #fff;
@@ -142,12 +142,30 @@ body {
 
 #optionsPreview {
   overflow-y:scroll;
+  width:90%;
+  margin:auto;
 }
 
 .optionPreview {
-
+  font-size:1.2em;
+  background-color:white;
+  margin:40px auto 0px auto
 }
 
 .optionPreviewButton {
 
+}
+
+.optionPreviewImage {
+    width:100px;
+    height:100px;
+}
+
+::-webkit-scrollbar {
+    width: 0px;  /* remove scrollbar space */
+    background: transparent;  /* optional: just make scrollbar invisible */
+}
+/* optional: show position indicator in red */
+::-webkit-scrollbar-thumb {
+    background: #FF0000;
 }
