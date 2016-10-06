@@ -150,7 +150,7 @@ function parseInputFiles() {
  * used to store the stage dimensions.
  * @global
  */
-var globalOptions;
+var globalOptions = {};
 
 /**
  * Used to store options specified on types as an assosciative array
@@ -331,6 +331,8 @@ function createInputSelector() {
   output += "<table id=\"inputTable\"><tbody><tr>"
           + "<td class=\"item\" onclick=\"loadFileSelector();\""+">Load Options</td></tr>";
 
+  output +=  "<tr><td class=\"item\" onclick=\"selectInput(event);\" data-type=\"global\""+">Global Options</td></tr>";
+
   if(types.length>0){
     output += "<tr><td class=\"itemGroup\">Types</td></tr>";
     for(var i=0; i<types.length; i++){
@@ -379,8 +381,11 @@ function SelectedInput(name,type){
 
 var selectedInput = new SelectedInput('', '');
 
-/*Return an object stored in an array of objects by it's name.
-collection here refers to the arrays yielded from the parser's output.*/
+/**
+ * Return an object stored in an array of objects by it's name.
+@param {string} name - name of the object
+@param {array} collection - one of the the arrays yielded from the parser's output
+*/
 function getObjectByName(name, collection) {
   for(var i=0;i<collection.length;i++){
     if(collection[i].name==name) {
@@ -389,7 +394,7 @@ function getObjectByName(name, collection) {
   }
 }
 
-/*This is the function that runs when an item from the list of objects/types
+/**This is the function that runs when an item from the list of objects/types
 is clicked. It loads the available options into the #inputOptions div*/
 function selectInput(e) {
   //get the name of the selected option
@@ -405,8 +410,8 @@ function selectInput(e) {
   if(type=="object"||type=="constant"){
     if(objectOptions[name].type!="undefined"){
     form += "<h2 id=\"selectionObjectType\">" + objectOptions[name].type + "</h2>"}
-  }
-  form+="<p></p>";
+
+  form+="<p></p>";}
   form += generateInputForm(name, type);
 
   //insert the input form
@@ -463,6 +468,7 @@ function selectInput(e) {
                       break;
     case 'predicate': generatePredicateInputForm(name);
                       break;
+    case 'global':    writeGlobalOption();
     default:
                       break;
    }
@@ -584,7 +590,9 @@ function generateInputForm(name, inputtype) {
       ;
 
   var globalOptionsInput
-      = spatialOptionsInput
+      = "<div id=\"globalOptions\" data-type=\"global\">"
+        + "<p>Stage Dimensions</p><textarea id=\"dimensions\" rows=\"1\" cols=\"25\"></textarea>"
+        + "</div>"
       ;
 
   var objectOptions
@@ -618,6 +626,8 @@ function generateInputForm(name, inputtype) {
                           result += imageUrlInput
                                   + positionInput
                                   + customCSS;
+                          break;
+        case 'global':    result += globalOptionsInput;
                           break;
         default:          result += globalOptions;
                           break;
@@ -708,6 +718,9 @@ function updateInputOptionEntity(name, optionType) {
     case "action":
       input = readActionOption();
       break;
+    case "global":
+      readGlobalOption();
+      break;
     default :
       console.log("something went wrong trying to create an option entity");
   }
@@ -787,6 +800,13 @@ function readActionOption() {
 
 }
 
+function readGlobalOption() {
+    globalOptions.dimensions = $("#dimensions").val();
+}
+
+function writeGlobalOption() {
+    $("#dimensions").val(globalOptions.dimensions);
+}
 
 function updateTypeOption(name, input) {
   typeOptions[name] =

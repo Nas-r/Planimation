@@ -21,6 +21,8 @@ function createInputSelector() {
   output += "<table id=\"inputTable\"><tbody><tr>"
           + "<td class=\"item\" onclick=\"loadFileSelector();\""+">Load Options</td></tr>";
 
+  output +=  "<tr><td class=\"item\" onclick=\"selectInput(event);\" data-type=\"global\""+">Global Options</td></tr>";
+
   if(types.length>0){
     output += "<tr><td class=\"itemGroup\">Types</td></tr>";
     for(var i=0; i<types.length; i++){
@@ -69,8 +71,11 @@ function SelectedInput(name,type){
 
 var selectedInput = new SelectedInput('', '');
 
-/*Return an object stored in an array of objects by it's name.
-collection here refers to the arrays yielded from the parser's output.*/
+/**
+ * Return an object stored in an array of objects by it's name.
+@param {string} name - name of the object
+@param {array} collection - one of the the arrays yielded from the parser's output
+*/
 function getObjectByName(name, collection) {
   for(var i=0;i<collection.length;i++){
     if(collection[i].name==name) {
@@ -79,7 +84,7 @@ function getObjectByName(name, collection) {
   }
 }
 
-/*This is the function that runs when an item from the list of objects/types
+/**This is the function that runs when an item from the list of objects/types
 is clicked. It loads the available options into the #inputOptions div*/
 function selectInput(e) {
   //get the name of the selected option
@@ -95,8 +100,8 @@ function selectInput(e) {
   if(type=="object"||type=="constant"){
     if(objectOptions[name].type!="undefined"){
     form += "<h2 id=\"selectionObjectType\">" + objectOptions[name].type + "</h2>"}
-  }
-  form+="<p></p>";
+
+  form+="<p></p>";}
   form += generateInputForm(name, type);
 
   //insert the input form
@@ -153,6 +158,7 @@ function selectInput(e) {
                       break;
     case 'predicate': generatePredicateInputForm(name);
                       break;
+    case 'global':    writeGlobalOption();
     default:
                       break;
    }

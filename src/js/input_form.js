@@ -113,7 +113,9 @@ function generateInputForm(name, inputtype) {
       ;
 
   var globalOptionsInput
-      = spatialOptionsInput
+      = "<div id=\"globalOptions\" data-type=\"global\">"
+        + "<p>Stage Dimensions</p><textarea id=\"dimensions\" rows=\"1\" cols=\"25\"></textarea>"
+        + "</div>"
       ;
 
   var objectOptions
@@ -147,6 +149,8 @@ function generateInputForm(name, inputtype) {
                           result += imageUrlInput
                                   + positionInput
                                   + customCSS;
+                          break;
+        case 'global':    result += globalOptionsInput;
                           break;
         default:          result += globalOptions;
                           break;
@@ -237,6 +241,9 @@ function updateInputOptionEntity(name, optionType) {
     case "action":
       input = readActionOption();
       break;
+    case "global":
+      readGlobalOption();
+      break;
     default :
       console.log("something went wrong trying to create an option entity");
   }
@@ -316,6 +323,13 @@ function readActionOption() {
 
 }
 
+function readGlobalOption() {
+    globalOptions.dimensions = $("#dimensions").val();
+}
+
+function writeGlobalOption() {
+    $("#dimensions").val(globalOptions.dimensions);
+}
 
 function updateTypeOption(name, input) {
   typeOptions[name] =
