@@ -170,9 +170,11 @@ function generatePredicateOptionPreview(name){
       + "When " + pred.name + " is " + pred.truthiness + " and "
       + pred.argument1 + " is " + pred.argument1_value + " animate "
       + pred.argument2 + "</div><div><img class=optionPreviewImage src=\""
-      + pred.animation.image + "\"></img>"
-      +"</div></div>"
+      + pred.animation.image + "\"></img><br>"
+      +"</div></div><div class=\"deletebutton\" onclick=\"deletePredicateOption('"+name+"',"+i+");\""
+      + "\"><img src=\"images\\delete.png\" style=\"width:35px;height:35px;\"></img></div>";
     }
+    $("#optionsPreview").html(result);
   }
   $("#optionsPreview").html(result);
 }
@@ -183,7 +185,6 @@ function generatePredicateOptionPreview(name){
  @param {string} name - name of the object whose options are to be displayed.
  */
 function generateObjectOptionPreview(name,type){
-  console.log("generating preview");
   var result = '';
   if(type == "type") {
     if (typeOptions[name].image!="undefined"){
@@ -210,7 +211,7 @@ from those defined in input_options_objects.js
 */
 function updateInputOptionEntity(name, optionType) {
   var input;
-  console.log(name+ ":"+ optionType);
+  console.log("Updated: " +name+ " - "+ optionType);
   switch (optionType) {
     case "type":
       input = readTypeOption();
@@ -219,13 +220,11 @@ function updateInputOptionEntity(name, optionType) {
       break;
     case "constant" :
       input = readObjectOption();
-      console.log(input);
       updateObjectOption(name, input);
       console.log(objectOptions[name]);
       break;
     case "object":
       input = readObjectOption();
-      console.log(input);
       updateObjectOption(name, input);
       console.log(objectOptions[name]);
       break;
@@ -311,7 +310,6 @@ function writePredicateOption(index) {
   $("#imageURL").val(predicateOptions[name][index].animation.image);
   $("#position").val(predicateOptions[name][index].animation.location);
   $("#customCSS").val(predicateOptions[name][index].animation.css);
-
 }
 
 function readActionOption() {
@@ -335,7 +333,6 @@ function updatePredicateOption(name, input) {
   //if any animation properties are defined
   if(Boolean(input[4].css) || Boolean(input[4].image) || Boolean(input[4].location)) {
     for(var i=0;i<pred.length;i++){
-      console.log(pred[i].argument1);
         if( pred[i].argument1==input[1]
             &&  pred[i].truthiness==input[0]
             &&  pred[i].argument2==input[2]
@@ -349,4 +346,9 @@ function updatePredicateOption(name, input) {
       new PredicateOption(name, input[0], input[1], input[2], input[3], input[4])
     );
   }
+}
+
+function deletePredicateOption(name,index) {
+  predicateOptions[name].splice(index,1);
+  generatePredicateOptionPreview(name);
 }

@@ -85,9 +85,6 @@ function selectInput(e) {
   //get the name of the selected option
   var name = e.target.innerHTML;
   var type = e.target.getAttribute('data-type');
-  console.log(type + " : "  + name);
-  console.log(objectOptions[name]);
-  console.log(selectedInput.name+ ":"+ selectedInput.type);
   //update the previously selected option's parameters
   updateInputOptionEntity($("#selectionName").html(),$("#selectionType").html());
 

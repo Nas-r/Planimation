@@ -79,7 +79,7 @@ function ObjectOption(name, type, image, location, css) {
 @param {string} argument1 - The first argument to the predicate
 @param {string} argument1 - The second argument to the predicate
 @param {string} argumentValue - The value taken by the first argument
-@param {AnimeationOption} animation - {image,location,css} - I should add transition_image
+@param {AnimeationOption} animation - {image,location,css, transition_image}
  *  @constructor
  */
 function PredicateOption(name, truthiness, argument1, argument2, argumentValue, animation) {
@@ -99,10 +99,11 @@ function ActionOption(name, parameter){
 }
 
 
-function AnimationOption(image, location, css){
+function AnimationOption(image, location, css, transition_image){
     this.image=image;
     this.location = location;
     this.css = css;
+    this.transition_image = transition_image;
 }
 
 function createAnimationObjects(){

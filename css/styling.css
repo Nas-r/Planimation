@@ -135,9 +135,9 @@ body {
 }
 
 #previewHeading {
-  color: #ffffff;
   font-size:3em;
-  display: inline;
+  display: block;
+  background-color: white;
 }
 
 #optionsPreview {
@@ -161,6 +161,12 @@ body {
     height:100px;
 }
 
+.optionPreview {
+    font-size: 1.4em;
+    padding:10px 0px 10px 0px;
+    border-radius: 15px;
+}
+
 ::-webkit-scrollbar {
     width: 0px;  /* remove scrollbar space */
     background: transparent;  /* optional: just make scrollbar invisible */
@@ -168,4 +174,11 @@ body {
 /* optional: show position indicator in red */
 ::-webkit-scrollbar-thumb {
     background: #FF0000;
+}
+
+.deletebutton {
+  text-align:center;
+  background-color: rgb(210, 210, 210);
+  width:50px;
+  float:right;
 }

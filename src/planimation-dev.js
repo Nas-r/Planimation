@@ -226,7 +226,7 @@ function ObjectOption(name, type, image, location, css) {
 @param {string} argument1 - The first argument to the predicate
 @param {string} argument1 - The second argument to the predicate
 @param {string} argumentValue - The value taken by the first argument
-@param {AnimeationOption} animation - {image,location,css} - I should add transition_image
+@param {AnimeationOption} animation - {image,location,css, transition_image}
  *  @constructor
  */
 function PredicateOption(name, truthiness, argument1, argument2, argumentValue, animation) {
@@ -246,10 +246,11 @@ function ActionOption(name, parameter){
 }
 
 
-function AnimationOption(image, location, css){
+function AnimationOption(image, location, css, transition_image){
     this.image=image;
     this.location = location;
     this.css = css;
+    this.transition_image = transition_image;
 }
 
 function createAnimationObjects(){
@@ -394,9 +395,6 @@ function selectInput(e) {
   //get the name of the selected option
   var name = e.target.innerHTML;
   var type = e.target.getAttribute('data-type');
-  console.log(type + " : "  + name);
-  console.log(objectOptions[name]);
-  console.log(selectedInput.name+ ":"+ selectedInput.type);
   //update the previously selected option's parameters
   updateInputOptionEntity($("#selectionName").html(),$("#selectionType").html());
 
@@ -643,9 +641,11 @@ function generatePredicateOptionPreview(name){
       + "When " + pred.name + " is " + pred.truthiness + " and "
       + pred.argument1 + " is " + pred.argument1_value + " animate "
       + pred.argument2 + "</div><div><img class=optionPreviewImage src=\""
-      + pred.animation.image + "\"></img>"
-      +"</div></div>"
+      + pred.animation.image + "\"></img><br>"
+      +"</div></div><div class=\"deletebutton\" onclick=\"deletePredicateOption('"+name+"',"+i+");\""
+      + "\"><img src=\"images\\delete.png\" style=\"width:35px;height:35px;\"></img></div>";
     }
+    $("#optionsPreview").html(result);
   }
   $("#optionsPreview").html(result);
 }
@@ -656,7 +656,6 @@ function generatePredicateOptionPreview(name){
  @param {string} name - name of the object whose options are to be displayed.
  */
 function generateObjectOptionPreview(name,type){
-  console.log("generating preview");
   var result = '';
   if(type == "type") {
     if (typeOptions[name].image!="undefined"){
@@ -683,7 +682,7 @@ from those defined in input_options_objects.js
 */
 function updateInputOptionEntity(name, optionType) {
   var input;
-  console.log(name+ ":"+ optionType);
+  console.log("Updated: " +name+ " - "+ optionType);
   switch (optionType) {
     case "type":
       input = readTypeOption();
@@ -692,13 +691,11 @@ function updateInputOptionEntity(name, optionType) {
       break;
     case "constant" :
       input = readObjectOption();
-      console.log(input);
       updateObjectOption(name, input);
       console.log(objectOptions[name]);
       break;
     case "object":
       input = readObjectOption();
-      console.log(input);
       updateObjectOption(name, input);
       console.log(objectOptions[name]);
       break;
@@ -784,7 +781,6 @@ function writePredicateOption(index) {
   $("#imageURL").val(predicateOptions[name][index].animation.image);
   $("#position").val(predicateOptions[name][index].animation.location);
   $("#customCSS").val(predicateOptions[name][index].animation.css);
-
 }
 
 function readActionOption() {
@@ -808,7 +804,6 @@ function updatePredicateOption(name, input) {
   //if any animation properties are defined
   if(Boolean(input[4].css) || Boolean(input[4].image) || Boolean(input[4].location)) {
     for(var i=0;i<pred.length;i++){
-      console.log(pred[i].argument1);
         if( pred[i].argument1==input[1]
             &&  pred[i].truthiness==input[0]
             &&  pred[i].argument2==input[2]
@@ -822,6 +817,11 @@ function updatePredicateOption(name, input) {
       new PredicateOption(name, input[0], input[1], input[2], input[3], input[4])
     );
   }
+}
+
+function deletePredicateOption(name,index) {
+  predicateOptions[name].splice(index,1);
+  generatePredicateOptionPreview(name);
 }
 /*all animations should accept a duration parameter.
 Perhaps I should a) store this as a multiple of itself
