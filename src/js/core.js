@@ -138,8 +138,7 @@ function getInput(domain,problem,plan) {
   createAnimationObjects();
   $("#inputSelector").append(inputSelector);
   generateInputForm();
-  $("#submitInputs").append("<p></p><input id=\"submitInputs\" type=\"button\" "
-        + "value=\"Submit Input\" onclick=\"createAnimationObjects();\">");
+  
 }
 
 function parseInputFiles() {

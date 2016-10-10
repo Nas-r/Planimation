@@ -138,8 +138,7 @@ function getInput(domain,problem,plan) {
   createAnimationObjects();
   $("#inputSelector").append(inputSelector);
   generateInputForm();
-  $("#submitInputs").append("<p></p><input id=\"submitInputs\" type=\"button\" "
-        + "value=\"Submit Input\" onclick=\"createAnimationObjects();\">");
+  
 }
 
 function parseInputFiles() {
@@ -401,8 +400,9 @@ function selectInput(e) {
   var name = e.target.innerHTML;
   var type = e.target.getAttribute('data-type');
   //update the previously selected option's parameters
-  updateInputOptionEntity($("#selectionName").html(),$("#selectionType").html());
-
+  if($("#selectionType").html()!="predicate"){
+    updateInputOptionEntity($("#selectionName").html(),$("#selectionType").html());
+  }
   //construct the input form
   var form = "";
   form += "<h1 id=\"selectionType\">" + type + "</h1>";

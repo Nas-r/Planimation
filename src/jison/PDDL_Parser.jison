@@ -100,9 +100,9 @@ init_state
 
 initial_predicates
   : LPAREN STRING argument_list RPAREN initial_predicates
-  {startPredicates.push(new Predicate($2,$3));}
+  {startPredicates.push(new Predicate($2,$3,false));}
   | LPAREN NOT LPAREN STRING argument_list RPAREN RPAREN initial_predicates
-  {startPredicates.push(new Predicate($4,$5));}
+  {startPredicates.push(new Predicate($4,$5,true));}
   |
 ;
 
@@ -113,9 +113,9 @@ goal_state
 
 goal_predicates
   : LPAREN STRING argument_list RPAREN goal_predicates
-  {goalPredicates.push(new Predicate($2,$3));}
+  {goalPredicates.push(new Predicate($2,$3,false));}
   | LPAREN NOT LPAREN STRING argument_list RPAREN RPAREN goal_predicates
-  {goalPredicates.push(new Predicate($4,$5));}
+  {goalPredicates.push(new Predicate($4,$5,true));}
   |
 ;
 
@@ -180,9 +180,9 @@ predicate_list
 predicate
 /* $2 is the predicate name, argument_list is the list of arguments*/
   : LPAREN STRING argument_list RPAREN
-  {predicates.push(new Predicate($2,$3));}
+  {predicates.push(new Predicate($2,$3, false));}
   | LPAREN NOT LPAREN STRING argument_list RPAREN RPAREN
-  {predicates.push(new Predicate($4,$5));}
+  {predicates.push(new Predicate($4,$5, true));}
 ;
 
 
@@ -247,11 +247,9 @@ planning problems, only worry about it if there's time/*/
 ;
 */
 
+/*NOTE: The use of the word fluents here is probably a misnomer*/
 /*fluents in pddl would be predicates without parameters,
 fluents are already grounded*/
-
-/*NOTE: The use of the word fluents here is probably a misnomer*/
-
 list_effects
   : fluent
   | LPAREN list_fluents RPAREN
@@ -269,9 +267,9 @@ list_fluents
 
 fluent
   : LPAREN STRING argument_list RPAREN
-  { $$ = new Fluent($2, $3, false); }
+  { $$ = new Predicate($2, $3, false); }
   | LPAREN NOT LPAREN STRING argument_list RPAREN RPAREN
-  { $$ = new Fluent($4, $5, true) }
+  { $$ = new Predicate($4, $5, true) }
 ;
 
 
@@ -300,9 +298,10 @@ function Argument(name, type){
 };
 
 /*arguments may be typed*/
-function Predicate(name, arguments){
+function Predicate(name, arguments,truthiness){
   this.name = name;
   this.arguments = arguments;
+  this.truthiness = truthiness;
 };
 
 var predicates = [];
@@ -324,10 +323,4 @@ function Effect(effectlist) {
 function Variable(name, type) {
   this.name = name;
   this.type = type;
-}
-
-function Fluent(predicate, arguments, negated){
-  this.predicate = predicate;
-  this.arguments = arguments;
-  this.negated = negated;
 }
