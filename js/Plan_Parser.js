@@ -72,12 +72,12 @@
   }
 */
 var Plan_Parser = (function(){
-var o=function(k,v,o,l){for(o=o||{},l=k.length;l--;o[k[l]]=v);return o},$V0=[2,3],$V1=[1,4],$V2=[1,7],$V3=[2,5];
+var o=function(k,v,o,l){for(o=o||{},l=k.length;l--;o[k[l]]=v);return o},$V0=[1,6],$V1=[1,9],$V2=[2,5],$V3=[1,8],$V4=[7,9,11];
 var parser = {trace: function trace() { },
 yy: {},
-symbols_: {"error":2,"start":3,"BEGIN":4,"actions":5,"LPAREN":6,"STRING":7,"argument_list":8,"RPAREN":9,"$accept":0,"$end":1},
-terminals_: {2:"error",4:"BEGIN",6:"LPAREN",7:"STRING",9:"RPAREN"},
-productions_: [0,[3,2],[5,5],[5,0],[8,2],[8,0]],
+symbols_: {"error":2,"start":3,"BEGIN":4,"actions":5,"LPAREN":6,"STRING":7,"argument_list":8,"RPAREN":9,"argument":10,"VARIABLE":11,"HYPHEN":12,"$accept":0,"$end":1},
+terminals_: {2:"error",4:"BEGIN",6:"LPAREN",7:"STRING",9:"RPAREN",11:"VARIABLE",12:"HYPHEN"},
+productions_: [0,[3,2],[5,5],[5,0],[8,2],[8,0],[10,1],[10,3],[10,1]],
 performAction: function anonymous(yytext, yyleng, yylineno, yy, yystate /* action[1] */, $$ /* vstack */, _$ /* lstack */) {
 /* this == yyval */
 
@@ -87,15 +87,29 @@ case 1:
 return actions;
 break;
 case 2:
-actions.push($$[$0-3], $$[$0-2]);
+actions.push(new Action($$[$0-2], $$[$0-1]));
 break;
 case 4:
- if ($$[$0]!=null) {this.$ = [$$[$0-1]].concat($$[$0]);} else {this.$=[$$[$0-1]]};
+ if ($$[$0]!=null) {
+      this.$ = [$$[$0-1]].concat($$[$0]);
+    } else {
+      this.$=[$$[$0-1]]
+    };
+  
+break;
+case 6:
+this.$ = new Argument($$[$0], "", "");
+break;
+case 7:
+this.$ = new Argument($$[$0-2], $$[$0], "");
+break;
+case 8:
+this.$ = new Argument("", "", $$[$0]);
 break;
 }
 },
-table: [{3:1,4:[1,2]},{1:[3]},{1:$V0,5:3,6:$V1},{1:[2,1]},{7:[1,5]},{7:$V2,8:6,9:$V3},{9:[1,8]},{7:$V2,8:9,9:$V3},{1:$V0,5:10,6:$V1},{9:[2,4]},{1:[2,2]}],
-defaultActions: {3:[2,1],9:[2,4],10:[2,2]},
+table: [{3:1,4:[1,2]},{1:[3]},o($V0,[2,3],{5:3}),{1:[2,1],6:[1,4]},{7:[1,5]},{7:$V1,8:6,9:$V2,10:7,11:$V3},{9:[1,10]},{7:$V1,8:11,9:$V2,10:7,11:$V3},o($V4,[2,6],{12:[1,12]}),o($V4,[2,8]),o($V0,[2,2]),{9:[2,4]},{7:[1,13]},o($V4,[2,7])],
+defaultActions: {11:[2,4]},
 parseError: function parseError(str, hash) {
     if (hash.recoverable) {
         this.trace(str);
@@ -247,9 +261,15 @@ parse: function parse(input) {
     return true;
 }};
 
-function Action(name, arguments){
+function Action(name, parameters){
   this.name = name;
-  this.arguments = arguments;
+  this.parameters = parameters;
+}
+
+function Argument(name,type,value){
+  this.name = name;
+  this.type = type;
+  this.value = value;
 }
 
 var actions = [];

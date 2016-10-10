@@ -100,9 +100,9 @@ init_state
 
 initial_predicates
   : LPAREN STRING argument_list RPAREN initial_predicates
-  {startPredicates.push(new Predicate($2,$3,false));}
+  {startPredicates.push(new Predicate($2,$3,true));}
   | LPAREN NOT LPAREN STRING argument_list RPAREN RPAREN initial_predicates
-  {startPredicates.push(new Predicate($4,$5,true));}
+  {startPredicates.push(new Predicate($4,$5,false));}
   |
 ;
 
@@ -113,9 +113,9 @@ goal_state
 
 goal_predicates
   : LPAREN STRING argument_list RPAREN goal_predicates
-  {goalPredicates.push(new Predicate($2,$3,false));}
+  {goalPredicates.push(new Predicate($2,$3,true));}
   | LPAREN NOT LPAREN STRING argument_list RPAREN RPAREN goal_predicates
-  {goalPredicates.push(new Predicate($4,$5,true));}
+  {goalPredicates.push(new Predicate($4,$5,false));}
   |
 ;
 
@@ -173,35 +173,39 @@ predicates_def
 
 /*Formulas*/
 predicate_list
-  : predicate predicate_list
+  : predicate_list predicate
   |
 ;
 
 predicate
 /* $2 is the predicate name, argument_list is the list of arguments*/
   : LPAREN STRING argument_list RPAREN
-  {predicates.push(new Predicate($2,$3, false));}
+  {predicates.push(new Predicate($2,$3, true));}
   | LPAREN NOT LPAREN STRING argument_list RPAREN RPAREN
-  {predicates.push(new Predicate($4,$5, true));}
+  {predicates.push(new Predicate($4,$5, false));}
 ;
 
 
 /*Variables ?i*/
 
-/*TODO: This only returns one argument instead of all of them*/
 argument_list
   : argument argument_list
-  { if ($2!=null) {$$ = [$1].concat($2);} else {$$=[$1]};}
+  { if ($2!=null) {
+      $$ = [$1].concat($2);
+    } else {
+      $$=[$1]
+    };
+  }
   |
 ;
 
 argument
   : VARIABLE
-  {$$ = new Argument($1, "");}
+  {$$ = new Argument($1, "", "");}
   | VARIABLE HYPHEN STRING
-  {$$ = new Argument($1, $3);}
+  {$$ = new Argument($1, $3, "");}
   | STRING
-  {$$ = new Argument($1, "");}
+  {$$ = new Argument("", "", $1);}
 ;
 
 /*Actions*/
@@ -232,16 +236,16 @@ action_preconditions
 action_result
   : EFFECT list_effects
   { $$ = $2;}
-  | EFFECT LPAREN AND action_effect RPAREN
-  { $$ = $4;}
   | OBSERVE list_fluents
+  |
 ;
 
 /*TODO:Conditional effects are uncommon and used to represent nondeterministic
 planning problems, only worry about it if there's time/*/
 
 /*Action effects: can be conditional or not*/
-/*action_effect
+/*
+action_effect
   : LPAREN WHEN list_effects list_effects RPAREN
   {}
 ;
@@ -259,17 +263,17 @@ list_effects
 ;
 
 list_fluents
-  : fluent
-  {$$=$1;}
-  | list_fluents fluent
-  {[$1].push($2); $$ = $1;}
+  : fluent list_fluents
+  {$$=[$1].concat($2);}
+  | fluent
+  { $$=$1;}
 ;
 
 fluent
   : LPAREN STRING argument_list RPAREN
-  { $$ = new Predicate($2, $3, false); }
+  { $$ = new Predicate($2, $3, true); }
   | LPAREN NOT LPAREN STRING argument_list RPAREN RPAREN
-  { $$ = new Predicate($4, $5, true) }
+  { $$ = new Predicate($4, $5, false) }
 ;
 
 
@@ -292,9 +296,10 @@ function Constant(names, types, typeIndex){
 var constants = new Constant([], [], []);
 var objects = new Constant([],[],[]);
 
-function Argument(name, type){
+function Argument(name, type, value){
   this.name = name;
   this.type = type;
+  this.value = value;
 };
 
 /*arguments may be typed*/

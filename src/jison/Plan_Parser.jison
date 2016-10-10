@@ -27,21 +27,42 @@ start
 ;
 
 actions
-  : LPAREN STRING argument_list RPAREN actions
-    {actions.push($2, $3);}
+  : actions LPAREN STRING argument_list RPAREN
+    {actions.push(new Action($3, $4));}
   |
 ;
 
+
 argument_list
-  : STRING argument_list
-  { if ($2!=null) {$$ = [$1].concat($2);} else {$$=[$1]};}
+  : argument argument_list
+  { if ($2!=null) {
+      $$ = [$1].concat($2);
+    } else {
+      $$=[$1]
+    };
+  }
   |
+;
+
+argument
+  : VARIABLE
+  {$$ = new Argument($1, "", "");}
+  | VARIABLE HYPHEN STRING
+  {$$ = new Argument($1, $3, "");}
+  | STRING
+  {$$ = new Argument("", "", $1);}
 ;
 
 %%
-function Action(name, arguments){
+function Action(name, parameters){
   this.name = name;
-  this.arguments = arguments;
+  this.parameters = parameters;
+}
+
+function Argument(name,type,value){
+  this.name = name;
+  this.type = type;
+  this.value = value;
 }
 
 var actions = [];

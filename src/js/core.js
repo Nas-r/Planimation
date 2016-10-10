@@ -136,9 +136,10 @@ function getInput(domain,problem,plan) {
   document.getElementById("Window1").style.display="none";
   document.getElementById("Window2").style.display="block";
   createAnimationObjects();
+  generateAnimationTimeline(domain,problem,plan);
   $("#inputSelector").append(inputSelector);
   generateInputForm();
-  
+
 }
 
 function parseInputFiles() {
