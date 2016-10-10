@@ -137,6 +137,13 @@ function getInput(domain,problem,plan) {
   document.getElementById("Window2").style.display="block";
   createAnimationObjects();
   generateAnimationTimeline(domain,problem,plan);
+  //set objects layout and initial location, display=none;
+  //apply initial predicate options
+  //-match predicate to options (there should be some match ranking
+  //(i.e anything loses to a direct arg1val match))
+  //set objects display=block;
+  //apply predicate options (match each predicate type animation entity with
+//its matching options)
   $("#inputSelector").append(inputSelector);
   generateInputForm();
 
@@ -177,11 +184,12 @@ var predicateOptions = {};
  * corresponding type.
  *  @constructor
  */
-function TypeOption(name, image ,css, layout) {
+function TypeOption(name, image ,css, layout,size) {
   this.name=name;
   this.image=image;
   this.css=css;
   this.layout = layout;
+  this.size=size;
 }
 
 /**
@@ -209,6 +217,8 @@ function ObjectOption(name, type, image, location, css) {
     this.image=image;
     this.location=location;
     this.css = css;
+    this.width = 0;
+    this.height = 0;
 }
 
 //NOTE: If constants and objects don't share the same namespace
@@ -246,10 +256,11 @@ function ActionOption(name, parameter){
 }
 
 
-function AnimationOption(image, location, css, transition_image){
+function AnimationOption(image, location, css, size, transition_image){
     this.image=image;
     this.location = location;
     this.css = css;
+    this.size=size;
     this.transition_image = transition_image;
 }
 
@@ -583,7 +594,7 @@ function generateInputForm(name, inputtype) {
   var imageUrlInput = "<div><p>ImageURL</p><textarea id=\"imageURL\" rows=\"1\" cols=\"25\"></textarea></div>";
   var positionInput = "<div><p>Location</p><textarea id=\"position\" rows=\"1\" cols=\"25\"></textarea></div>";
   var customCSS = "<div><p>Custom CSS Properties</p><textarea id=\"customCSS\" rows=\"1\" cols=\"25\"></textarea></div>";
-
+  var sizeInput = "<div><p>Dimensions(W * H) </p><textarea id=\"size\" rows=\"1\" cols=\"25\"></textarea></div>";
   var spatialOptionsInput
       = "<div><p>Spatial Layou : </p><select id=\"spatialLayout\"><option value=\"free\">Free</option>"
       + "<option value=\"network\">Network</option>"
@@ -599,17 +610,20 @@ function generateInputForm(name, inputtype) {
   var objectOptions
       = imageUrlInput
       + positionInput
+      + sizeInput
       + customCSS
       ;
 
   var predicateOptions
       = imageUrlInput
       + positionInput
+      + sizeInput
       + customCSS
       ;
 
   var typeOptions
       = imageUrlInput
+      + sizeInput
       + customCSS
       + spatialOptionsInput
       ;
@@ -624,9 +638,7 @@ function generateInputForm(name, inputtype) {
         case 'constant':  result += objectOptions;
                           break;
         case 'predicate': result += generatePredicateInputForm(name);
-                          result += imageUrlInput
-                                  + positionInput
-                                  + customCSS;
+                          result += predicateOptions;
                           break;
         case 'global':    result += globalOptionsInput;
                           break;
@@ -733,8 +745,9 @@ function updateInputOptionEntity(name, optionType) {
 function readTypeOption() {
   var image = $("#imageURL").val();
   var customCSS = $("#customCSS").val();
+  var size = $("#size").val();
   var layout = $("#spatialLayout").val();
-  var result = [image,customCSS,layout];
+  var result = [image,customCSS,layout,size];
   return result;
 }
 /**
@@ -743,9 +756,16 @@ function readTypeOption() {
  */
 function writeTypeOption(name){
     $("#imageURL").val(typeOptions[name].image);
+    $("#size").val(typeOptions[name].size);
     $("#customCSS").val(typeOptions[name].css);
     $("#spatialLayout").val(typeOptions[name].layout);
 }
+
+function updateTypeOption(name, input) {
+  typeOptions[name] =
+    new TypeOption(name, input[0], input[1], input[2], input[3]);
+}
+
 
 /**
  * Read the input from an object options input form
@@ -754,7 +774,8 @@ function readObjectOption() {
     var image = $("#imageURL").val();
     var location = $("#position").val();
     var customCSS = $("#customCSS").val();
-    var result = [image,location,customCSS];
+    var size = $("#size").val();
+    var result = [image,location,size,customCSS];
   return result;
 }
 
@@ -766,6 +787,15 @@ function writeObjectOption(name) {
     $("#imageURL").val(objectOptions[name].image);
     $("#position").val(objectOptions[name].location);
     $("#customCSS").val(objectOptions[name].css);
+    $("#size").val(objectOptions[name].size);
+
+}
+
+function updateObjectOption(name, input) {
+  objectOptions[name].image=input[0];
+  objectOptions[name].location=input[1];
+  objectOptions[name].size=input[2];
+  objectOptions[name].css=input[3];
 }
 
 /**
@@ -776,7 +806,7 @@ function readPredicateOption() {
     var argument1 = $("#arg1").val();
     var argument2 = $("#arg2").val();
     var argument1_value = $("#objectSelector").val();
-    var animation = new AnimationOption($("#imageURL").val(), $("#position").val(), $("#customCSS").val());
+    var animation = new AnimationOption($("#imageURL").val(), $("#position").val(), $("#customCSS").val(), $("#size").val());
     return [truthiness,argument1,argument2,argument1_value,animation];
 }
 
@@ -795,6 +825,8 @@ function writePredicateOption(index) {
   $("#imageURL").val(predicateOptions[name][index].animation.image);
   $("#position").val(predicateOptions[name][index].animation.location);
   $("#customCSS").val(predicateOptions[name][index].animation.css);
+  $("#size").val(predicateOptions[name][index].animation.size);
+
 }
 
 function readActionOption() {
@@ -809,21 +841,11 @@ function writeGlobalOption() {
     $("#dimensions").val(globalOptions.dimensions);
 }
 
-function updateTypeOption(name, input) {
-  typeOptions[name] =
-    new TypeOption(name, input[0], input[1], input[2]);
-}
-
-function updateObjectOption(name, input) {
-  objectOptions[name].image=input[0];
-  objectOptions[name].location=input[1];
-  objectOptions[name].css=input[2];
-}
 
 function updatePredicateOption(name, input) {
   var pred = predicateOptions[name];
   //if any animation properties are defined
-  if(Boolean(input[4].css) || Boolean(input[4].image) || Boolean(input[4].location)) {
+  if(Boolean(input[4].css) || Boolean(input[4].image) || Boolean(input[4].location) || Boolean(input[4].size)) {
     for(var i=0;i<pred.length;i++){
         if( pred[i].argument1==input[1]
             &&  pred[i].truthiness==input[0]
@@ -920,12 +942,9 @@ function list_action_predicates(action_definitions, action) {
           action.parameters[k].name=action_definitions[j].parameters[k].name;
           action.parameters[k].type=action_definitions[j].parameters[k].type;
         }
-        console.log(action);
-
         for(var k=0;k<action_definitions[j].effects.length;k++)
         {
           var temp_predicate=JSON.parse(JSON.stringify(action_definitions[j].effects[k]));
-          console.log(temp_predicate);
           if(typeof(temp_predicate.arguments) != "undefined"){
           for(var x=0;x<temp_predicate.arguments.length;x++)
           {
@@ -940,7 +959,6 @@ function list_action_predicates(action_definitions, action) {
       break;
     }
     }
-    console.log(result);
     return result;
 }
 /**

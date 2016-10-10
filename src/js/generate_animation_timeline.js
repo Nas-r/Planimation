@@ -52,12 +52,9 @@ function list_action_predicates(action_definitions, action) {
           action.parameters[k].name=action_definitions[j].parameters[k].name;
           action.parameters[k].type=action_definitions[j].parameters[k].type;
         }
-        console.log(action);
-
         for(var k=0;k<action_definitions[j].effects.length;k++)
         {
           var temp_predicate=JSON.parse(JSON.stringify(action_definitions[j].effects[k]));
-          console.log(temp_predicate);
           if(typeof(temp_predicate.arguments) != "undefined"){
           for(var x=0;x<temp_predicate.arguments.length;x++)
           {
@@ -72,7 +69,6 @@ function list_action_predicates(action_definitions, action) {
       break;
     }
     }
-    console.log(result);
     return result;
 }
 /**

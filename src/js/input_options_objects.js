@@ -3,7 +3,7 @@
  * used to store the stage dimensions.
  * @global
  */
-var globalOptions = {};
+var globalOptions = new GlobalOption("100,100","percent");
 
 /**
  * Used to store options specified on types as an assosciative array
@@ -30,11 +30,12 @@ var predicateOptions = {};
  * corresponding type.
  *  @constructor
  */
-function TypeOption(name, image ,css, layout) {
+function TypeOption(name, image ,css, layout,size) {
   this.name=name;
   this.image=image;
   this.css=css;
   this.layout = layout;
+  this.size=size;
 }
 
 /**
@@ -42,8 +43,9 @@ function TypeOption(name, image ,css, layout) {
  * @param {array} stageDimensions - The dimensions of the animation stage in pixels
  *  @constructor
  */
-function GlobalOption(stageDimensions) {
+function GlobalOption(stageDimensions, units) {
     this.dimensions = stageDimensions;
+    this.units = units;
 }
 
 
@@ -62,6 +64,8 @@ function ObjectOption(name, type, image, location, css) {
     this.image=image;
     this.location=location;
     this.css = css;
+    this.width = 0;
+    this.height = 0;
 }
 
 //NOTE: If constants and objects don't share the same namespace
@@ -99,10 +103,11 @@ function ActionOption(name, parameter){
 }
 
 
-function AnimationOption(image, location, css, transition_image){
+function AnimationOption(image, location, css, size, transition_image){
     this.image=image;
     this.location = location;
     this.css = css;
+    this.size=size;
     this.transition_image = transition_image;
 }
 

@@ -137,6 +137,13 @@ function getInput(domain,problem,plan) {
   document.getElementById("Window2").style.display="block";
   createAnimationObjects();
   generateAnimationTimeline(domain,problem,plan);
+  //set objects layout and initial location, display=none;
+  //apply initial predicate options
+  //-match predicate to options (there should be some match ranking
+  //(i.e anything loses to a direct arg1val match))
+  //set objects display=block;
+  //apply predicate options (match each predicate type animation entity with
+//its matching options)
   $("#inputSelector").append(inputSelector);
   generateInputForm();
 
