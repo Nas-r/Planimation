@@ -10,6 +10,6 @@ function download(text, name, type) {
 }
 
 function downloadAnimationOptions() {
-  var saveFile  = JSON.stringify([typeOptions,objectOptions,predicateOptions]);
+  var saveFile  = JSON.stringify([typeOptions,objectOptions,predicateOptions,globalOptions]);
   download(saveFile, 'animation_options.txt', 'text/plain');
 }

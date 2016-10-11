@@ -157,7 +157,7 @@ function parseInputFiles() {
  * used to store the stage dimensions.
  * @global
  */
-var globalOptions = {};
+var globalOptions = new GlobalOption("100,100","percent");
 
 /**
  * Used to store options specified on types as an assosciative array
@@ -197,8 +197,9 @@ function TypeOption(name, image ,css, layout,size) {
  * @param {array} stageDimensions - The dimensions of the animation stage in pixels
  *  @constructor
  */
-function GlobalOption(stageDimensions) {
+function GlobalOption(stageDimensions, units) {
     this.dimensions = stageDimensions;
+    this.units = units;
 }
 
 
@@ -596,14 +597,20 @@ function generateInputForm(name, inputtype) {
   var customCSS = "<div><p>Custom CSS Properties</p><textarea id=\"customCSS\" rows=\"1\" cols=\"25\"></textarea></div>";
   var sizeInput = "<div><p>Dimensions(W * H) </p><textarea id=\"size\" rows=\"1\" cols=\"25\"></textarea></div>";
   var spatialOptionsInput
-      = "<div><p>Spatial Layou : </p><select id=\"spatialLayout\"><option value=\"free\">Free</option>"
+      = "<div><p>Spatial Layout : </p><select id=\"spatialLayout\"><option value=\"free\">Free</option>"
       + "<option value=\"network\">Network</option>"
-      + "<option value=\"grid\">Grid</option></div>"
+      + "<option value=\"grid\">Grid</option></select></div> "
       ;
 
+  var unitsInput
+      = "<div><p>Dimensions and Object Location Unit (% or px) : </p><select id=\"units\">"
+      +"<option value=\"percent\" selected>Percent</option>"
+      + "<option value=\"pixels\">Pixels</option></select></div>"
+      ;
   var globalOptionsInput
       = "<div id=\"globalOptions\" data-type=\"global\">"
         + "<p>Stage Dimensions</p><textarea id=\"dimensions\" rows=\"1\" cols=\"25\"></textarea>"
+        + unitsInput
         + "</div>"
       ;
 
@@ -835,10 +842,12 @@ function readActionOption() {
 
 function readGlobalOption() {
     globalOptions.dimensions = $("#dimensions").val();
+    globalOptions.units = $("#units").val();
 }
 
 function writeGlobalOption() {
     $("#dimensions").val(globalOptions.dimensions);
+    $("#units").val(globalOptions.units);
 }
 
 
@@ -1004,7 +1013,7 @@ function download(text, name, type) {
 }
 
 function downloadAnimationOptions() {
-  var saveFile  = JSON.stringify([typeOptions,objectOptions,predicateOptions]);
+  var saveFile  = JSON.stringify([typeOptions,objectOptions,predicateOptions,globalOptions]);
   download(saveFile, 'animation_options.txt', 'text/plain');
 }
 /*Deserialize the saved objects from txt file and repopulate based on whether
@@ -1021,21 +1030,20 @@ function parseSavedFile(file){
     var typekeys = Object.keys(objects[0]);
     var objectkeys = Object.keys(objects[1]);
     var predicatekeys = Object.keys(objects[2]);
-    console.log(objectkeys);
     for(var i =0;i<typekeys.length;i++){
-      console.log(objects[0][typekeys[i]]);
       typeOptions[typekeys[i]] = objects[0][typekeys[i]];
       writeTypeOption(typekeys[i]);
     }
     for(var i =0;i<objectkeys.length;i++){
-      console.log(objects[1][objectkeys[i]]);
       objectOptions[objectkeys[i]] = objects[1][objectkeys[i]];
       writeObjectOption(objectkeys[i]);
     }
     for(var i =0;i<predicatekeys.length;i++){
-      console.log(objects[2][predicatekeys[i]]);
       predicateOptions[predicatekeys[i]] = objects[2][predicatekeys[i]];
       //writePredicateOption??
+    }
+    if(typeof(objects[3])!="undefined") {
+      globalOptions = objects[3];
     }
   }
   console.log(objects);
