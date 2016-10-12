@@ -357,7 +357,7 @@ function Argument(name, type, value){
 /*arguments may be typed*/
 function Predicate(name, arguments,truthiness){
   this.name = name;
-  this.arguments = arguments;
+  this.parameters = arguments;
   this.truthiness = truthiness;
 };
 

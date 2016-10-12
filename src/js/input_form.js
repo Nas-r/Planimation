@@ -120,7 +120,7 @@ var labelledInput = "<div><p>Label Objects? : </p><input type=\"checkbox\" id=\"
 
   var unitsInput
       = "<div><p>Dimensions and Object Location Unit (% or px) : </p><select id=\"units\">"
-      +"<option value=\"%\" selected>Percent</option>"
+      +"<option value=\"%\">Percent</option>"
       + "<option value=\"px\">Pixels</option></select></div>"
       ;
   var globalOptionsInput

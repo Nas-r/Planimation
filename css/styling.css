@@ -69,6 +69,12 @@ input {
     height:100%;
 }
 
+#Window3 {
+  background-color: white;
+  position:relative;
+  overflow:hidden;
+}
+
 @import url(http://fonts.googleapis.com/css?family=Open+Sans);
 @import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro);
 
@@ -156,7 +162,7 @@ body {
 
 }
 
-.optionPreviewImage {
+.optionPreviewImage, .objectOptionPreviewImage {
     width:100px;
     height:100px;
 }

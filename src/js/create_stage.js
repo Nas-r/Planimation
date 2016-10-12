@@ -39,7 +39,7 @@ function createInitialStage(){
       var object = objectOptions[key];
       var objectcontainer = "";
       objectcontainer += "<div id=\"" +object.name+"\" style=\"position:absolute\"><img src=\""+ object.image
-      +"\" style=\"object-fit:contain;\"></img>";
+      +"\" style=\"max-width:100%;max-height:100%\"></img>";
       if(globalOptions.labelled=="true"){
         objectcontainer += "<p>"+ key +"</p>";
       }
@@ -59,22 +59,22 @@ function createInitialStage(){
       var key = object_keys[i];
       //2. set their size
       var size = getWidthAndHeight(key);
-      console.log("Size of "+key+" :" + size[0] +" , "+ size[1]);
-      $("#"+key).css("width",size[0]+globalOptions.units);
+      // console.log("Size of "+key+" :" + size[0] +" , "+ size[1]);
+      $("#"+key).css("width",""+size[0]+globalOptions.units);
       //NOTE: Height is currently useless. object-fit doesnt work. need to fix
-      $("#"+key).css("max-height",size[1]+globalOptions.units);
+      $("#"+key).css("max-height",""+size[1]+globalOptions.units);
 
     //3. set their location
       stageLocation[key] = getStageLocation(key);
       var location = stageLocation[key];
-      console.log("Location of "+key+" :" + location[0] +" , "+ location[1]);
+      // console.log("Location of "+key+" :" + location[0] +" , "+ location[1]);
       location[0] -= 0.5*parseFloat(size[0]);
       location[1] -= 0.5*parseFloat(size[1]);
       // console.log("margins of "+key+" :" + location[0] +" , "+ location[1]);
       var mleft = location[0].toString() + globalOptions.units;
       var mtop = location[1].toString() + globalOptions.units;
       $("#"+key).css("margin-left", mleft);
-      $("#"+key).css("top", mtop);
+      $("#"+key).css("bottom", mtop);
       //4. apply any custom CSS
       applyCSS(objectOptions[key].css, key);
     }
