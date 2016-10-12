@@ -66,14 +66,16 @@ function createInitialStage(){
 
     //3. set their location
       stageLocation[key] = getStageLocation(key);
-      var location = stageLocation[key];
+      var x = stageLocation[key][0] - 0.5*parseFloat(size[0]);
+      var y = stageLocation[key][1] - 0.5*parseFloat(size[1]);
+
       // console.log("Location of "+key+" :" + location[0] +" , "+ location[1]);
-      location[0] -= 0.5*parseFloat(size[0]);
-      location[1] -= 0.5*parseFloat(size[1]);
+      // location[0] -= 0.5*parseFloat(size[0]);
+      // location[1] -= 0.5*parseFloat(size[1]);
       // console.log("margins of "+key+" :" + location[0] +" , "+ location[1]);
-      var mleft = location[0].toString() + globalOptions.units;
-      var mtop = location[1].toString() + globalOptions.units;
-      $("#"+key).css("margin-left", mleft);
+      var mleft = x.toString() + globalOptions.units;
+      var mtop = y.toString() + globalOptions.units;
+      $("#"+key).css("left", mleft);
       $("#"+key).css("bottom", mtop);
       //4. apply any custom CSS
       applyCSS(objectOptions[key].css, key);
@@ -104,50 +106,57 @@ function applyCSS(css, targetName){
 //use the objectOptions objects as paramater stores.
 //NOTE: ObjectOptions.location always has to be a string
 function getStageLocation(objectName){
-  var location = stageLocation[objectName].split(",");
-  var dimensions  = getWidthAndHeight(objectName);
+  var location = stageLocation[objectName]
+  if(typeof(location)=="string"){
+    location = stageLocation[objectName].split(",");
+    //Either they're coordinates
+    if(location.length==2){
+      return [parseFloat(location[0]), parseFloat(location[1])];
+    }
+    //or a relative position
+    else {
+      return resolveRelativeLocation(objectName);
+    }
+  }  else {
   //Either they're coordinates
-  if(location.length>1){
-    return [parseFloat(location[0]), parseFloat(location[1])];
-  }
-  //or a relative position
-  else {
-    return resolveRelativeLocation(objectName);
-  }
+  if(location.length==2){
+    return [location[0], location[1]];
+  }}
 }
 
 function resolveRelativeLocation(object){
   var location = stageLocation[object].split(":");
   var position = location[0].trim();
   var relative_to_object = location[1].trim();
-  var dimensions  = getWidthAndHeight(object);
+  // var dimensions  = getWidthAndHeight(object);
   var dimensions_of_relative_object = getWidthAndHeight(relative_to_object);
   switch (position) {
     case "on":
+    console.log(getStageLocation(relative_to_object));
       return getStageLocation(relative_to_object);
       break;
     case "left":
       var relative_to_position = getStageLocation(relative_to_object);
 //translate it by half(width of object + width of relative_to_object) from relative_to_position
-      var x = relative_to_position[0]-0.5*(dimensions[0] + dimensions_of_relative_object[0]);
+      var x = relative_to_position[0]-(dimensions_of_relative_object[0]);
       var y = relative_to_position[1];
       return[x,y];
       break;
     case "right":
       var relative_to_position = getStageLocation(relative_to_object);
-      var x = relative_to_position[0]+0.5*(dimensions[0] + dimensions_of_relative_object[0]);
+      var x = relative_to_position[0]+(dimensions_of_relative_object[0]);
       var y = relative_to_position[1];
       return[x,y];
       break;
     case "above":
       var relative_to_position = getStageLocation(relative_to_object);
-      var y = relative_to_position[1]+0.5*(dimensions[1] + dimensions_of_relative_object[1]);
+      var y = relative_to_position[1]+(dimensions_of_relative_object[1]);
       var x = relative_to_position[0];
       return[x,y];
       break;
     case "below":
       var relative_to_position = getStageLocation(relative_to_object);
-      var y = relative_to_position[1]-0.5*(dimensions[1] + dimensions_of_relative_object[1]);
+      var y = relative_to_position[1]-(dimensions_of_relative_object[1]);
       var x = relative_to_position[0];
       return[x,y];
       break;
