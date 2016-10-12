@@ -149,6 +149,21 @@ function getInput(domain,problem,plan) {
 
 }
 
+/**
+ * Parse the input files
+ */
 function parseInputFiles() {
     parseDomain(getInput);
+}
+
+function switchToAnimation(){
+  document.getElementById("Window2").style.display="none";
+  document.getElementById("Window3").style.display="block";
+  createInitialStage();
+}
+
+function switchToOptions(){
+  $("#Window3").html("");
+  document.getElementById("Window3").style.display="none";
+  document.getElementById("Window2").style.display="block";
 }

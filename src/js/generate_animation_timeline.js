@@ -27,13 +27,13 @@ function generateAnimationTimeline(domain,problem,plan){
 and setting it equal to the value or undefined) but to be honest even a problem with
 a hundred predicates won't notice the slowdown doing it this way, and it'll save me an hour.
  */
-// function label_predicate_arguments(predicate_definitions, predicates) {
+// function label_predicate_parameters(predicate_definitions, predicates) {
 //   for(var i = 0; i<predicates.length;i++){
 //     for(var j=0; j<predicate_definitions.length;j++) {
 //       if(predicates[i].name==predicate_definitions[j].name){
-//         for(var k=0;k<predicates[i].arguments.length;k++){
-//           predicates[i].arguments[k].name=predicate_definitions[j].arguments[k].name;
-//           predicates[i].arguments[k].type=predicate_definitions[j].arguments[k].type;
+//         for(var k=0;k<predicates[i].parameters.length;k++){
+//           predicates[i].parameters[k].name=predicate_definitions[j].parameters[k].name;
+//           predicates[i].parameters[k].type=predicate_definitions[j].parameters[k].type;
 //         }
 //       }
 //     }
@@ -55,13 +55,13 @@ function list_action_predicates(action_definitions, action) {
         for(var k=0;k<action_definitions[j].effects.length;k++)
         {
           var temp_predicate=JSON.parse(JSON.stringify(action_definitions[j].effects[k]));
-          if(typeof(temp_predicate.arguments) != "undefined"){
-          for(var x=0;x<temp_predicate.arguments.length;x++)
+          if(typeof(temp_predicate.parameters) != "undefined"){
+          for(var x=0;x<temp_predicate.parameters.length;x++)
           {
             for(var y=0;y<action.parameters.length;y++)
-              if(action.parameters[y].name==temp_predicate.arguments[x].name)
-              { temp_predicate.arguments[x].type=action.parameters[y].type;
-                temp_predicate.arguments[x].value=action.parameters[y].value;
+              if(action.parameters[y].name==temp_predicate.parameters[x].name)
+              { temp_predicate.parameters[x].type=action.parameters[y].type;
+                temp_predicate.parameters[x].value=action.parameters[y].value;
               }
           }}
           result.push(temp_predicate);
@@ -72,7 +72,8 @@ function list_action_predicates(action_definitions, action) {
     return result;
 }
 /**
- *
+ * The entities present on the animation timeline (allows distinction between
+headings and predicates)
  */
 function animationEntity(type, content) {
   this.type=type;
@@ -82,17 +83,17 @@ function animationEntity(type, content) {
  * Store predicate description; this is the same constructor used in the parser
   @param {string} name - The name of the predicate
   @param {boolean} truthiness - Is it true or false
-  @param {string} arguments - Collection of argument objects
+  @param {string} parameters - Collection of argument objects
 * @constructor
  */
-function Predicate(name, arguments, truthiness) {
+function Predicate(name, parameters, truthiness) {
   this.name = name;
   this.truthiness = truthiness;
-  this.arguments = arguments;
+  this.parameters = parameters;
 }
 
 /**
- * Store arguments - this is the same constructor used in the parser
+ * Store parameters - this is the same constructor used in the parser
   @param {string} name - The name of the argument
   @param {boolean} type - The type of the argument (if not typed this is undefined)
 * @constructor

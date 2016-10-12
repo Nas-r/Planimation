@@ -3,7 +3,7 @@
 ****************      GENERATE INPUT FORM    **********************
 */
 
-/*When Load File is selected from the menu, present the file input field and
+/**When Load File is selected from the menu, present the file input field and
 ensure the event handler is active*/
 function loadFileSelector(){
   $("#inputOptions").html(
@@ -13,7 +13,7 @@ function loadFileSelector(){
     });
 }
 
-/*Populate the input selector with all available configurable entities such as
+/**Populate the input selector with all available configurable entities such as
 constants, objects, prediucates, actions and types.*/
 function createInputSelector() {
   var itemCell = "<td class=\"item\" onclick=\"selectInput(event);\"";
@@ -59,7 +59,7 @@ function createInputSelector() {
   return output;
 }
 
-/*Keep track of the currently selected objcet. This facilitates updating the
+/**Keep track of the currently selected objcet. This facilitates updating the
 option's parameters when another is selected so the user doesn't have to trigger
 the save/apply function every time they want to record changes.
 @constructor
@@ -118,9 +118,9 @@ function selectInput(e) {
     if(types.length==0){
       $("#objectSelector").html(generateObjectSelector(getObjectListFromType()));
     } else {
-      for(var i=0;i<predicate.arguments.length;i++){
-          if(predicate.arguments[i].name==argument) {
-            argtype=predicate.arguments[i].type;
+      for(var i=0;i<predicate.parameters.length;i++){
+          if(predicate.parameters[i].name==argument) {
+            argtype=predicate.parameters[i].type;
           }
       }
       $("#objectSelector").html(generateObjectSelector(getObjectListFromType(argtype)));
@@ -132,9 +132,9 @@ function selectInput(e) {
         if(types.length==0){
           $("#objectSelector").html(generateObjectSelector(getObjectListFromType()));
         } else {
-          for(var i=0;i<predicate.arguments.length;i++){
-              if(predicate.arguments[i].name==argument) {
-                argtype=predicate.arguments[i].type;
+          for(var i=0;i<predicate.parameters.length;i++){
+              if(predicate.parameters[i].name==argument) {
+                argtype=predicate.parameters[i].type;
               }
           }
           $("#objectSelector").html(generateObjectSelector(getObjectListFromType(argtype)));

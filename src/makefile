@@ -8,6 +8,7 @@ modules =	${jsdir}core.js\
 					${jsdir}input_form.js\
 					${jsdir}animation_function_definitions.js\
 					${jsdir}generate_animation_timeline.js\
+					${jsdir}create_stage.js\
 					${jsdir}save_options.js\
 					${jsdir}load_options.js
 

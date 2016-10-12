@@ -46,6 +46,7 @@ function TypeOption(name, image ,css, layout,size) {
 function GlobalOption(stageDimensions, units) {
     this.dimensions = stageDimensions;
     this.units = units;
+    this.labelled = "true";
 }
 
 
@@ -58,15 +59,15 @@ function GlobalOption(stageDimensions, units) {
     @param {array} location - The current coordinates of the object on the stage
     @param {string} css - The transformations to apply by default to the input image
  */
-function ObjectOption(name, type, image, location, css) {
+function ObjectOption(name, type, image, location, css, size) {
     this.name=name;
     this.type=type;
     this.image=image;
     this.location=location;
     this.css = css;
-    this.width = 0;
-    this.height = 0;
+    this.size = size;
 }
+
 
 //NOTE: If constants and objects don't share the same namespace
 //I'll have to create a separate type and store for constants.
@@ -111,6 +112,9 @@ function AnimationOption(image, location, css, size, transition_image){
     this.transition_image = transition_image;
 }
 
+/**
+ * Initializes the input option containers and their structure
+ */
 function createAnimationObjects(){
   if (predicates.length>0){
     for(var i=0;i<predicates.length;i++){

@@ -164,12 +164,22 @@ function getInput(domain,problem,plan) {
   document.getElementById("Window1").style.display="none";
   document.getElementById("Window2").style.display="block";
   createAnimationObjects();
+  generateAnimationTimeline(domain,problem,plan);
+  //set objects layout and initial location, display=none;
+  //apply initial predicate options
+  //-match predicate to options (there should be some match ranking
+  //(i.e anything loses to a direct arg1val match))
+  //set objects display=block;
+  //apply predicate options (match each predicate type animation entity with
+//its matching options)
   $("#inputSelector").append(inputSelector);
   generateInputForm();
-  $("#submitInputs").append("&lt;p>&lt;/p>&lt;input id=\"submitInputs\" type=\"button\" "
-        + "value=\"Submit Input\" onclick=\"createAnimationObjects();\">");
+
 }
 
+/**
+ * Parse the input files
+ */
 function parseInputFiles() {
     parseDomain(getInput);
 }
@@ -178,7 +188,7 @@ function parseInputFiles() {
  * used to store the stage dimensions.
  * @global
  */
-var globalOptions;
+var globalOptions = new GlobalOption("100,100","percent");
 
 /**
  * Used to store options specified on types as an assosciative array
@@ -205,11 +215,12 @@ var predicateOptions = {};
  * corresponding type.
  *  @constructor
  */
-function TypeOption(name, image ,css, layout) {
+function TypeOption(name, image ,css, layout,size) {
   this.name=name;
   this.image=image;
   this.css=css;
   this.layout = layout;
+  this.size=size;
 }
 
 /**
@@ -217,8 +228,9 @@ function TypeOption(name, image ,css, layout) {
  * @param {array} stageDimensions - The dimensions of the animation stage in pixels
  *  @constructor
  */
-function GlobalOption(stageDimensions) {
+function GlobalOption(stageDimensions, units) {
     this.dimensions = stageDimensions;
+    this.units = units;
 }
 
 
@@ -237,13 +249,15 @@ function ObjectOption(name, type, image, location, css) {
     this.image=image;
     this.location=location;
     this.css = css;
+    this.width = 0;
+    this.height = 0;
 }
 
 //NOTE: If constants and objects don't share the same namespace
 //I'll have to create a separate type and store for constants.
 //: Usually you use either constants or objects depending if you want them
 //in the problem def or domain file.
-//predicate options apply on conditionals consisting of at most two arguments,
+//predicate options apply on conditionals consisting of at most two parameters,
 //as well as a (truth)value
 
 
@@ -254,7 +268,7 @@ function ObjectOption(name, type, image, location, css) {
 @param {string} argument1 - The first argument to the predicate
 @param {string} argument1 - The second argument to the predicate
 @param {string} argumentValue - The value taken by the first argument
-@param {AnimeationOption} animation - {image,location,css} - I should add transition_image
+@param {AnimeationOption} animation - {image,location,css, transition_image}
  *  @constructor
  */
 function PredicateOption(name, truthiness, argument1, argument2, argumentValue, animation) {
@@ -274,12 +288,17 @@ function ActionOption(name, parameter){
 }
 
 
-function AnimationOption(image, location, css){
+function AnimationOption(image, location, css, size, transition_image){
     this.image=image;
     this.location = location;
     this.css = css;
+    this.size=size;
+    this.transition_image = transition_image;
 }
 
+/**
+ * Initializes the input option containers and their structure
+ */
 function createAnimationObjects(){
   if (predicates.length>0){
     for(var i=0;i&lt;predicates.length;i++){
@@ -340,7 +359,7 @@ function createAnimationObjects(){
 ****************      GENERATE INPUT FORM    **********************
 */
 
-/*When Load File is selected from the menu, present the file input field and
+/**When Load File is selected from the menu, present the file input field and
 ensure the event handler is active*/
 function loadFileSelector(){
   $("#inputOptions").html(
@@ -350,13 +369,15 @@ function loadFileSelector(){
     });
 }
 
-/*Populate the input selector with all available configurable entities such as
+/**Populate the input selector with all available configurable entities such as
 constants, objects, prediucates, actions and types.*/
 function createInputSelector() {
   var itemCell = "&lt;td class=\"item\" onclick=\"selectInput(event);\"";
   var output = "";
   output += "&lt;table id=\"inputTable\">&lt;tbody>&lt;tr>"
           + "&lt;td class=\"item\" onclick=\"loadFileSelector();\""+">Load Options&lt;/td>&lt;/tr>";
+
+  output +=  "&lt;tr>&lt;td class=\"item\" onclick=\"selectInput(event);\" data-type=\"global\""+">Global Options&lt;/td>&lt;/tr>";
 
   if(types.length>0){
     output += "&lt;tr>&lt;td class=\"itemGroup\">Types&lt;/td>&lt;/tr>";
@@ -394,7 +415,7 @@ function createInputSelector() {
   return output;
 }
 
-/*Keep track of the currently selected objcet. This facilitates updating the
+/**Keep track of the currently selected objcet. This facilitates updating the
 option's parameters when another is selected so the user doesn't have to trigger
 the save/apply function every time they want to record changes.
 @constructor
@@ -406,8 +427,11 @@ function SelectedInput(name,type){
 
 var selectedInput = new SelectedInput('', '');
 
-/*Return an object stored in an array of objects by it's name.
-collection here refers to the arrays yielded from the parser's output.*/
+/**
+ * Return an object stored in an array of objects by it's name.
+@param {string} name - name of the object
+@param {array} collection - one of the the arrays yielded from the parser's output
+*/
 function getObjectByName(name, collection) {
   for(var i=0;i&lt;collection.length;i++){
     if(collection[i].name==name) {
@@ -416,18 +440,16 @@ function getObjectByName(name, collection) {
   }
 }
 
-/*This is the function that runs when an item from the list of objects/types
+/**This is the function that runs when an item from the list of objects/types
 is clicked. It loads the available options into the #inputOptions div*/
 function selectInput(e) {
   //get the name of the selected option
   var name = e.target.innerHTML;
   var type = e.target.getAttribute('data-type');
-  console.log(type + " : "  + name);
-  console.log(objectOptions[name]);
-  console.log(selectedInput.name+ ":"+ selectedInput.type);
   //update the previously selected option's parameters
-  updateInputOptionEntity($("#selectionName").html(),$("#selectionType").html());
-
+  if($("#selectionType").html()!="predicate"){
+    updateInputOptionEntity($("#selectionName").html(),$("#selectionType").html());
+  }
   //construct the input form
   var form = "";
   form += "&lt;h1 id=\"selectionType\">" + type + "&lt;/h1>";
@@ -435,8 +457,8 @@ function selectInput(e) {
   if(type=="object"||type=="constant"){
     if(objectOptions[name].type!="undefined"){
     form += "&lt;h2 id=\"selectionObjectType\">" + objectOptions[name].type + "&lt;/h2>"}
-  }
-  form+="&lt;p>&lt;/p>";
+
+  form+="&lt;p>&lt;/p>";}
   form += generateInputForm(name, type);
 
   //insert the input form
@@ -452,9 +474,9 @@ function selectInput(e) {
     if(types.length==0){
       $("#objectSelector").html(generateObjectSelector(getObjectListFromType()));
     } else {
-      for(var i=0;i&lt;predicate.arguments.length;i++){
-          if(predicate.arguments[i].name==argument) {
-            argtype=predicate.arguments[i].type;
+      for(var i=0;i&lt;predicate.parameters.length;i++){
+          if(predicate.parameters[i].name==argument) {
+            argtype=predicate.parameters[i].type;
           }
       }
       $("#objectSelector").html(generateObjectSelector(getObjectListFromType(argtype)));
@@ -466,9 +488,9 @@ function selectInput(e) {
         if(types.length==0){
           $("#objectSelector").html(generateObjectSelector(getObjectListFromType()));
         } else {
-          for(var i=0;i&lt;predicate.arguments.length;i++){
-              if(predicate.arguments[i].name==argument) {
-                argtype=predicate.arguments[i].type;
+          for(var i=0;i&lt;predicate.parameters.length;i++){
+              if(predicate.parameters[i].name==argument) {
+                argtype=predicate.parameters[i].type;
               }
           }
           $("#objectSelector").html(generateObjectSelector(getObjectListFromType(argtype)));
@@ -493,12 +515,18 @@ function selectInput(e) {
                       break;
     case 'predicate': generatePredicateInputForm(name);
                       break;
+    case 'global':    writeGlobalOption();
     default:
                       break;
    }
   selectedInput.type=type;
   selectedInput.name=name;
 }
+/**
+ * Update the settings for an item when the user selects another input form.
+ This avoids users having to always manually click save &amp; apply.
+ */
+
 function saveAndApply(){
   updateInputOptionEntity($("#selectionName").html(),$("#selectionType").html());
 }
@@ -514,9 +542,9 @@ function argumentDescriptor(arg){
     }
 }
 
-/**Generates a selector from a list of arguments.
+/**Generates a selector from a list of parameters.
   *number will always be 1 or 2 because options apply
-  *across at most two arguments.
+  *across at most two parameters.
   *i.e: when ?x takes some value, ?y adopts some transformation
   *I should see where I've called this function,
   *seems to me the number argument is... useless.
@@ -587,16 +615,16 @@ function generatePredicateInputForm(name) {
       + "&lt;select id=\"truthiness\">"
       + "&lt;option value=\"true\">True&lt;/option>"
       + "&lt;option value=\"false\">False&lt;/option>&lt;/select>"
-      + " and " + generateArgumentSelector(predicate.arguments, 1)
+      + " and " + generateArgumentSelector(predicate.parameters, 1)
       + " is &lt;select id=\"objectSelector\">&lt;option value=\"anything\"> ** ANY ** &lt;/option>&lt;/select> then the transformation"
-      + " below will be applied to the argument " + generateArgumentSelector(predicate.arguments, 2) + " : "
+      + " below will be applied to the argument " + generateArgumentSelector(predicate.parameters, 2) + " : "
       + "&lt;/div>";
 
       return predicateHeader;
 }
 
 /**
- * Generates the input form from the passed arguments and returns it as an html div
+ * Generates the input form from the passed parameters and returns it as an html div
  @param {string} name - name of the entity
  @param {string} inputtype - type of the entity
  */
@@ -606,31 +634,42 @@ function generateInputForm(name, inputtype) {
   var imageUrlInput = "&lt;div>&lt;p>ImageURL&lt;/p>&lt;textarea id=\"imageURL\" rows=\"1\" cols=\"25\">&lt;/textarea>&lt;/div>";
   var positionInput = "&lt;div>&lt;p>Location&lt;/p>&lt;textarea id=\"position\" rows=\"1\" cols=\"25\">&lt;/textarea>&lt;/div>";
   var customCSS = "&lt;div>&lt;p>Custom CSS Properties&lt;/p>&lt;textarea id=\"customCSS\" rows=\"1\" cols=\"25\">&lt;/textarea>&lt;/div>";
-
+  var sizeInput = "&lt;div>&lt;p>Dimensions(W * H) &lt;/p>&lt;textarea id=\"size\" rows=\"1\" cols=\"25\">&lt;/textarea>&lt;/div>";
   var spatialOptionsInput
-      = "&lt;div>&lt;p>Spatial Layou : &lt;/p>&lt;select id=\"spatialLayout\">&lt;option value=\"free\">Free&lt;/option>"
+      = "&lt;div>&lt;p>Spatial Layout : &lt;/p>&lt;select id=\"spatialLayout\">&lt;option value=\"free\">Free&lt;/option>"
       + "&lt;option value=\"network\">Network&lt;/option>"
-      + "&lt;option value=\"grid\">Grid&lt;/option>&lt;/div>"
+      + "&lt;option value=\"grid\">Grid&lt;/option>&lt;/select>&lt;/div> "
       ;
 
+  var unitsInput
+      = "&lt;div>&lt;p>Dimensions and Object Location Unit (% or px) : &lt;/p>&lt;select id=\"units\">"
+      +"&lt;option value=\"percent\" selected>Percent&lt;/option>"
+      + "&lt;option value=\"pixels\">Pixels&lt;/option>&lt;/select>&lt;/div>"
+      ;
   var globalOptionsInput
-      = spatialOptionsInput
+      = "&lt;div id=\"globalOptions\" data-type=\"global\">"
+        + "&lt;p>Stage Dimensions&lt;/p>&lt;textarea id=\"dimensions\" rows=\"1\" cols=\"25\">&lt;/textarea>"
+        + unitsInput
+        + "&lt;/div>"
       ;
 
   var objectOptions
       = imageUrlInput
       + positionInput
+      + sizeInput
       + customCSS
       ;
 
   var predicateOptions
       = imageUrlInput
       + positionInput
+      + sizeInput
       + customCSS
       ;
 
   var typeOptions
       = imageUrlInput
+      + sizeInput
       + customCSS
       + spatialOptionsInput
       ;
@@ -645,9 +684,9 @@ function generateInputForm(name, inputtype) {
         case 'constant':  result += objectOptions;
                           break;
         case 'predicate': result += generatePredicateInputForm(name);
-                          result += imageUrlInput
-                                  + positionInput
-                                  + customCSS;
+                          result += predicateOptions;
+                          break;
+        case 'global':    result += globalOptionsInput;
                           break;
         default:          result += globalOptions;
                           break;
@@ -671,9 +710,11 @@ function generatePredicateOptionPreview(name){
       + "When " + pred.name + " is " + pred.truthiness + " and "
       + pred.argument1 + " is " + pred.argument1_value + " animate "
       + pred.argument2 + "&lt;/div>&lt;div>&lt;img class=optionPreviewImage src=\""
-      + pred.animation.image + "\">&lt;/img>"
-      +"&lt;/div>&lt;/div>"
+      + pred.animation.image + "\">&lt;/img>&lt;br>"
+      +"&lt;/div>&lt;/div>&lt;div class=\"deletebutton\" onclick=\"deletePredicateOption('"+name+"',"+i+");\""
+      + "\">&lt;img src=\"images\\delete.png\" style=\"width:35px;height:35px;\">&lt;/img>&lt;/div>";
     }
+    $("#optionsPreview").html(result);
   }
   $("#optionsPreview").html(result);
 }
@@ -684,7 +725,6 @@ function generatePredicateOptionPreview(name){
  @param {string} name - name of the object whose options are to be displayed.
  */
 function generateObjectOptionPreview(name,type){
-  console.log("generating preview");
   var result = '';
   if(type == "type") {
     if (typeOptions[name].image!="undefined"){
@@ -711,7 +751,7 @@ from those defined in input_options_objects.js
 */
 function updateInputOptionEntity(name, optionType) {
   var input;
-  console.log(name+ ":"+ optionType);
+  console.log("Updated: " +name+ " - "+ optionType);
   switch (optionType) {
     case "type":
       input = readTypeOption();
@@ -720,13 +760,11 @@ function updateInputOptionEntity(name, optionType) {
       break;
     case "constant" :
       input = readObjectOption();
-      console.log(input);
       updateObjectOption(name, input);
       console.log(objectOptions[name]);
       break;
     case "object":
       input = readObjectOption();
-      console.log(input);
       updateObjectOption(name, input);
       console.log(objectOptions[name]);
       break;
@@ -739,6 +777,9 @@ function updateInputOptionEntity(name, optionType) {
     case "action":
       input = readActionOption();
       break;
+    case "global":
+      readGlobalOption();
+      break;
     default :
       console.log("something went wrong trying to create an option entity");
   }
@@ -750,8 +791,9 @@ function updateInputOptionEntity(name, optionType) {
 function readTypeOption() {
   var image = $("#imageURL").val();
   var customCSS = $("#customCSS").val();
+  var size = $("#size").val();
   var layout = $("#spatialLayout").val();
-  var result = [image,customCSS,layout];
+  var result = [image,customCSS,layout,size];
   return result;
 }
 /**
@@ -760,9 +802,16 @@ function readTypeOption() {
  */
 function writeTypeOption(name){
     $("#imageURL").val(typeOptions[name].image);
+    $("#size").val(typeOptions[name].size);
     $("#customCSS").val(typeOptions[name].css);
     $("#spatialLayout").val(typeOptions[name].layout);
 }
+
+function updateTypeOption(name, input) {
+  typeOptions[name] =
+    new TypeOption(name, input[0], input[1], input[2], input[3]);
+}
+
 
 /**
  * Read the input from an object options input form
@@ -771,7 +820,8 @@ function readObjectOption() {
     var image = $("#imageURL").val();
     var location = $("#position").val();
     var customCSS = $("#customCSS").val();
-    var result = [image,location,customCSS];
+    var size = $("#size").val();
+    var result = [image,location,size,customCSS];
   return result;
 }
 
@@ -783,6 +833,15 @@ function writeObjectOption(name) {
     $("#imageURL").val(objectOptions[name].image);
     $("#position").val(objectOptions[name].location);
     $("#customCSS").val(objectOptions[name].css);
+    $("#size").val(objectOptions[name].size);
+
+}
+
+function updateObjectOption(name, input) {
+  objectOptions[name].image=input[0];
+  objectOptions[name].location=input[1];
+  objectOptions[name].size=input[2];
+  objectOptions[name].css=input[3];
 }
 
 /**
@@ -793,7 +852,7 @@ function readPredicateOption() {
     var argument1 = $("#arg1").val();
     var argument2 = $("#arg2").val();
     var argument1_value = $("#objectSelector").val();
-    var animation = new AnimationOption($("#imageURL").val(), $("#position").val(), $("#customCSS").val());
+    var animation = new AnimationOption($("#imageURL").val(), $("#position").val(), $("#customCSS").val(), $("#size").val());
     return [truthiness,argument1,argument2,argument1_value,animation];
 }
 
@@ -812,6 +871,7 @@ function writePredicateOption(index) {
   $("#imageURL").val(predicateOptions[name][index].animation.image);
   $("#position").val(predicateOptions[name][index].animation.location);
   $("#customCSS").val(predicateOptions[name][index].animation.css);
+  $("#size").val(predicateOptions[name][index].animation.size);
 
 }
 
@@ -819,24 +879,34 @@ function readActionOption() {
 
 }
 
-
-function updateTypeOption(name, input) {
-  typeOptions[name] =
-    new TypeOption(name, input[0], input[1], input[2]);
+/**
+ * Read the values from a global options input form
+ */
+function readGlobalOption() {
+    globalOptions.dimensions = $("#dimensions").val();
+    globalOptions.units = $("#units").val();
 }
 
-function updateObjectOption(name, input) {
-  objectOptions[name].image=input[0];
-  objectOptions[name].location=input[1];
-  objectOptions[name].css=input[2];
+/**
+ * Write the existing values to a global options input form
+ */
+function writeGlobalOption() {
+    $("#dimensions").val(globalOptions.dimensions);
+    $("#units").val(globalOptions.units);
 }
 
+/**
+ * This takes a predicates name and the inputs from an input form and, if there is
+ existing input for this scenario, updates it, otherwise it creates a new predicate
+ option.
+ @param {string} name - name of the predicate
+ @param {array} input - list containing user input
+ */
 function updatePredicateOption(name, input) {
   var pred = predicateOptions[name];
   //if any animation properties are defined
-  if(Boolean(input[4].css) || Boolean(input[4].image) || Boolean(input[4].location)) {
+  if(Boolean(input[4].css) || Boolean(input[4].image) || Boolean(input[4].location) || Boolean(input[4].size)) {
     for(var i=0;i&lt;pred.length;i++){
-      console.log(pred[i].argument1);
         if( pred[i].argument1==input[1]
             &amp;&amp;  pred[i].truthiness==input[0]
             &amp;&amp;  pred[i].argument2==input[2]
@@ -850,6 +920,17 @@ function updatePredicateOption(name, input) {
       new PredicateOption(name, input[0], input[1], input[2], input[3], input[4])
     );
   }
+}
+
+/**
+ * Removes a predicate option and updates the preview Window2
+ @param {string} name - the name of the predicate
+ @param {integer} index - the location of the option to be removed in the list
+ of options that exist for the given predicate.
+ */
+function deletePredicateOption(name,index) {
+  predicateOptions[name].splice(index,1);
+  generatePredicateOptionPreview(name);
 }
 /*all animations should accept a duration parameter.
 Perhaps I should a) store this as a multiple of itself
@@ -873,10 +954,119 @@ function animate(item, animation){
 function scale(item, factor){
 
 }
-/*Serialize and output the animation options objects*/
+var animationTimeline = [];
 
-function download(text, name, type) {
-    updateInputOptionEntity(name,type);
+function generateAnimationTimeline(domain,problem,plan){
+  initialPredicates = problem[1];
+  var actionTitle = '';
+  animationTimeline.push(new animationEntity("heading","Initial State"));
+  for(var i = 0; i&lt;initialPredicates.length;i++){
+    animationTimeline.push(new animationEntity("predicate",initialPredicates[i]));
+  }
+  for(var i = 0; i&lt;plan.length;i++) {
+    var actionTitle = plan[i].name + " ";
+    for(var j = 0; j&lt;plan[i].parameters.length; j++){
+      actionTitle += plan[i].parameters[j] + " ";
+    }
+    animationTimeline.push(new animationEntity("heading",actionTitle));
+    var action_predicates = list_action_predicates(domain[3], plan[i]);
+    for(var k = 0; k&lt;action_predicates.length;k++) {
+      animationTimeline.push(new animationEntity("predicate",action_predicates[k]));
+    }
+  }
+  console.log(animationTimeline);
+}
+
+/**
+ *Ties the value to the attribute name (e.g ?x = airplane)
+ There are a few ways to do this without using nested for loops (e.g making the name a key
+and setting it equal to the value or undefined) but to be honest even a problem with
+a hundred predicates won't notice the slowdown doing it this way, and it'll save me an hour.
+ */
+// function label_predicate_parameters(predicate_definitions, predicates) {
+//   for(var i = 0; i&lt;predicates.length;i++){
+//     for(var j=0; j&lt;predicate_definitions.length;j++) {
+//       if(predicates[i].name==predicate_definitions[j].name){
+//         for(var k=0;k&lt;predicates[i].parameters.length;k++){
+//           predicates[i].parameters[k].name=predicate_definitions[j].parameters[k].name;
+//           predicates[i].parameters[k].type=predicate_definitions[j].parameters[k].type;
+//         }
+//       }
+//     }
+//   }
+// }
+
+function list_action_predicates(action_definitions, action) {
+  var result = [];
+  //for each action definition
+    for(var j=0; j&lt;action_definitions.length;j++) {
+      // find the one that matches the current action name
+      if(action.name==action_definitions[j].name){
+        // for each of this actions parameters, set its name and type
+        //NOTE:should make sure parameters exist
+        for(var k=0;k&lt;action.parameters.length;k++){
+          action.parameters[k].name=action_definitions[j].parameters[k].name;
+          action.parameters[k].type=action_definitions[j].parameters[k].type;
+        }
+        for(var k=0;k&lt;action_definitions[j].effects.length;k++)
+        {
+          var temp_predicate=JSON.parse(JSON.stringify(action_definitions[j].effects[k]));
+          if(typeof(temp_predicate.parameters) != "undefined"){
+          for(var x=0;x&lt;temp_predicate.parameters.length;x++)
+          {
+            for(var y=0;y&lt;action.parameters.length;y++)
+              if(action.parameters[y].name==temp_predicate.parameters[x].name)
+              { temp_predicate.parameters[x].type=action.parameters[y].type;
+                temp_predicate.parameters[x].value=action.parameters[y].value;
+              }
+          }}
+          result.push(temp_predicate);
+        }
+      break;
+    }
+    }
+    return result;
+}
+/**
+ * The entities present on the animation timeline (allows distinction between
+headings and predicates)
+ */
+function animationEntity(type, content) {
+  this.type=type;
+  this.content=content;
+}
+/**
+ * Store predicate description; this is the same constructor used in the parser
+  @param {string} name - The name of the predicate
+  @param {boolean} truthiness - Is it true or false
+  @param {string} parameters - Collection of argument objects
+* @constructor
+ */
+function Predicate(name, parameters, truthiness) {
+  this.name = name;
+  this.truthiness = truthiness;
+  this.parameters = parameters;
+}
+
+/**
+ * Store parameters - this is the same constructor used in the parser
+  @param {string} name - The name of the argument
+  @param {boolean} type - The type of the argument (if not typed this is undefined)
+* @constructor
+ */
+function Argument(name, type, value){
+  this.name = name;
+  this.value = value;
+  this.type = type;
+};
+/**Serialize and output the animation options objects,
+I should add a call to updateInputOptionEntity to ensure the last option input
+is not lost in case the user forgets to click save &amp; apply
+@param {text} text - the JSON string containing all applied options
+@param {string} name - default name of the saved text file
+@param {string} type - the output text file's type
+*/
+function downloadOptionsInput(text, name, type) {
     var a = document.createElement("a");
     var file = new Blob([text], {type: type});
     a.href = URL.createObjectURL(file);
@@ -884,14 +1074,18 @@ function download(text, name, type) {
     a.click();
 }
 
-function downloadAnimationOptions() {
-  var saveFile  = JSON.stringify([typeOptions,objectOptions,predicateOptions]);
-  download(saveFile, 'animation_options.txt', 'text/plain');
-}
-/*Deserialize the saved objects from txt file and repopulate based on whether
-the objects/predicates/etc exist in the newly parsed problem. Should
-provide some feedback on things that are no longer found.*/
 
+/**
+ * Stringifies the animation input and runs the download function.
+ */
+function downloadAnimationOptions() {
+  var saveFile  = JSON.stringify([typeOptions,objectOptions,predicateOptions,globalOptions]);
+  downloadOptionsInput(saveFile, 'animation_options.txt', 'text/plain');
+}
+/**Deserialize the saved objects from txt file and repopulate based on whether
+the objects/predicates/etc exist in the newly parsed problem.
+TODO: Should provide some feedback on things that are no longer found.
+@param {file} file - the text file output from a previous save*/
 function parseSavedFile(file){
   readFile(file, function(e) {
     try{
@@ -902,21 +1096,20 @@ function parseSavedFile(file){
     var typekeys = Object.keys(objects[0]);
     var objectkeys = Object.keys(objects[1]);
     var predicatekeys = Object.keys(objects[2]);
-    console.log(objectkeys);
     for(var i =0;i&lt;typekeys.length;i++){
-      console.log(objects[0][typekeys[i]]);
       typeOptions[typekeys[i]] = objects[0][typekeys[i]];
       writeTypeOption(typekeys[i]);
     }
     for(var i =0;i&lt;objectkeys.length;i++){
-      console.log(objects[1][objectkeys[i]]);
       objectOptions[objectkeys[i]] = objects[1][objectkeys[i]];
       writeObjectOption(objectkeys[i]);
     }
     for(var i =0;i&lt;predicatekeys.length;i++){
-      console.log(objects[2][predicatekeys[i]]);
       predicateOptions[predicatekeys[i]] = objects[2][predicatekeys[i]];
       //writePredicateOption??
+    }
+    if(typeof(objects[3])!="undefined") {
+      globalOptions = objects[3];
     }
   }
   console.log(objects);
@@ -932,13 +1125,13 @@ function parseSavedFile(file){
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="GlobalOption.html">GlobalOption</a></li><li><a href="ObjectOption.html">ObjectOption</a></li><li><a href="PredicateOption.html">PredicateOption</a></li><li><a href="TypeOption.html">TypeOption</a></li></ul><h3>Global</h3><ul><li><a href="global.html#argumentDescriptor">argumentDescriptor</a></li><li><a href="global.html#constants">constants</a></li><li><a href="global.html#domain_file">domain_file</a></li><li><a href="global.html#generateArgumentSelector">generateArgumentSelector</a></li><li><a href="global.html#generateInputForm">generateInputForm</a></li><li><a href="global.html#generateObjectOptionPreview">generateObjectOptionPreview</a></li><li><a href="global.html#generateObjectSelector">generateObjectSelector</a></li><li><a href="global.html#generatePredicateInputForm">generatePredicateInputForm</a></li><li><a href="global.html#generatePredicateOptionPreview">generatePredicateOptionPreview</a></li><li><a href="global.html#getInput">getInput</a></li><li><a href="global.html#getObjectListFromType">getObjectListFromType</a></li><li><a href="global.html#globalOptions">globalOptions</a></li><li><a href="global.html#objectOptions">objectOptions</a></li><li><a href="global.html#objects">objects</a></li><li><a href="global.html#parseDomain">parseDomain</a></li><li><a href="global.html#parseProblem">parseProblem</a></li><li><a href="global.html#parseSolution">parseSolution</a></li><li><a href="global.html#plan_file">plan_file</a></li><li><a href="global.html#predicateOptions">predicateOptions</a></li><li><a href="global.html#predicates">predicates</a></li><li><a href="global.html#problem_file">problem_file</a></li><li><a href="global.html#readObjectOption">readObjectOption</a></li><li><a href="global.html#readPredicateOption">readPredicateOption</a></li><li><a href="global.html#readTypeOption">readTypeOption</a></li><li><a href="global.html#typeOptions">typeOptions</a></li><li><a href="global.html#types">types</a></li><li><a href="global.html#updateInputOptionEntity">updateInputOptionEntity</a></li><li><a href="global.html#writeObjectOption">writeObjectOption</a></li><li><a href="global.html#writePredicateOption">writePredicateOption</a></li><li><a href="global.html#writeTypeOption">writeTypeOption</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Argument.html">Argument</a></li><li><a href="GlobalOption.html">GlobalOption</a></li><li><a href="ObjectOption.html">ObjectOption</a></li><li><a href="Predicate.html">Predicate</a></li><li><a href="PredicateOption.html">PredicateOption</a></li><li><a href="SelectedInput.html">SelectedInput</a></li><li><a href="TypeOption.html">TypeOption</a></li></ul><h3>Global</h3><ul><li><a href="global.html#animationEntity">animationEntity</a></li><li><a href="global.html#argumentDescriptor">argumentDescriptor</a></li><li><a href="global.html#constants">constants</a></li><li><a href="global.html#createAnimationObjects">createAnimationObjects</a></li><li><a href="global.html#createInputSelector">createInputSelector</a></li><li><a href="global.html#deletePredicateOption">deletePredicateOption</a></li><li><a href="global.html#domain_file">domain_file</a></li><li><a href="global.html#downloadAnimationOptions">downloadAnimationOptions</a></li><li><a href="global.html#downloadOptionsInput">downloadOptionsInput</a></li><li><a href="global.html#generateArgumentSelector">generateArgumentSelector</a></li><li><a href="global.html#generateInputForm">generateInputForm</a></li><li><a href="global.html#generateObjectOptionPreview">generateObjectOptionPreview</a></li><li><a href="global.html#generateObjectSelector">generateObjectSelector</a></li><li><a href="global.html#generatePredicateInputForm">generatePredicateInputForm</a></li><li><a href="global.html#generatePredicateOptionPreview">generatePredicateOptionPreview</a></li><li><a href="global.html#getInput">getInput</a></li><li><a href="global.html#getObjectByName">getObjectByName</a></li><li><a href="global.html#getObjectListFromType">getObjectListFromType</a></li><li><a href="global.html#globalOptions">globalOptions</a></li><li><a href="global.html#list_action_predicates">list_action_predicates</a></li><li><a href="global.html#loadFileSelector">loadFileSelector</a></li><li><a href="global.html#objectOptions">objectOptions</a></li><li><a href="global.html#objects">objects</a></li><li><a href="global.html#parseDomain">parseDomain</a></li><li><a href="global.html#parseInputFiles">parseInputFiles</a></li><li><a href="global.html#parseProblem">parseProblem</a></li><li><a href="global.html#parseSavedFile">parseSavedFile</a></li><li><a href="global.html#parseSolution">parseSolution</a></li><li><a href="global.html#plan_file">plan_file</a></li><li><a href="global.html#predicateOptions">predicateOptions</a></li><li><a href="global.html#predicates">predicates</a></li><li><a href="global.html#problem_file">problem_file</a></li><li><a href="global.html#readGlobalOption">readGlobalOption</a></li><li><a href="global.html#readObjectOption">readObjectOption</a></li><li><a href="global.html#readPredicateOption">readPredicateOption</a></li><li><a href="global.html#readTypeOption">readTypeOption</a></li><li><a href="global.html#saveAndApply">saveAndApply</a></li><li><a href="global.html#selectInput">selectInput</a></li><li><a href="global.html#typeOptions">typeOptions</a></li><li><a href="global.html#types">types</a></li><li><a href="global.html#updateInputOptionEntity">updateInputOptionEntity</a></li><li><a href="global.html#updatePredicateOption">updatePredicateOption</a></li><li><a href="global.html#writeGlobalOption">writeGlobalOption</a></li><li><a href="global.html#writeObjectOption">writeObjectOption</a></li><li><a href="global.html#writePredicateOption">writePredicateOption</a></li><li><a href="global.html#writeTypeOption">writeTypeOption</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.2</a> on Thu Oct 06 2016 01:12:24 GMT+1100 (AUS Eastern Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.2</a> on Tue Oct 11 2016 19:54:42 GMT+1100 (AUS Eastern Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>

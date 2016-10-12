@@ -1,3 +1,8 @@
+/**
+ * Update the settings for an item when the user selects another input form.
+ This avoids users having to always manually click save & apply.
+ */
+
 function saveAndApply(){
   updateInputOptionEntity($("#selectionName").html(),$("#selectionType").html());
 }
@@ -13,9 +18,9 @@ function argumentDescriptor(arg){
     }
 }
 
-/**Generates a selector from a list of arguments.
+/**Generates a selector from a list of parameters.
   *number will always be 1 or 2 because options apply
-  *across at most two arguments.
+  *across at most two parameters.
   *i.e: when ?x takes some value, ?y adopts some transformation
   *I should see where I've called this function,
   *seems to me the number argument is... useless.
@@ -86,16 +91,16 @@ function generatePredicateInputForm(name) {
       + "<select id=\"truthiness\">"
       + "<option value=\"true\">True</option>"
       + "<option value=\"false\">False</option></select>"
-      + " and " + generateArgumentSelector(predicate.arguments, 1)
+      + " and " + generateArgumentSelector(predicate.parameters, 1)
       + " is <select id=\"objectSelector\"><option value=\"anything\"> ** ANY ** </option></select> then the transformation"
-      + " below will be applied to the argument " + generateArgumentSelector(predicate.arguments, 2) + " : "
+      + " below will be applied to the argument " + generateArgumentSelector(predicate.parameters, 2) + " : "
       + "</div>";
 
       return predicateHeader;
 }
 
 /**
- * Generates the input form from the passed arguments and returns it as an html div
+ * Generates the input form from the passed parameters and returns it as an html div
  @param {string} name - name of the entity
  @param {string} inputtype - type of the entity
  */
@@ -106,6 +111,7 @@ function generateInputForm(name, inputtype) {
   var positionInput = "<div><p>Location</p><textarea id=\"position\" rows=\"1\" cols=\"25\"></textarea></div>";
   var customCSS = "<div><p>Custom CSS Properties</p><textarea id=\"customCSS\" rows=\"1\" cols=\"25\"></textarea></div>";
   var sizeInput = "<div><p>Dimensions(W * H) </p><textarea id=\"size\" rows=\"1\" cols=\"25\"></textarea></div>";
+var labelledInput = "<div><p>Label Objects? : </p><input type=\"checkbox\" id=\"labelled\" value=\"true\" checked></input></div>";
   var spatialOptionsInput
       = "<div><p>Spatial Layout : </p><select id=\"spatialLayout\"><option value=\"free\">Free</option>"
       + "<option value=\"network\">Network</option>"
@@ -114,13 +120,14 @@ function generateInputForm(name, inputtype) {
 
   var unitsInput
       = "<div><p>Dimensions and Object Location Unit (% or px) : </p><select id=\"units\">"
-      +"<option value=\"percent\" selected>Percent</option>"
-      + "<option value=\"pixels\">Pixels</option></select></div>"
+      +"<option value=\"%\" selected>Percent</option>"
+      + "<option value=\"px\">Pixels</option></select></div>"
       ;
   var globalOptionsInput
       = "<div id=\"globalOptions\" data-type=\"global\">"
         + "<p>Stage Dimensions</p><textarea id=\"dimensions\" rows=\"1\" cols=\"25\"></textarea>"
         + unitsInput
+        + labelledInput
         + "</div>"
       ;
 
@@ -350,17 +357,31 @@ function readActionOption() {
 
 }
 
+/**
+ * Read the values from a global options input form
+ */
 function readGlobalOption() {
     globalOptions.dimensions = $("#dimensions").val();
     globalOptions.units = $("#units").val();
+    globalOptions.labelled = $("#labelled").val();
 }
 
+/**
+ * Write the existing values to a global options input form
+ */
 function writeGlobalOption() {
     $("#dimensions").val(globalOptions.dimensions);
     $("#units").val(globalOptions.units);
+    $("#labelled").val(globalOptions.labelled);
 }
 
-
+/**
+ * This takes a predicates name and the inputs from an input form and, if there is
+ existing input for this scenario, updates it, otherwise it creates a new predicate
+ option.
+ @param {string} name - name of the predicate
+ @param {array} input - list containing user input
+ */
 function updatePredicateOption(name, input) {
   var pred = predicateOptions[name];
   //if any animation properties are defined
@@ -381,6 +402,12 @@ function updatePredicateOption(name, input) {
   }
 }
 
+/**
+ * Removes a predicate option and updates the preview Window2
+ @param {string} name - the name of the predicate
+ @param {integer} index - the location of the option to be removed in the list
+ of options that exist for the given predicate.
+ */
 function deletePredicateOption(name,index) {
   predicateOptions[name].splice(index,1);
   generatePredicateOptionPreview(name);
