@@ -29,54 +29,56 @@ var constants;
 var types;
 
 /*
-****************      LOAD TEST FILES     **********************
-*/
+ ****************      LOAD TEST FILES     **********************
+ */
 
-$(document).ready(function(){
+$(document).ready(function() {
 
-        $('#inputdomain').on('change', function(e){
-            domain_file=this.files[0];
-        });
+    $('#inputdomain').on('change', function(e) {
+        domain_file = this.files[0];
+    });
 
-        $('#inputproblem').on('change', function(e){
-            problem_file=this.files[0];
-          });
+    $('#inputproblem').on('change', function(e) {
+        problem_file = this.files[0];
+    });
 
-        $('#inputplan').on('change', function(e){
-            plan_file=this.files[0];
-        });
+    $('#inputplan').on('change', function(e) {
+        plan_file = this.files[0];
+    });
 
-        $('#loadbutton').on('change', function(e){
-          parseSavedFile(this.files[0]);
-        });
+    $('#loadbutton').on('change', function(e) {
+        parseSavedFile(this.files[0]);
+    });
 
 });
 
-function readFile(file, callback){
+function readFile(file, callback) {
     var reader = new FileReader();
-    reader.onload = callback
+    reader.onload = callback;
     reader.readAsText(file);
 }
 
 /*
-****************      PARSE LOADED FILES     **********************
-*/
+ ****************      PARSE LOADED FILES     **********************
+ */
 
 /**Parses the loaded plan and returns a list of actions
-  *@param {array} domain - Objects from parsed domain file. [types, constants, predicates, actionList]
-  *@param {array} problem - Objects from the parsed problem file. [objects, startPredicates]
-  *@param {function} callback - the function that will run on the parsed files.
-  */
+ *@param {array} domain - Objects from parsed domain file. [types, constants, predicates, actionList]
+ *@param {array} problem - Objects from the parsed problem file. [objects, startPredicates]
+ *@param {function} callback - the function that will run on the parsed files.
+ */
 function parseSolution(domain, problem, callback) {
     readFile(plan_file, function(e) {
-      try {
-        plan=null;
-        plan = Plan_Parser.parse(e.target.result);
-        console.log(plan);
+        try {
+            plan = null;
+            plan = Plan_Parser.parse(e.target.result);
+            console.log(plan);
 
-      } catch (x) {
-        console.log(x);
-      } finally {callback(domain,problem,plan);}
+        } catch (x) {
+            console.log(x);
+        } finally {
+            callback(domain, problem, plan);
+        }
     });
 }
 
@@ -89,32 +91,36 @@ CRLF v LF based bug, but I've covered both line endings in the parser
   *@param {function} callback - the function that will run on the parsed files.
   */
 function parseProblem(domain, callback) {
-      readFile(problem_file, function(e) {
+    readFile(problem_file, function(e) {
         try {
-          problem=null;
-          problem = PDDL_Parser.parse(e.target.result);
-          console.log(problem);
+            problem = null;
+            problem = PDDL_Parser.parse(e.target.result);
+            console.log(problem);
 
         } catch (x) {
-          console.log(x);
-        } finally {return parseSolution(domain,problem,callback);}
-      });
+            console.log(x);
+        } finally {
+            return parseSolution(domain, problem, callback);
+        }
+    });
 }
 
 /**Parses the loaded domain file and returns a lists of objects
-  *@param {function} callback - the function that will run on the parsed files.
-  */
+ *@param {function} callback - the function that will run on the parsed files.
+ */
 function parseDomain(callback) {
-  readFile(domain_file, function(e) {
-    try {
-      domain=null;
-      domain = PDDL_Parser.parse(e.target.result);
-      console.log(domain);
+    readFile(domain_file, function(e) {
+        try {
+            domain = null;
+            domain = PDDL_Parser.parse(e.target.result);
+            console.log(domain);
 
-    } catch (x) {
-      console.log(x);
-    } finally {parseProblem(domain, callback);}
-  });
+        } catch (x) {
+            console.log(x);
+        } finally {
+            parseProblem(domain, callback);
+        }
+    });
 }
 
 /**
@@ -126,29 +132,27 @@ function parseDomain(callback) {
  *@param {array} problem - Objects from the parsed problem file. [objects, startPredicates]
  *@param {array} plan - Objects from parsed plan file. [actions]
  */
-function getInput(domain,problem,plan) {
-  types = domain[0];
-  constants = domain[1];
-  predicates = domain[2];
-  objects = problem[0];
+function getInput(domain, problem, plan) {
+    types = domain[0];
+    constants = domain[1];
+    predicates = domain[2];
+    objects = problem[0];
 
-  var inputSelector = createInputSelector();
-  document.getElementById("Window1").style.display="none";
-  document.getElementById("Window2").style.display="block";
-  createAnimationObjects();
-  generateAnimationTimeline(domain,problem,plan);
-  for(var i=0;i<animationTimeline.length;i++){
-    generateAnimation(animationTimeline[i], objectOptions);
-  }
-  //set objects layout and initial location, display=none;
-  //apply initial predicate options
-  //-match predicate to options (there should be some match ranking
-  //(i.e anything loses to a direct arg1val match))
-  //set objects display=block;
-  //apply predicate options (match each predicate type animation entity with
-//its matching options)
-  $("#inputSelector").append(inputSelector);
-  generateInputForm();
+    var inputSelector = createInputSelector();
+    document.getElementById("Window1").style.display = "none";
+    document.getElementById("Window2").style.display = "block";
+    createAnimationObjects();
+    generateAnimationTimeline(domain, problem, plan);
+
+    //set objects layout and initial location, display=none;
+    //apply initial predicate options
+    //-match predicate to options (there should be some match ranking
+    //(i.e anything loses to a direct arg1val match))
+    //set objects display=block;
+    //apply predicate options (match each predicate type animation entity with
+    //its matching options)
+    $("#inputSelector").append(inputSelector);
+    generateInputForm();
 
 }
 
@@ -159,14 +163,18 @@ function parseInputFiles() {
     parseDomain(getInput);
 }
 
-function switchToAnimation(){
-  document.getElementById("Window2").style.display="none";
-  document.getElementById("Window3").style.display="block";
-  createInitialStage();
+function switchToAnimation() {
+    document.getElementById("Window2").style.display = "none";
+    document.getElementById("Window3").style.display = "block";
+    createInitialStage();
+    console.log(animationTimeline.length);
+    for (var i = 0; i < animationTimeline.length; i++) {
+        generateAnimation(animationTimeline[i], objectOptions);
+    }
 }
 
-function switchToOptions(){
-  $("#Window3").html("");
-  document.getElementById("Window3").style.display="none";
-  document.getElementById("Window2").style.display="block";
+function switchToOptions() {
+    $("#Window3").html("");
+    document.getElementById("Window3").style.display = "none";
+    document.getElementById("Window2").style.display = "block";
 }

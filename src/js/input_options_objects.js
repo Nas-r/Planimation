@@ -3,7 +3,7 @@
  * used to store the stage dimensions.
  * @global
  */
-var globalOptions = new GlobalOption("100,100","%");
+var globalOptions = new GlobalOption("100,100", "%");
 
 /**
  * Used to store options specified on types as an assosciative array
@@ -30,12 +30,12 @@ var predicateOptions = {};
  * corresponding type.
  *  @constructor
  */
-function TypeOption(name, image ,css, layout,size) {
-  this.name=name;
-  this.image=image;
-  this.css=css;
-  this.layout = layout;
-  this.size=size;
+function TypeOption(name, image, css, layout, size) {
+    this.name = name;
+    this.image = image;
+    this.css = css;
+    this.layout = layout;
+    this.size = size;
 }
 
 /**
@@ -60,10 +60,10 @@ function GlobalOption(stageDimensions, units) {
     @param {string} css - The transformations to apply by default to the input image
  */
 function ObjectOption(name, type, image, location, css, size) {
-    this.name=name;
-    this.type=type;
-    this.image=image;
-    this.location=location;
+    this.name = name;
+    this.type = type;
+    this.image = image;
+    this.location = location;
     this.css = css;
     this.size = size;
 }
@@ -88,85 +88,85 @@ function ObjectOption(name, type, image, location, css, size) {
  *  @constructor
  */
 function PredicateOption(name, truthiness, argument1, argument2, argumentValue, animation) {
-  this.name = name; //predicate name
-  this.truthiness = truthiness;
-  this.argument1 = argument1;
-  this.argument2 = argument2;
-  this.argument1_value = argumentValue;
-  this.animation = animation;
+    this.name = name; //predicate name
+    this.truthiness = truthiness;
+    this.argument1 = argument1;
+    this.argument2 = argument2;
+    this.argument1_value = argumentValue;
+    this.animation = animation;
 }
 
-function ActionOption(name, parameter){
-  this.name=name;
-  this.parameter=parameter;
-  //hmm, how do I handle an arbitrary number of parameters?
-  //do I treat action rules the same as predicate rules?
+function ActionOption(name, parameter) {
+    this.name = name;
+    this.parameter = parameter;
+    //hmm, how do I handle an arbitrary number of parameters?
+    //do I treat action rules the same as predicate rules?
 }
 
 
-function AnimationOption(image, location, css, size, transition_image){
-    this.image=image;
+function AnimationOption(image, location, css, size, transition_image) {
+    this.image = image;
     this.location = location;
     this.css = css;
-    this.size=size;
+    this.size = size;
     this.transition_image = transition_image;
 }
 
 /**
  * Initializes the input option containers and their structure
  */
-function createAnimationObjects(){
-  if (predicates.length>0){
-    for(var i=0;i<predicates.length;i++){
-      predicateOptions[predicates[i].name] = [];
+function createAnimationObjects() {
+    if (predicates.length > 0) {
+        for (var i = 0; i < predicates.length; i++) {
+            predicateOptions[predicates[i].name] = [];
+        }
     }
-  }
-  //types objects and constants
-  if (types.length>0){
-    for (var i =0; i<types.length;i++) {
-      typeOptions[types[i]] = new TypeOption(types[i]);
+    //types objects and constants
+    if (types.length > 0) {
+        for (var i = 0; i < types.length; i++) {
+            typeOptions[types[i]] = new TypeOption(types[i]);
+        }
+        var typeCounter = 0;
+        var type = "";
+        for (var i = 0; i < constants.names.length; i++) {
+            if (i < constants.typeIndex[typeCounter]) {
+                type = constants.types[typeCounter];
+            } else {
+                typeCounter++;
+                type = constants.types[typeCounter];
+            }
+            var name = constants.names[i];
+            objectOptions[name] = new ObjectOption(name, type);
+            objectOptions[name].location = [0, 0];
+        }
+        typeCounter = 0;
+        for (var i = 0; i < objects.names.length; i++) {
+            if (i < objects.typeIndex[typeCounter]) {
+                type = objects.types[typeCounter];
+            } else {
+                typeCounter++;
+                type = objects.types[typeCounter];
+            }
+            var name = objects.names[i];
+            objectOptions[name] = new ObjectOption(name, type);
+            objectOptions[name].location = [0, 0];
+        }
+    } else {
+        for (var i = 0; i < constants.names.length; i++) {
+            var name = constants.names[i];
+            objectOptions[name] = new ObjectOption(name);
+            objectOptions[name].location = [0, 0];
+        }
+        for (var i = 0; i < objects.names.length; i++) {
+            var name = objects.names[i];
+            objectOptions[name] = new ObjectOption(name);
+            objectOptions[name].location = [0, 0];
+        }
     }
-    var typeCounter = 0;
-    var type = "";
-    for (var i=0;i<constants.names.length;i++) {
-      if(i<constants.typeIndex[typeCounter]) {
-        type=constants.types[typeCounter];
-      } else {
-        typeCounter++;
-        type=constants.types[typeCounter];
-      }
-      var name = constants.names[i];
-      objectOptions[name] = new ObjectOption(name, type);
-      objectOptions[name].location = [0,0];
-    }
-    typeCounter=0;
-    for (var i=0;i<objects.names.length;i++) {
-      if(i<objects.typeIndex[typeCounter]) {
-        type=objects.types[typeCounter];
-      } else {
-        typeCounter++;
-        type=objects.types[typeCounter];
-      }
-      var name = objects.names[i];
-      objectOptions[name] = new ObjectOption(name, type);
-      objectOptions[name].location = [0,0];
-    }
-  } else {
-    for (var i=0;i<constants.names.length;i++) {
-      var name = constants.names[i];
-      objectOptions[name] = new ObjectOption(name);
-      objectOptions[name].location = [0,0];
-    }
-    for (var i=0;i<objects.names.length;i++) {
-      var name = objects.names[i];
-      objectOptions[name] = new ObjectOption(name);
-      objectOptions[name].location = [0,0];
-    }
-  }
 
-  console.log(objectOptions);
-//I won't do this prepopulation for predicate and action options because
-//they need to be created upon input submission. In fact this was probably
-//entirely unnecessary except for allowing me to attach the types easily
+    console.log(objectOptions);
+    //I won't do this prepopulation for predicate and action options because
+    //they need to be created upon input submission. In fact this was probably
+    //entirely unnecessary except for allowing me to attach the types easily
 
 }

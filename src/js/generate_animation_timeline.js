@@ -1,24 +1,24 @@
 var animationTimeline = [];
 
-function generateAnimationTimeline(domain,problem,plan){
-  initialPredicates = problem[1];
-  var actionTitle = '';
-  animationTimeline.push(new animationEntity("heading","Initial State"));
-  for(var i = 0; i<initialPredicates.length;i++){
-    animationTimeline.push(new animationEntity("predicate",initialPredicates[i]));
-  }
-  for(var i = 0; i<plan.length;i++) {
-    var actionTitle = plan[i].name + " ";
-    for(var j = 0; j<plan[i].parameters.length; j++){
-      actionTitle += plan[i].parameters[j] + " ";
+function generateAnimationTimeline(domain, problem, plan) {
+    initialPredicates = problem[1];
+    var actionTitle = '';
+    animationTimeline.push(new animationEntity("heading", "Initial State"));
+    for (var i = 0; i < initialPredicates.length; i++) {
+        animationTimeline.push(new animationEntity("predicate", initialPredicates[i]));
     }
-    animationTimeline.push(new animationEntity("heading",actionTitle));
-    var action_predicates = list_action_predicates(domain[3], plan[i]);
-    for(var k = 0; k<action_predicates.length;k++) {
-      animationTimeline.push(new animationEntity("predicate",action_predicates[k]));
+    for (var i = 0; i < plan.length; i++) {
+        var actionTitle = plan[i].name + " ";
+        for (var j = 0; j < plan[i].parameters.length; j++) {
+            actionTitle += plan[i].parameters[j].value + " ";
+        }
+        animationTimeline.push(new animationEntity("heading", actionTitle));
+        var action_predicates = list_action_predicates(domain[3], plan[i]);
+        for (var k = 0; k < action_predicates.length; k++) {
+            animationTimeline.push(new animationEntity("predicate", action_predicates[k]));
+        }
     }
-  }
-  console.log(animationTimeline);
+    console.log(animationTimeline);
 }
 
 /**
@@ -41,33 +41,36 @@ a hundred predicates won't notice the slowdown doing it this way, and it'll save
 // }
 
 function list_action_predicates(action_definitions, action) {
-  var result = [];
-  //for each action definition
-    for(var j=0; j<action_definitions.length;j++) {
-      // find the one that matches the current action name
-      if(action.name==action_definitions[j].name){
-        // for each of this action's parameters, set its name and type
-        //NOTE:should make sure parameters exist
-        for(var k=0;k<action.parameters.length;k++){
-          action.parameters[k].name=action_definitions[j].parameters[k].name;
-          action.parameters[k].type=action_definitions[j].parameters[k].type;
+    var result = [];
+    //for each action definition
+    for (var j = 0; j < action_definitions.length; j++) {
+        // find the one that matches the current action name
+        if (action.name == action_definitions[j].name) {
+            // for each of this action's parameters, set its name and type
+            //NOTE:should make sure parameters exist
+            for (var k = 0; k < action.parameters.length; k++) {
+                action.parameters[k].name = action_definitions[j].parameters[k].name;
+                action.parameters[k].type = action_definitions[j].parameters[k].type;
+            } /*PROBLEM HERE, I want temp_predicate parameters to be qcessible by name
+            ALSO, this no longer returns all predicates from action_definitions*/
+            for (var k = 0; k < action_definitions[j].effects.length; k++) {
+                var temp_predicate = JSON.parse(JSON.stringify(action_definitions[j].effects[k]));
+                if (typeof(temp_predicate.parameters) != "undefined") {
+                    temp_predicate.parameters = {};
+                    for (var y = 0; y < action.parameters.length; y++) {
+                        var name = action.parameters[y].name;
+                        if (name == action_definitions[j].effects[k].name) {
+
+                            temp_predicate.parameters[name].name = name;
+                            temp_predicate.parameters[name].type = action.parameters[y].type;
+                            temp_predicate.parameters[name].value = action.parameters[y].value;
+                        }
+                    }
+                }
+                result.push(temp_predicate);
+            }
         }
-        for(var k=0;k<action_definitions[j].effects.length;k++)
-        {
-          var temp_predicate=JSON.parse(JSON.stringify(action_definitions[j].effects[k]));
-          if(typeof(temp_predicate.parameters) != "undefined"){
-          for(var x=0;x<temp_predicate.parameters.length;x++)
-          {
-            for(var y=0;y<action.parameters.length;y++)
-              if(action.parameters[y].name==temp_predicate.parameters[x].name)
-              { temp_predicate.parameters[x].type=action.parameters[y].type;
-                temp_predicate.parameters[x].value=action.parameters[y].value;
-              }
-          }}
-          result.push(temp_predicate);
-        }
-      break;
-    }
+        break;
     }
     return result;
 }
@@ -76,8 +79,8 @@ function list_action_predicates(action_definitions, action) {
 headings and predicates)
  */
 function animationEntity(type, content) {
-  this.type=type;
-  this.content=content;
+    this.type = type;
+    this.content = content;
 }
 /**
  * Store predicate description; this is the same constructor used in the parser
@@ -87,9 +90,9 @@ function animationEntity(type, content) {
 * @constructor
  */
 function Predicate(name, parameters, truthiness) {
-  this.name = name;
-  this.truthiness = truthiness;
-  this.parameters = parameters;
+    this.name = name;
+    this.truthiness = truthiness;
+    this.parameters = parameters;
 }
 
 /**
@@ -98,8 +101,8 @@ function Predicate(name, parameters, truthiness) {
   @param {boolean} type - The type of the argument (if not typed this is undefined)
 * @constructor
  */
-function Argument(name, type, value){
-  this.name = name;
-  this.value = value;
-  this.type = type;
+function Argument(name, type, value) {
+    this.name = name;
+    this.value = value;
+    this.type = type;
 }
