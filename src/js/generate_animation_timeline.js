@@ -46,7 +46,7 @@ function list_action_predicates(action_definitions, action) {
     for(var j=0; j<action_definitions.length;j++) {
       // find the one that matches the current action name
       if(action.name==action_definitions[j].name){
-        // for each of this actions parameters, set its name and type
+        // for each of this action's parameters, set its name and type
         //NOTE:should make sure parameters exist
         for(var k=0;k<action.parameters.length;k++){
           action.parameters[k].name=action_definitions[j].parameters[k].name;
@@ -102,4 +102,4 @@ function Argument(name, type, value){
   this.name = name;
   this.value = value;
   this.type = type;
-};
+}

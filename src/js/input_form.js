@@ -108,6 +108,7 @@ function generateInputForm(name, inputtype) {
 
   //option input format:
   var imageUrlInput = "<div><p>ImageURL</p><textarea id=\"imageURL\" rows=\"1\" cols=\"25\"></textarea></div>";
+  var transitionaryImageUrlInput = "<div><p>Transitionary Image URL</p><textarea id=\"transitionaryImageURL\" rows=\"1\" cols=\"25\"></textarea></div>";
   var positionInput = "<div><p>Location</p><textarea id=\"position\" rows=\"1\" cols=\"25\"></textarea></div>";
   var customCSS = "<div><p>Custom CSS Properties</p><textarea id=\"customCSS\" rows=\"1\" cols=\"25\"></textarea></div>";
   var sizeInput = "<div><p>Dimensions(W * H) </p><textarea id=\"size\" rows=\"1\" cols=\"25\"></textarea></div>";
@@ -330,7 +331,7 @@ function readPredicateOption() {
     var argument1 = $("#arg1").val();
     var argument2 = $("#arg2").val();
     var argument1_value = $("#objectSelector").val();
-    var animation = new AnimationOption($("#imageURL").val(), $("#position").val(), $("#customCSS").val(), $("#size").val());
+    var animation = new AnimationOption($("#imageURL").val(), $("#position").val(), $("#customCSS").val(), $("#size").val(), $("#transitionaryImageURL").val());
     return [truthiness,argument1,argument2,argument1_value,animation];
 }
 
@@ -350,6 +351,7 @@ function writePredicateOption(index) {
   $("#position").val(predicateOptions[name][index].animation.location);
   $("#customCSS").val(predicateOptions[name][index].animation.css);
   $("#size").val(predicateOptions[name][index].animation.size);
+  $("#transitionaryImageURL").val(predicateOptions[name][index].animation.transition_image);
 
 }
 

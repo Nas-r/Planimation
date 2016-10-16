@@ -99,6 +99,7 @@ function applyCSS(css, targetName){
   for (var i = 0; i<css_statements.length; i++){
     var item = css_statements[i];
     var property = item.split(":");
+    console.log("#"+targetName);
     console.log(property);
     $("#"+targetName).css(property[0].trim(), property[1].trim());
   }}
@@ -130,33 +131,34 @@ function resolveRelativeLocation(object){
   var relative_to_object = location[1].trim();
   // var dimensions  = getWidthAndHeight(object);
   var dimensions_of_relative_object = getWidthAndHeight(relative_to_object);
+  var relative_to_position = getStageLocation(relative_to_object);
+
+  // console.log(position + " : " + relative_to_object);
+  // console.log(dimensions_of_relative_object);
+  // console.log(relative_to_position);
   switch (position) {
     case "on":
-    console.log(getStageLocation(relative_to_object));
-      return getStageLocation(relative_to_object);
+      return relative_to_position;
       break;
     case "left":
-      var relative_to_position = getStageLocation(relative_to_object);
 //translate it by half(width of object + width of relative_to_object) from relative_to_position
-      var x = relative_to_position[0]-(dimensions_of_relative_object[0]);
+      var x = relative_to_position[0]-parseFloat(dimensions_of_relative_object[0]);
       var y = relative_to_position[1];
       return[x,y];
       break;
     case "right":
-      var relative_to_position = getStageLocation(relative_to_object);
-      var x = relative_to_position[0]+(dimensions_of_relative_object[0]);
+      var x = relative_to_position[0]+parseFloat(dimensions_of_relative_object[0]);
       var y = relative_to_position[1];
       return[x,y];
       break;
     case "above":
-      var relative_to_position = getStageLocation(relative_to_object);
-      var y = relative_to_position[1]+(dimensions_of_relative_object[1]);
+      var y = relative_to_position[1]+parseFloat(dimensions_of_relative_object[1]);
       var x = relative_to_position[0];
+      console.log([x,y]);
       return[x,y];
       break;
     case "below":
-      var relative_to_position = getStageLocation(relative_to_object);
-      var y = relative_to_position[1]-(dimensions_of_relative_object[1]);
+      var y = relative_to_position[1]-parseFloat(dimensions_of_relative_object[1]);
       var x = relative_to_position[0];
       return[x,y];
       break;

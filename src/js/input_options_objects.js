@@ -3,7 +3,7 @@
  * used to store the stage dimensions.
  * @global
  */
-var globalOptions = new GlobalOption("100,100","percent");
+var globalOptions = new GlobalOption("100,100","%");
 
 /**
  * Used to store options specified on types as an assosciative array

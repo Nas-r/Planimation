@@ -6,6 +6,8 @@ Uses JISON generated parsers to extract relevant information from PDDL Domain, P
 Pixi.js is used for Animation
 
 ##Notes:
+This is terribly written. All functions are global, basically no use of OO principles. Also, I should have named attributes of option ReadWrite functions the same as their div IDs (so I can iterate over them and don't need to change >three functions every time I want to add an option parameter)...
+
 Objects and Constants are treated the same
 
 Each object, constant and predicate should be listed with the following options

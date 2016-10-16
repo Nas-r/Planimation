@@ -137,6 +137,9 @@ function getInput(domain,problem,plan) {
   document.getElementById("Window2").style.display="block";
   createAnimationObjects();
   generateAnimationTimeline(domain,problem,plan);
+  for(var i=0;i<animationTimeline.length;i++){
+    generateAnimation(animationTimeline[i], objectOptions);
+  }
   //set objects layout and initial location, display=none;
   //apply initial predicate options
   //-match predicate to options (there should be some match ranking
