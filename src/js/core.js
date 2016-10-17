@@ -168,7 +168,8 @@ function switchToAnimation() {
     document.getElementById("Window3").style.display = "block";
     createInitialStage();
     console.log(animationTimeline.length);
-    for (var i = 0; i < animationTimeline.length; i++) {
+    // for (var i = 0; i < animationTimeline.length; i++) {
+    for (var i=0; i<15; i++){
         generateAnimation(animationTimeline[i], objectOptions);
     }
 }

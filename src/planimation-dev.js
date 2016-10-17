@@ -168,7 +168,8 @@ function switchToAnimation() {
     document.getElementById("Window3").style.display = "block";
     createInitialStage();
     console.log(animationTimeline.length);
-    for (var i = 0; i < animationTimeline.length; i++) {
+    // for (var i = 0; i < animationTimeline.length; i++) {
+    for (var i=0; i<15; i++){
         generateAnimation(animationTimeline[i], objectOptions);
     }
 }
@@ -268,7 +269,7 @@ function ObjectOption(name, type, image, location, css, size) {
  *  @constructor
  */
 function PredicateOption(name, truthiness, argument1, argument2, argumentValue, animation) {
-    this.name = name; //predicate name
+    this.name = name.toLowerCase(); //predicate name
     this.truthiness = truthiness;
     this.argument1 = argument1;
     this.argument2 = argument2;
@@ -298,7 +299,7 @@ function AnimationOption(image, location, css, size, transition_image) {
 function createAnimationObjects() {
     if (predicates.length > 0) {
         for (var i = 0; i < predicates.length; i++) {
-            predicateOptions[predicates[i].name] = [];
+            predicateOptions[predicates[i].name.toLowerCase()] = [];
         }
     }
     //types objects and constants
@@ -957,15 +958,19 @@ function generateAnimationTimeline(domain, problem, plan) {
     initialPredicates = problem[1];
     var actionTitle = '';
     animationTimeline.push(new animationEntity("heading", "Initial State"));
-    for (var i = 0; i < initialPredicates.length; i++) {
-        animationTimeline.push(new animationEntity("predicate", initialPredicates[i]));
+    var initial_predicates = list_initial_predicates(domain[2], initialPredicates);
+    for (var i = 0; i < initial_predicates.length; i++) {
+        //attach predicate arguent values with their argument names from the definitions
+        animationTimeline.push(new animationEntity("predicate", initial_predicates[i]));
     }
     for (var i = 0; i < plan.length; i++) {
-        var actionTitle = plan[i].name + " ";
+        actionTitle = plan[i].name + " ";
         for (var j = 0; j < plan[i].parameters.length; j++) {
-            actionTitle += plan[i].parameters[j].value + " ";
+            actionTitle += plan[i].parameters[j] + " ";
         }
         animationTimeline.push(new animationEntity("heading", actionTitle));
+        //create an entry for each action's predicate and
+        //attach action parameter values with their names from the definitions
         var action_predicates = list_action_predicates(domain[3], plan[i]);
         for (var k = 0; k < action_predicates.length; k++) {
             animationTimeline.push(new animationEntity("predicate", action_predicates[k]));
@@ -993,37 +998,52 @@ a hundred predicates won't notice the slowdown doing it this way, and it'll save
 //   }
 // }
 
+function list_initial_predicates(predicate_definitions, initial_predicates) {
+    var result = [];
+    initial_predicates.forEach(function(item, index) {
+        for (var i = 0; i < predicate_definitions.length; i++) {
+            if (item.name == predicate_definitions[i].name) {
+                if (typeof(predicate_definitions[i].parameters) != "undefined") {
+                    for (var j = 0; j < predicate_definitions[i].parameters.length; j++) {
+                        item.parameters[j].name = predicate_definitions[i].parameters[j].name;
+                        item.parameters[j].type = predicate_definitions[i].parameters[j].type;
+                    }
+                    result.push(item);
+                }
+            } break;
+        }
+    });
+    return result;
+}
+
 function list_action_predicates(action_definitions, action) {
     var result = [];
     //for each action definition
     for (var j = 0; j < action_definitions.length; j++) {
         // find the one that matches the current action name
         if (action.name == action_definitions[j].name) {
-            // for each of this action's parameters, set its name and type
+            // for each of this actions parameters, set its name and type
             //NOTE:should make sure parameters exist
             for (var k = 0; k < action.parameters.length; k++) {
                 action.parameters[k].name = action_definitions[j].parameters[k].name;
                 action.parameters[k].type = action_definitions[j].parameters[k].type;
-            } /*PROBLEM HERE, I want temp_predicate parameters to be qcessible by name
-            ALSO, this no longer returns all predicates from action_definitions*/
+            }
             for (var k = 0; k < action_definitions[j].effects.length; k++) {
                 var temp_predicate = JSON.parse(JSON.stringify(action_definitions[j].effects[k]));
+                // console.log(temp_predicate);
                 if (typeof(temp_predicate.parameters) != "undefined") {
-                    temp_predicate.parameters = {};
-                    for (var y = 0; y < action.parameters.length; y++) {
-                        var name = action.parameters[y].name;
-                        if (name == action_definitions[j].effects[k].name) {
-
-                            temp_predicate.parameters[name].name = name;
-                            temp_predicate.parameters[name].type = action.parameters[y].type;
-                            temp_predicate.parameters[name].value = action.parameters[y].value;
-                        }
+                    for (var x = 0; x < temp_predicate.parameters.length; x++) {
+                        for (var y = 0; y < action.parameters.length; y++)
+                            if (action.parameters[y].name == temp_predicate.parameters[x].name) {
+                                temp_predicate.parameters[x].type = action.parameters[y].type;
+                                temp_predicate.parameters[x].value = action.parameters[y].value;
+                            }
                     }
                 }
                 result.push(temp_predicate);
             }
+            break;
         }
-        break;
     }
     return result;
 }
@@ -1063,11 +1083,12 @@ function generateAnimation(animation_entity, object_options) {
     if (animation_entity.type == "predicate") {
         var predicate = animation_entity.content;
         var animations = findMatchingPredicateAnimations(predicate);
-        console.log(animations);
-        if (typeof(animations) != "undefined") {
+        // console.log(animations);
+        if (animations != false && typeof(animations) != "undefined") {
             var updated_object_options = get_updated_objectOptions(animations, object_options);
             console.log(updated_object_options);
             var updated_stage_locations = get_updated_stageLocations(updated_object_options[0]);
+            console.log(updated_stage_locations);
             var set_transition_images = [];
             var animation_function_list = [];
             var set_final_images = [];
@@ -1110,9 +1131,9 @@ function generateAnimation(animation_entity, object_options) {
                 animation_function_list.push(anime_function);
             }
 
-            console.log(set_transition_images);
-            console.log(set_final_images);
-            console.log(animation_function_list);
+            // console.log(set_transition_images);
+            // console.log(set_final_images);
+            // console.log(animation_function_list);
         }
     }
     /*find the matching predicate animations
@@ -1135,24 +1156,43 @@ function setImage(object, image) {
  */
 
 function findMatchingPredicateAnimations(predicate) {
+    //THIS COULD CAUSE PROBLEMS.(the toLowerCase) but it allows matching
+    //where for some reason people define their initial state in allcaps.
+    //should be fine as long as people don't start throwing camelcase around
+
+    //on second thought fuck it, this should be case sensitive. I'd prefer
+    //people using consistent names.
     var options = predicateOptions[predicate.name];
     console.log(options);
-    
-    if (typeof(options) != "undefined" && options.length > 0 && options != "undefined") {
-        console.log(options);
-        console.log(predicate);
-
-        var result = []; //will have worst options at the front of the array.
+    console.log(predicate);
+    if (typeof(options) != "undefined" && options.length > 0) {
+        var result = []; //will have least specific options at the front of the array.
         for (var i = 0; i < options.length; i++) {
             if (options[i].truthiness == predicate.truthiness) {
                 //If it's an exact match, add to end of array
-                if (options[i].argument1_value ==
-                    predicate.parameters[options[i].argument1].value) {
+                var arg1 = null;
+                var arg2 = null;
+                for (var j = 0; j < predicate.parameters.length; j++) {
+                    if (options[i].argument1 == predicate.parameters[j].name) {
+                        arg1 = predicate.parameters[j];
+                    } else if (options[i].argument2 == predicate.parameters[j].name) {
+                        arg2 = predicate.parameters[j];
+                    }
+                }
+                if (options[i].argument1_value == arg1.value) {
                     //add the option and target object
-                    result.push([options[i].animation, options[i].argument2]);
+                    result.push([options[i].animation, arg2]);
+
+                    console.log("Matching Predicate Option (exact):");
+                    console.log(options[i]);
+                    console.log(predicate);
+
                     //if its a catchall match add it to the start
-                } else if (options[i].argument1_value == "any") {
-                    result.unshift([options[i].animation, predicate.parameters[options[i].argument2]]);
+                } else if (options[i].argument1_value == "anything") {
+                    result.unshift([options[i].animation, arg2]);
+                    console.log("Matching Predicate Option (catchall):");
+                    console.log(options[i]);
+                    console.log(predicate);
                 }
             }
         }
@@ -1168,9 +1208,9 @@ function with the exception of updated location, which will come from get_update
  *
  */
 function get_updated_objectOptions(animations, object_options) {
+
     var changed = [];
     var result = JSON.parse(JSON.stringify(object_options));
-    console.log(animations);
     for (var i = 0; i < animations.length; i++) {
         var target = animations[i][1];
         //if there's a transition image, apply it here
@@ -1204,18 +1244,17 @@ function get_updated_objectOptions(animations, object_options) {
     updated objectOption property
  */
 function get_updated_stageLocations(object_options) {
-    console.log(object_options);
+    // console.log(object_options);
     var result = {};
     var keys = Object.keys(stageLocation);
     for (var i = 0; i < keys.length; i++) {
         var key = keys[i];
-        console.log(key);
+        var location;
         if (typeof(object_options[key].location) != "undefined") {
             if (typeof(stageLocation[key]) == "string" && stageLocation[key].split(":")[1][0] == "?") {
-
-                var location = getStageLocation(key);
+                location = getStageLocation(key);
             } else {
-                var location = getStageLocation(key);
+                location = getStageLocation(key);
             }
             //if the calculated location is not the same as its current stage locations
             //add it to the result
@@ -1336,7 +1375,7 @@ function applyCSS(css, targetName) {
 //use the objectOptions objects as paramater stores.
 //NOTE: ObjectOptions.location always has to be a string
 function getStageLocation(objectName) {
-    var location = stageLocation[objectName]
+    var location = stageLocation[objectName];
     if (typeof(location) == "string") {
         location = stageLocation[objectName].split(",");
         //Either they're coordinates
@@ -1366,32 +1405,28 @@ function resolveRelativeLocation(objectName) {
     // console.log(position + " : " + relative_to_object);
     // console.log(dimensions_of_relative_object);
     // console.log(relative_to_position);
+    var x,y;
     switch (position) {
         case "on":
             return relative_to_position;
-            break;
         case "left":
             //translate it by half(width of object + width of relative_to_object) from relative_to_position
-            var x = relative_to_position[0] - parseFloat(dimensions_of_relative_object[0]);
-            var y = relative_to_position[1];
+            x = relative_to_position[0] - parseFloat(dimensions_of_relative_object[0]);
+            y = relative_to_position[1];
             return [x, y];
-            break;
         case "right":
-            var x = relative_to_position[0] + parseFloat(dimensions_of_relative_object[0]);
-            var y = relative_to_position[1];
+            x = relative_to_position[0] + parseFloat(dimensions_of_relative_object[0]);
+            y = relative_to_position[1];
             return [x, y];
-            break;
         case "above":
-            var y = relative_to_position[1] + parseFloat(dimensions_of_relative_object[1]);
-            var x = relative_to_position[0];
+            y = relative_to_position[1] + parseFloat(dimensions_of_relative_object[1]);
+            x = relative_to_position[0];
             console.log([x, y]);
             return [x, y];
-            break;
         case "below":
-            var y = relative_to_position[1] - parseFloat(dimensions_of_relative_object[1]);
-            var x = relative_to_position[0];
+            y = relative_to_position[1] - parseFloat(dimensions_of_relative_object[1]);
+            x = relative_to_position[0];
             return [x, y];
-            break;
     }
 }
 /**Serialize and output the animation options objects,

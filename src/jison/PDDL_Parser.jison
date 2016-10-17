@@ -100,9 +100,9 @@ init_state
 
 initial_predicates
   : LPAREN STRING argument_list RPAREN initial_predicates
-  {startPredicates.push(new Predicate($2,$3,true));}
+  {startPredicates.push(new Predicate($2,$3,"true"));}
   | LPAREN NOT LPAREN STRING argument_list RPAREN RPAREN initial_predicates
-  {startPredicates.push(new Predicate($4,$5,false));}
+  {startPredicates.push(new Predicate($4,$5,"false"));}
   |
 ;
 
@@ -113,9 +113,9 @@ goal_state
 
 goal_predicates
   : LPAREN STRING argument_list RPAREN goal_predicates
-  {goalPredicates.push(new Predicate($2,$3,true));}
+  {goalPredicates.push(new Predicate($2,$3,"true"));}
   | LPAREN NOT LPAREN STRING argument_list RPAREN RPAREN goal_predicates
-  {goalPredicates.push(new Predicate($4,$5,false));}
+  {goalPredicates.push(new Predicate($4,$5,"false"));}
   |
 ;
 
@@ -180,9 +180,9 @@ predicate_list
 predicate
 /* $2 is the predicate name, argument_list is the list of arguments*/
   : LPAREN STRING argument_list RPAREN
-  {predicates.push(new Predicate($2,$3, true));}
+  {predicates.push(new Predicate($2,$3, "true"));}
   | LPAREN NOT LPAREN STRING argument_list RPAREN RPAREN
-  {predicates.push(new Predicate($4,$5, false));}
+  {predicates.push(new Predicate($4,$5, "false"));}
 ;
 
 
@@ -271,9 +271,9 @@ list_fluents
 
 fluent
   : LPAREN STRING argument_list RPAREN
-  { $$ = new Predicate($2, $3, true); }
+  { $$ = new Predicate($2, $3, "true"); }
   | LPAREN NOT LPAREN STRING argument_list RPAREN RPAREN
-  { $$ = new Predicate($4, $5, false) }
+  { $$ = new Predicate($4, $5, "false") }
 ;
 
 

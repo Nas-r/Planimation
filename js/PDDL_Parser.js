@@ -96,16 +96,16 @@ case 14:
  objects.types.push($$[$0-1]); objects.typeIndex.push(objects.names.length);
 break;
 case 18:
-startPredicates.push(new Predicate($$[$0-3],$$[$0-2],true));
+startPredicates.push(new Predicate($$[$0-3],$$[$0-2],"true"));
 break;
 case 19:
-startPredicates.push(new Predicate($$[$0-4],$$[$0-3],false));
+startPredicates.push(new Predicate($$[$0-4],$$[$0-3],"false"));
 break;
 case 23:
-goalPredicates.push(new Predicate($$[$0-3],$$[$0-2],true));
+goalPredicates.push(new Predicate($$[$0-3],$$[$0-2],"true"));
 break;
 case 24:
-goalPredicates.push(new Predicate($$[$0-4],$$[$0-3],false));
+goalPredicates.push(new Predicate($$[$0-4],$$[$0-3],"false"));
 break;
 case 26: case 27: case 52:
 this.$ = $$[$0];
@@ -126,10 +126,10 @@ case 38:
  constants.types.push($$[$0]);constants.typeIndex.push(constants.names.length);
 break;
 case 43:
-predicates.push(new Predicate($$[$0-2],$$[$0-1], true));
+predicates.push(new Predicate($$[$0-2],$$[$0-1], "true"));
 break;
 case 44:
-predicates.push(new Predicate($$[$0-3],$$[$0-2], false));
+predicates.push(new Predicate($$[$0-3],$$[$0-2], "false"));
 break;
 case 45:
  if ($$[$0]!=null) {
@@ -170,10 +170,10 @@ case 61:
  this.$=$$[$0];
 break;
 case 62:
- this.$ = new Predicate($$[$0-2], $$[$0-1], true); 
+ this.$ = new Predicate($$[$0-2], $$[$0-1], "true"); 
 break;
 case 63:
- this.$ = new Predicate($$[$0-3], $$[$0-2], false) 
+ this.$ = new Predicate($$[$0-3], $$[$0-2], "false") 
 break;
 }
 },

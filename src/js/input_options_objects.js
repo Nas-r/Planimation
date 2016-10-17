@@ -88,7 +88,7 @@ function ObjectOption(name, type, image, location, css, size) {
  *  @constructor
  */
 function PredicateOption(name, truthiness, argument1, argument2, argumentValue, animation) {
-    this.name = name; //predicate name
+    this.name = name.toLowerCase(); //predicate name
     this.truthiness = truthiness;
     this.argument1 = argument1;
     this.argument2 = argument2;
@@ -118,7 +118,7 @@ function AnimationOption(image, location, css, size, transition_image) {
 function createAnimationObjects() {
     if (predicates.length > 0) {
         for (var i = 0; i < predicates.length; i++) {
-            predicateOptions[predicates[i].name] = [];
+            predicateOptions[predicates[i].name.toLowerCase()] = [];
         }
     }
     //types objects and constants

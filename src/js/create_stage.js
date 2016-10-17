@@ -108,7 +108,7 @@ function applyCSS(css, targetName) {
 //use the objectOptions objects as paramater stores.
 //NOTE: ObjectOptions.location always has to be a string
 function getStageLocation(objectName) {
-    var location = stageLocation[objectName]
+    var location = stageLocation[objectName];
     if (typeof(location) == "string") {
         location = stageLocation[objectName].split(",");
         //Either they're coordinates
@@ -138,31 +138,27 @@ function resolveRelativeLocation(objectName) {
     // console.log(position + " : " + relative_to_object);
     // console.log(dimensions_of_relative_object);
     // console.log(relative_to_position);
+    var x,y;
     switch (position) {
         case "on":
             return relative_to_position;
-            break;
         case "left":
             //translate it by half(width of object + width of relative_to_object) from relative_to_position
-            var x = relative_to_position[0] - parseFloat(dimensions_of_relative_object[0]);
-            var y = relative_to_position[1];
+            x = relative_to_position[0] - parseFloat(dimensions_of_relative_object[0]);
+            y = relative_to_position[1];
             return [x, y];
-            break;
         case "right":
-            var x = relative_to_position[0] + parseFloat(dimensions_of_relative_object[0]);
-            var y = relative_to_position[1];
+            x = relative_to_position[0] + parseFloat(dimensions_of_relative_object[0]);
+            y = relative_to_position[1];
             return [x, y];
-            break;
         case "above":
-            var y = relative_to_position[1] + parseFloat(dimensions_of_relative_object[1]);
-            var x = relative_to_position[0];
+            y = relative_to_position[1] + parseFloat(dimensions_of_relative_object[1]);
+            x = relative_to_position[0];
             console.log([x, y]);
             return [x, y];
-            break;
         case "below":
-            var y = relative_to_position[1] - parseFloat(dimensions_of_relative_object[1]);
-            var x = relative_to_position[0];
+            y = relative_to_position[1] - parseFloat(dimensions_of_relative_object[1]);
+            x = relative_to_position[0];
             return [x, y];
-            break;
     }
 }

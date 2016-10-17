@@ -3,10 +3,11 @@ function generateAnimation(animation_entity, object_options) {
         var predicate = animation_entity.content;
         var animations = findMatchingPredicateAnimations(predicate);
         console.log(animations);
-        if (typeof(animations) != "undefined") {
+        if (animations != false && typeof(animations) != "undefined") {
             var updated_object_options = get_updated_objectOptions(animations, object_options);
             console.log(updated_object_options);
             var updated_stage_locations = get_updated_stageLocations(updated_object_options[0]);
+            console.log(updated_stage_locations);
             var set_transition_images = [];
             var animation_function_list = [];
             var set_final_images = [];
@@ -49,9 +50,9 @@ function generateAnimation(animation_entity, object_options) {
                 animation_function_list.push(anime_function);
             }
 
-            console.log(set_transition_images);
-            console.log(set_final_images);
-            console.log(animation_function_list);
+            // console.log(set_transition_images);
+            // console.log(set_final_images);
+            // console.log(animation_function_list);
         }
     }
     /*find the matching predicate animations
@@ -74,24 +75,43 @@ function setImage(object, image) {
  */
 
 function findMatchingPredicateAnimations(predicate) {
-    var options = predicateOptions[predicate.name];
-    console.log(options);
-    
-    if (typeof(options) != "undefined" && options.length > 0 && options != "undefined") {
-        console.log(options);
-        console.log(predicate);
+    //THIS COULD CAUSE PROBLEMS.(the toLowerCase) but it allows matching
+    //where for some reason people define their initial state in allcaps.
+    //should be fine as long as people don't start throwing camelcase around
 
-        var result = []; //will have worst options at the front of the array.
+    //on second thought fuck it, this should be case sensitive. I'd prefer
+    //people using consistent names.
+    var options = predicateOptions[predicate.name];
+    // console.log(options);
+    // console.log(predicate);
+    if (typeof(options) != "undefined" && options.length > 0) {
+        var result = []; //will have least specific options at the front of the array.
         for (var i = 0; i < options.length; i++) {
             if (options[i].truthiness == predicate.truthiness) {
                 //If it's an exact match, add to end of array
-                if (options[i].argument1_value ==
-                    predicate.parameters[options[i].argument1].value) {
+                var arg1 = null;
+                var arg2 = null;
+                for (var j = 0; j < predicate.parameters.length; j++) {
+                    if (options[i].argument1 == predicate.parameters[j].name) {
+                        arg1 = predicate.parameters[j];
+                    } else if (options[i].argument2 == predicate.parameters[j].name) {
+                        arg2 = predicate.parameters[j];
+                    }
+                }
+                if (options[i].argument1_value == arg1.value) {
                     //add the option and target object
-                    result.push([options[i].animation, options[i].argument2]);
+                    result.push([options[i].animation, arg2]);
+
+                    // console.log("Matching Predicate Option (exact):");
+                    // console.log(options[i]);
+                    // console.log(predicate);
+
                     //if its a catchall match add it to the start
-                } else if (options[i].argument1_value == "any") {
-                    result.unshift([options[i].animation, predicate.parameters[options[i].argument2]]);
+                } else if (options[i].argument1_value == "anything") {
+                    result.unshift([options[i].animation, arg2]);
+                    // console.log("Matching Predicate Option (catchall):");
+                    // console.log(options[i]);
+                    // console.log(predicate);
                 }
             }
         }
@@ -107,9 +127,9 @@ function with the exception of updated location, which will come from get_update
  *
  */
 function get_updated_objectOptions(animations, object_options) {
+
     var changed = [];
     var result = JSON.parse(JSON.stringify(object_options));
-    console.log(animations);
     for (var i = 0; i < animations.length; i++) {
         var target = animations[i][1];
         //if there's a transition image, apply it here
@@ -143,18 +163,17 @@ function get_updated_objectOptions(animations, object_options) {
     updated objectOption property
  */
 function get_updated_stageLocations(object_options) {
-    console.log(object_options);
+    // console.log(object_options);
     var result = {};
     var keys = Object.keys(stageLocation);
     for (var i = 0; i < keys.length; i++) {
         var key = keys[i];
-        console.log(key);
+        var location;
         if (typeof(object_options[key].location) != "undefined") {
             if (typeof(stageLocation[key]) == "string" && stageLocation[key].split(":")[1][0] == "?") {
-
-                var location = getStageLocation(key);
+                location = getStageLocation(key);
             } else {
-                var location = getStageLocation(key);
+                location = getStageLocation(key);
             }
             //if the calculated location is not the same as its current stage locations
             //add it to the result
