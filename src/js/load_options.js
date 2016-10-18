@@ -5,7 +5,7 @@ TODO: Should provide some feedback on things that are no longer found.
 function parseSavedFile(file) {
     readFile(file, function(e) {
         try {
-            var objects = JSON.parse(e.target.result);
+            var objects = JSON.parse(e.target.result.toLowerCase());
         } catch (x) {
             console.log(x);
         } finally {

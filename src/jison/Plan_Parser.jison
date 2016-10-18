@@ -55,14 +55,14 @@ argument
 
 %%
 function Action(name, parameters){
-  this.name = name;
+  this.name = name.toLowerCase();;
   this.parameters = parameters;
 }
 
 function Argument(name,type,value){
-  this.name = name;
-  this.type = type;
-  this.value = value;
+  this.name = name.toLowerCase();
+  this.type = type.toLowerCase();
+  this.value = value.toLowerCase();
 }
 
 var actions = [];

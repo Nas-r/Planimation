@@ -22,7 +22,6 @@ function generateAnimationTimeline(domain, problem, plan) {
             animationTimeline.push(new animationEntity("predicate", action_predicates[k]));
         }
     }
-    console.log(animationTimeline);
 }
 
 /**

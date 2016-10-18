@@ -1,13 +1,16 @@
 var stageLocation = {};
 
-function getWidthAndHeight(object) {
-    return objectOptions[object].size.split(",");
+function getWidthAndHeight(object, object_options) {
+    return object_options[object].size.split(",");
 }
 
 function createInitialStage() {
     $("#Window3").html("<input id=\"gotoWindow2\" type=\"button\" " +
         " value=\"Return to Options Input Screen\"" +
         " onclick=\"switchToOptions();\" style=\"position:absolute;\">" +
+        "<input id=\"play\" type=\"button\" " +
+        " value=\"Play Animation\"" +
+        " onclick=\"iterateOverTimeline(0);\" style=\"position:absolute;\">" +
         "<div id=\"stage\">" +
         "</div>");
     //apply typeOptions
@@ -58,14 +61,14 @@ function createInitialStage() {
     for (var i = 0; i < object_keys.length; i++) {
         var key = object_keys[i];
         //2. set their size
-        var size = getWidthAndHeight(key);
+        var size = getWidthAndHeight(key, objectOptions);
         // console.log("Size of "+key+" :" + size[0] +" , "+ size[1]);
         $("#" + key).css("width", "" + size[0] + globalOptions.units);
         //NOTE: Height is currently useless. object-fit doesnt work. need to fix
         $("#" + key).css("max-height", "" + size[1] + globalOptions.units);
 
         //3. set their location
-        stageLocation[key] = getStageLocation(key);
+        stageLocation[key] = getStageLocation(key, objectOptions, stageLocation);
         var x = stageLocation[key][0] - 0.5 * parseFloat(size[0]);
         var y = stageLocation[key][1] - 0.5 * parseFloat(size[1]);
 
@@ -107,17 +110,17 @@ function applyCSS(css, targetName) {
 }
 //use the objectOptions objects as paramater stores.
 //NOTE: ObjectOptions.location always has to be a string
-function getStageLocation(objectName) {
-    var location = stageLocation[objectName];
+function getStageLocation(objectName, object_options, stage_locations) {
+    var location = object_options[objectName].location;
     if (typeof(location) == "string") {
-        location = stageLocation[objectName].split(",");
+        location = object_options[objectName].location.split(",");
         //Either they're coordinates
         if (location.length == 2) {
             return [parseFloat(location[0]), parseFloat(location[1])];
         }
         //or a relative position
         else {
-            return resolveRelativeLocation(objectName);
+            return resolveRelativeLocation(objectName, object_options, stage_locations);
         }
     } else {
         //Either they're coordinates
@@ -127,18 +130,18 @@ function getStageLocation(objectName) {
     }
 }
 
-function resolveRelativeLocation(objectName) {
-    var location = stageLocation[objectName].split(":");
+function resolveRelativeLocation(objectName, object_options, stage_locations) {
+    var location = object_options[objectName].location.split(":");
     var position = location[0].trim();
     var relative_to_object = location[1].trim();
     // var dimensions  = getWidthAndHeight(object);
-    var dimensions_of_relative_object = getWidthAndHeight(relative_to_object);
-    var relative_to_position = getStageLocation(relative_to_object);
+    var dimensions_of_relative_object = getWidthAndHeight(relative_to_object, object_options);
+    var relative_to_position = getStageLocation(relative_to_object, object_options, stage_locations);
 
     // console.log(position + " : " + relative_to_object);
     // console.log(dimensions_of_relative_object);
     // console.log(relative_to_position);
-    var x,y;
+    var x, y;
     switch (position) {
         case "on":
             return relative_to_position;
@@ -154,7 +157,6 @@ function resolveRelativeLocation(objectName) {
         case "above":
             y = relative_to_position[1] + parseFloat(dimensions_of_relative_object[1]);
             x = relative_to_position[0];
-            console.log([x, y]);
             return [x, y];
         case "below":
             y = relative_to_position[1] - parseFloat(dimensions_of_relative_object[1]);

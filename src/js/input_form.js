@@ -110,6 +110,8 @@ function generateInputForm(name, inputtype) {
     var transitionaryImageUrlInput = "<div><p>Transitionary Image URL</p><textarea id=\"transitionaryImageURL\" rows=\"1\" cols=\"25\"></textarea></div>";
     var positionInput = "<div><p>Location</p><textarea id=\"position\" rows=\"1\" cols=\"25\"></textarea></div>";
     var customCSS = "<div><p>Custom CSS Properties</p><textarea id=\"customCSS\" rows=\"1\" cols=\"25\"></textarea></div>";
+    var customJS = "<div><p>Custom AnimeJS Properties</p><textarea id=\"customJS\" rows=\"1\" cols=\"25\"></textarea></div>";
+    var duration = "<div><p>Animation Duration (ms)</p><input type=\"number\" id=\"duration\"></input></div>";
     var sizeInput = "<div><p>Dimensions(W * H) </p><textarea id=\"size\" rows=\"1\" cols=\"25\"></textarea></div>";
     var labelledInput = "<div><p>Label Objects? : </p><input type=\"checkbox\" id=\"labelled\" value=\"true\" checked></input></div>";
     var spatialOptionsInput = "<div><p>Spatial Layout : </p><select id=\"spatialLayout\"><option value=\"free\">Free</option>" +
@@ -133,7 +135,8 @@ function generateInputForm(name, inputtype) {
     var predicateOptions = imageUrlInput +
         positionInput +
         sizeInput +
-        customCSS;
+        duration +
+        customJS;
 
     var typeOptions = imageUrlInput +
         sizeInput +
@@ -326,7 +329,7 @@ function readPredicateOption() {
     var argument1 = $("#arg1").val();
     var argument2 = $("#arg2").val();
     var argument1_value = $("#objectSelector").val();
-    var animation = new AnimationOption($("#imageURL").val(), $("#position").val(), $("#customCSS").val(), $("#size").val(), $("#transitionaryImageURL").val());
+    var animation = new AnimationOption($("#imageURL").val(), $("#position").val(), $("#customCSS").val(), $("#size").val(), $("#duration").val(), $("#transitionaryImageURL").val());
     return [truthiness, argument1, argument2, argument1_value, animation];
 }
 
@@ -346,6 +349,7 @@ function writePredicateOption(index) {
     $("#position").val(predicateOptions[name][index].animation.location);
     $("#customCSS").val(predicateOptions[name][index].animation.css);
     $("#size").val(predicateOptions[name][index].animation.size);
+    $("#duration").val(predicateOptions[name][index].animation.duration);
     $("#transitionaryImageURL").val(predicateOptions[name][index].animation.transition_image);
 
 }

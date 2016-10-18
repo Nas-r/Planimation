@@ -87,9 +87,9 @@ object_definitions
 
 object_list
   : STRING object_list
-  { objects.names.push($1)}
+  { objects.names.push($1.toLowerCase());}
   | HYPHEN STRING object_list
-  { objects.types.push($2); objects.typeIndex.push(objects.names.length);}
+  { objects.types.push($2.toLowerCase()); objects.typeIndex.push(objects.names.length);}
   |
 ;
 
@@ -149,8 +149,8 @@ domain_types
 
 /*Keep track of the available types in the types array.*/
 types
-  : types STRING {types.push($2);}
-  | STRING {types.push($1);}
+  : types STRING {types.push($2.toLowerCase());}
+  | STRING {types.push($1.toLowerCase());}
 ;
 
 /*Constants*/
@@ -160,9 +160,9 @@ constants_def
 
 constants_list
   : constants_list STRING
-  { constants.names.push($2)}
+  { constants.names.push($2.toLowerCase());}
   | constants_list HYPHEN STRING
-  { constants.types.push($3);constants.typeIndex.push(constants.names.length);}
+  { constants.types.push($3.toLowerCase());constants.typeIndex.push(constants.names.length);}
   |
 ;
 
@@ -297,16 +297,16 @@ var constants = new Constant([], [], []);
 var objects = new Constant([],[],[]);
 
 function Argument(name, type, value){
-  this.name = name;
-  this.type = type;
-  this.value = value;
+  this.name = name.toLowerCase();
+  this.type = type.toLowerCase();
+  this.value = value.toLowerCase();
 };
 
 /*arguments may be typed*/
 function Predicate(name, arguments,truthiness){
-  this.name = name;
+  this.name = name.toLowerCase();
   this.parameters = arguments;
-  this.truthiness = truthiness;
+  this.truthiness = truthiness.toLowerCase();
 };
 
 var predicates = [];
@@ -314,7 +314,7 @@ var startPredicates = [];
 var goalPredicates = [];
 
 function Action(name, parameters, effects){
-  this.name = name;
+  this.name = name.toLowerCase();
   this.parameters = parameters;
   this.effects = effects;
 }
@@ -326,6 +326,6 @@ function Effect(effectlist) {
 }
 
 function Variable(name, type) {
-  this.name = name;
-  this.type = type;
+  this.name = name.toLowerCase();
+  this.type = type.toLowerCase();
 }

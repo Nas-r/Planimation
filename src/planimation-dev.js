@@ -168,10 +168,8 @@ function switchToAnimation() {
     document.getElementById("Window3").style.display = "block";
     createInitialStage();
     console.log(animationTimeline.length);
-    // for (var i = 0; i < animationTimeline.length; i++) {
-    for (var i=0; i<15; i++){
-        generateAnimation(animationTimeline[i], objectOptions);
-    }
+    addStatesToAnimationEntities();
+    console.log(animationTimeline);
 }
 
 function switchToOptions() {
@@ -247,6 +245,7 @@ function ObjectOption(name, type, image, location, css, size) {
     this.location = location;
     this.css = css;
     this.size = size;
+    this.custom_js = "";
 }
 
 
@@ -268,12 +267,12 @@ function ObjectOption(name, type, image, location, css, size) {
 @param {AnimeationOption} animation - {image,location,css, transition_image}
  *  @constructor
  */
-function PredicateOption(name, truthiness, argument1, argument2, argumentValue, animation) {
+function PredicateOption(name, truthiness, argument1, argument2, argument1_value, animation) {
     this.name = name.toLowerCase(); //predicate name
     this.truthiness = truthiness;
     this.argument1 = argument1;
     this.argument2 = argument2;
-    this.argument1_value = argumentValue;
+    this.argument1_value = argument1_value;
     this.animation = animation;
 }
 
@@ -285,11 +284,12 @@ function ActionOption(name, parameter) {
 }
 
 
-function AnimationOption(image, location, css, size, transition_image) {
+function AnimationOption(image, location, custom_js, size, duration, transition_image) {
     this.image = image;
     this.location = location;
-    this.css = css;
+    this.custom_js = custom_js;
     this.size = size;
+    this.duration = duration;
     this.transition_image = transition_image;
 }
 
@@ -631,6 +631,8 @@ function generateInputForm(name, inputtype) {
     var transitionaryImageUrlInput = "<div><p>Transitionary Image URL</p><textarea id=\"transitionaryImageURL\" rows=\"1\" cols=\"25\"></textarea></div>";
     var positionInput = "<div><p>Location</p><textarea id=\"position\" rows=\"1\" cols=\"25\"></textarea></div>";
     var customCSS = "<div><p>Custom CSS Properties</p><textarea id=\"customCSS\" rows=\"1\" cols=\"25\"></textarea></div>";
+    var customJS = "<div><p>Custom AnimeJS Properties</p><textarea id=\"customJS\" rows=\"1\" cols=\"25\"></textarea></div>";
+    var duration = "<div><p>Animation Duration (ms)</p><input type=\"number\" id=\"duration\"></input></div>";
     var sizeInput = "<div><p>Dimensions(W * H) </p><textarea id=\"size\" rows=\"1\" cols=\"25\"></textarea></div>";
     var labelledInput = "<div><p>Label Objects? : </p><input type=\"checkbox\" id=\"labelled\" value=\"true\" checked></input></div>";
     var spatialOptionsInput = "<div><p>Spatial Layout : </p><select id=\"spatialLayout\"><option value=\"free\">Free</option>" +
@@ -654,7 +656,8 @@ function generateInputForm(name, inputtype) {
     var predicateOptions = imageUrlInput +
         positionInput +
         sizeInput +
-        customCSS;
+        duration +
+        customJS;
 
     var typeOptions = imageUrlInput +
         sizeInput +
@@ -847,7 +850,7 @@ function readPredicateOption() {
     var argument1 = $("#arg1").val();
     var argument2 = $("#arg2").val();
     var argument1_value = $("#objectSelector").val();
-    var animation = new AnimationOption($("#imageURL").val(), $("#position").val(), $("#customCSS").val(), $("#size").val(), $("#transitionaryImageURL").val());
+    var animation = new AnimationOption($("#imageURL").val(), $("#position").val(), $("#customCSS").val(), $("#size").val(), $("#duration").val(), $("#transitionaryImageURL").val());
     return [truthiness, argument1, argument2, argument1_value, animation];
 }
 
@@ -867,6 +870,7 @@ function writePredicateOption(index) {
     $("#position").val(predicateOptions[name][index].animation.location);
     $("#customCSS").val(predicateOptions[name][index].animation.css);
     $("#size").val(predicateOptions[name][index].animation.size);
+    $("#duration").val(predicateOptions[name][index].animation.duration);
     $("#transitionaryImageURL").val(predicateOptions[name][index].animation.transition_image);
 
 }
@@ -976,7 +980,6 @@ function generateAnimationTimeline(domain, problem, plan) {
             animationTimeline.push(new animationEntity("predicate", action_predicates[k]));
         }
     }
-    console.log(animationTimeline);
 }
 
 /**
@@ -1079,70 +1082,128 @@ function Argument(name, type, value) {
     this.value = value;
     this.type = type;
 }
-function generateAnimation(animation_entity, object_options) {
+/**
+ * iterates over animation timeline
+ If there are stack overflows, it's happening here in the recursive call to this
+ function. I only did this because javascript has no sleep method so in order to
+temporally space the animations I need to use settimeout.
+ */
+function iterateOverTimeline(index) {
+    console.log("iterating: " + index + " : " + animationTimeline.length);
+    var delay_between_states = 500;
+    if (index > animationTimeline.length) {
+        return;
+    }
+    var animation_function;
+    switch (animationTimeline[index].type) {
+        case "predicate":
+            if (animationTimeline[index].object_options &&
+                animationTimeline[index].duration &&
+                animationTimeline[index].stage_location) {
+
+                animation_function = generateAnimationFunction(animationTimeline[index].object_options,
+                    animationTimeline[index].duration,
+                    animationTimeline[index].stage_location);
+                if (typeof(animation_function) != "undefined") {
+                    animation_function[0]();
+                    console.log(animation_function);
+                    console.log(index);
+                    console.log(animationTimeline[index].duration);
+                    setTimeout(iterateOverTimeline(index + 1), animationTimeline[index].duration + delay_between_states);
+                    // setTimeout(animation_function[1], animationTimeline[index].duration);
+                }
+            }
+            break;
+        default:
+            iterateOverTimeline(index + 1);
+    }
+}
+
+
+/**
+ * I'll need a function that will take an animation entity and create
+ and execute the animation function
+ */
+function generateAnimationFunction(object_options, duration, stage_locations) {
+    var funcdef = "";
+    var set_final_images = "";
+    var objects = Object.keys(object_options);
+    objects.forEach(function(x, index) {
+        var item = object_options[x];
+        //if there's a transition image, apply it.
+        if (typeof(item.transition_image) != "undefined") {
+            funcdef += "$(\"#\"" + item.name + ").attr(\"src\",\"" + item.transition_image + "\"); ";
+            console.log(funcdef);
+            item.transition_image = "";
+        }
+        if (typeof(item.transition_image) != "undefined" ||
+            item.image != objectOptions[item.name].image) {
+            if (typeof(item.image) != "undefined") {
+                set_final_images += "$(\"#\"" + item.name + ").attr(\"src\",\"" + item.image + "\"); ";
+            }
+        }
+        //add /\ location translations and duration to animation
+        funcdef += "anime({targets: \"#" + item.name + "\",";
+        funcdef += "duration: " + duration + ", ";
+        if (stage_locations[item.name] != stageLocation[item.name]) {
+            funcdef += "left: \"" + stage_locations[0] + globalOptions.units + "\",";
+            funcdef += "bottom: \"" + stage_locations[1] + globalOptions.units + "\",";
+        }
+        //add content of custom_js property
+        if (item.custom_js != "undefined") {
+            funcdef += item.custom_js;
+            item.custom_js = "";
+        }
+        funcdef += "});";
+        funcdef += "objectOptions = JSON.parse(JSON.stringify(object_options)); ";
+        funcdef += "stageLocation = JSON.parse(JSON.stringify(stage_locations)); ";
+    });
+
+    //set Globals to match new state.
+    var result = [Function(funcdef)];
+    if (set_final_images.length > 1) {
+        // result.push(Function(set_final_images));
+    }
+    return result;
+}
+
+function addStatesToAnimationEntities() {
+    //Creates a deep copy
+    var object_options = JSON.parse(JSON.stringify(objectOptions));
+    var stage_location = JSON.parse(JSON.stringify(stageLocation));
+    animationTimeline.forEach(function(item, index) {
+        if (item.type == "predicate") {
+            var temp = generateNewState(item, object_options, stage_location);
+            if (typeof(temp) != "undefined") {
+                object_options = temp[0][0];
+                stage_location = temp[1];
+                duration = temp[0][1];
+                item.object_options = object_options;
+                item.stage_location = stage_location;
+                item.duration = duration;
+            }
+        }
+    });
+}
+/**
+ * Take the current object states, the current stage locations,
+ and the next predicate or action animation entity. If it's a predicate, return an object
+ containing the updated object_options and the updated stage_locations
+ This should then be attached to the animationEntity*/
+function generateNewState(animation_entity, object_options, stage_locations) {
     if (animation_entity.type == "predicate") {
         var predicate = animation_entity.content;
-        var animations = findMatchingPredicateAnimations(predicate);
-        // console.log(animations);
-        if (animations != false && typeof(animations) != "undefined") {
+        var animations = findMatchingAnimationOptions(predicate, predicateOptions);
+        console.log(animations);
+        if (animations != false && typeof(animations) != "undefined" && animations[0].length > 0) {
             var updated_object_options = get_updated_objectOptions(animations, object_options);
+            var duration = updated_object_options[1];
             console.log(updated_object_options);
-            var updated_stage_locations = get_updated_stageLocations(updated_object_options[0]);
+            var updated_stage_locations = get_updated_stageLocations(updated_object_options[0], stage_locations);
             console.log(updated_stage_locations);
-            var set_transition_images = [];
-            var animation_function_list = [];
-            var set_final_images = [];
-
-            //if object has a transition_image change image then set its
-            //transition_image to null
-            for (var i = 0; i < updated_object_options[1].length; i++) {
-                var transitionimage = updated_object_options[0][updated_object_options[1][i]].transition_image;
-                var finalimage = updated_object_options[0][updated_object_options[1][i]].image;
-                if (transitionimage != "undefined") {
-                    set_transition_images.push(setImage(updated_object_options[1][i], transitionimage));
-                    //set image to final image
-                    set_final_images.push(setImage(updated_object_options[1][i], finalimage));
-                    transitionimage = "undefined";
-                }
-            }
-
-            //create anime for /\ locations
-            var keys = Object.keys(updated_stage_locations);
-            for (var key_index = 0; key_index < keys.length; key_index++) {
-                var key = keys[key_index];
-                var anime = "anime({" +
-                    "target: \"#" + key + "\"," +
-                    "bottom: " + updated_stage_locations[key][1] + "," +
-                    "left: " + updated_stage_locations[key][0] + "," +
-                    "loop: false" +
-                    "})";
-
-                var anime_location_function = Function(anime);
-
-                animation_function_list.push(anime_location_function);
-                //create anime for custom css
-                var anime_css_function = "anime({";
-                for (var j = 0; j < updated_object_options[1].length; j++) {
-                    anime_css_function += "targets: \"#" + updated_object_options[1][j] + "\",";
-                    anime_css_function += updated_object_options[0][updated_object_options[1][j]].css;
-                }
-                anime_css_function += "})";
-                var anime_function = Function(anime_css_function);
-                animation_function_list.push(anime_function);
-            }
-
-            // console.log(set_transition_images);
-            // console.log(set_final_images);
-            // console.log(animation_function_list);
+            return [updated_object_options, updated_stage_locations];
         }
     }
-    /*find the matching predicate animations
-    apply them all to objectOptions
-    keep track of all effected objects
-
-    iterate over this list
-    */
-
 }
 
 function setImage(object, image) {
@@ -1155,48 +1216,45 @@ function setImage(object, image) {
  @param {Object} predicate - A predicate object generated from an input plan action
  */
 
-function findMatchingPredicateAnimations(predicate) {
-    //THIS COULD CAUSE PROBLEMS.(the toLowerCase) but it allows matching
-    //where for some reason people define their initial state in allcaps.
-    //should be fine as long as people don't start throwing camelcase around
-
-    //on second thought fuck it, this should be case sensitive. I'd prefer
-    //people using consistent names.
-    var options = predicateOptions[predicate.name];
-    console.log(options);
-    console.log(predicate);
+function findMatchingAnimationOptions(predicate, defined_options) {
+    var options = defined_options[predicate.name];
+    // console.log(options);
+    // console.log(predicate);
     if (typeof(options) != "undefined" && options.length > 0) {
         var result = []; //will have least specific options at the front of the array.
         for (var i = 0; i < options.length; i++) {
+            var arg1 = null;
+            var arg2 = null;
             if (options[i].truthiness == predicate.truthiness) {
                 //If it's an exact match, add to end of array
-                var arg1 = null;
-                var arg2 = null;
                 for (var j = 0; j < predicate.parameters.length; j++) {
-                    if (options[i].argument1 == predicate.parameters[j].name) {
+                    console.log("option: " + options[i].argument1 + " parameter: " + predicate.parameters[j].name);
+                    if (options[i].argument1 === predicate.parameters[j].name) {
                         arg1 = predicate.parameters[j];
-                    } else if (options[i].argument2 == predicate.parameters[j].name) {
+                    }
+                    if (options[i].argument2 === predicate.parameters[j].name) {
                         arg2 = predicate.parameters[j];
                     }
                 }
+                console.log([arg1, arg2]);
                 if (options[i].argument1_value == arg1.value) {
                     //add the option and target object
                     result.push([options[i].animation, arg2]);
 
-                    console.log("Matching Predicate Option (exact):");
-                    console.log(options[i]);
-                    console.log(predicate);
+                    // console.log("Matching Predicate Option (exact):");
+                    // console.log(options[i]);
+                    // console.log(predicate);
 
                     //if its a catchall match add it to the start
                 } else if (options[i].argument1_value == "anything") {
                     result.unshift([options[i].animation, arg2]);
-                    console.log("Matching Predicate Option (catchall):");
-                    console.log(options[i]);
-                    console.log(predicate);
+                    // console.log("Matching Predicate Option (catchall):");
+                    // console.log(options[i]);
+                    // console.log(predicate);
                 }
             }
         }
-        return result;
+        return [result, predicate];
     } else {
         return;
     }
@@ -1205,76 +1263,83 @@ function findMatchingPredicateAnimations(predicate) {
 
 /**This function should be iteratively run over the results of the findMatchingPredicateAnimations
 function with the exception of updated location, which will come from get_updated_stageLocations
- *
+ *'changed' is returned for debugging
  */
-function get_updated_objectOptions(animations, object_options) {
+function get_updated_objectOptions(animation, object_options) {
 
-    var changed = [];
+    var animations = animation[0];
+    var predicate = animation[1];
+    var duration = 0;
     var result = JSON.parse(JSON.stringify(object_options));
     for (var i = 0; i < animations.length; i++) {
         var target = animations[i][1];
+        console.log(target);
         //if there's a transition image, apply it here
         if (typeof(animations[i][0].transition_image) != "undefined") {
             result[target.value].transition_image = animations[i][0].transition_image;
-            changed.push(target);
         }
         //update location
 
         if (typeof(animations[i][0].location) != "undefined") {
-            result[target.value].location = animations[i][0].location;
-            changed.push(target);
+            if (typeof(animations[i][0].location) == "string" &&
+                animations[i][0].location.indexOf("?") > -1) {
+                //resolve the parameter to an object name and get it's updated stage location
+                var temp = animations[i][0].location.split(":");
+                var target_object;
+                for (var j = 0; j < predicate.parameters.length; j++) {
+                    if (predicate.parameters[j].name == temp[1]) {
+                        target_object = predicate.parameters[j].value;
+                    }
+                    result[target.value].location = temp[0] + ":" + target_object;
+                }
+            } else {
+                result[target.value].location = animations[i][0].location;
+            }
         }
         //update css
-        if (typeof(animations[i][0].css) != "undefined") {
-            result[target.value].css = animations[i][0].css;
-            changed.push(target);
+        if (typeof(animations[i][0].custom_js) != "undefined") {
+            result[target.value].custom_js = animations[i][0].custom_js;
         }
         if (typeof(animations[i][0].image) != "undefined") {
             result[target.value].image = animations[i][0].image;
-            changed.push(target);
         }
+        //updtae duration
+        duration = animations[i][0].duration;
     }
-    //apply final image
-
-    return [result, changed];
+    return [result, duration];
 }
 
 /**
  * return coordinates of all objects whose location has changed due to an
     updated objectOption property
  */
-function get_updated_stageLocations(object_options) {
+function get_updated_stageLocations(object_options, stage_locations) {
     // console.log(object_options);
-    var result = {};
-    var keys = Object.keys(stageLocation);
+    var result = JSON.parse(JSON.stringify(stage_locations));
+    var keys = Object.keys(stage_locations);
     for (var i = 0; i < keys.length; i++) {
         var key = keys[i];
         var location;
         if (typeof(object_options[key].location) != "undefined") {
-            if (typeof(stageLocation[key]) == "string" && stageLocation[key].split(":")[1][0] == "?") {
-                location = getStageLocation(key);
-            } else {
-                location = getStageLocation(key);
-            }
-            //if the calculated location is not the same as its current stage locations
-            //add it to the result
-            if (location != stageLocation[key]) {
-                result[key] = location;
-            }
+            location = getStageLocation(key, object_options, result);
         }
+        result[key] = location;
     }
     return result;
 }
 var stageLocation = {};
 
-function getWidthAndHeight(object) {
-    return objectOptions[object].size.split(",");
+function getWidthAndHeight(object, object_options) {
+    return object_options[object].size.split(",");
 }
 
 function createInitialStage() {
     $("#Window3").html("<input id=\"gotoWindow2\" type=\"button\" " +
         " value=\"Return to Options Input Screen\"" +
         " onclick=\"switchToOptions();\" style=\"position:absolute;\">" +
+        "<input id=\"play\" type=\"button\" " +
+        " value=\"Play Animation\"" +
+        " onclick=\"iterateOverTimeline(0);\" style=\"position:absolute;\">" +
         "<div id=\"stage\">" +
         "</div>");
     //apply typeOptions
@@ -1325,14 +1390,14 @@ function createInitialStage() {
     for (var i = 0; i < object_keys.length; i++) {
         var key = object_keys[i];
         //2. set their size
-        var size = getWidthAndHeight(key);
+        var size = getWidthAndHeight(key, objectOptions);
         // console.log("Size of "+key+" :" + size[0] +" , "+ size[1]);
         $("#" + key).css("width", "" + size[0] + globalOptions.units);
         //NOTE: Height is currently useless. object-fit doesnt work. need to fix
         $("#" + key).css("max-height", "" + size[1] + globalOptions.units);
 
         //3. set their location
-        stageLocation[key] = getStageLocation(key);
+        stageLocation[key] = getStageLocation(key, objectOptions, stageLocation);
         var x = stageLocation[key][0] - 0.5 * parseFloat(size[0]);
         var y = stageLocation[key][1] - 0.5 * parseFloat(size[1]);
 
@@ -1374,17 +1439,17 @@ function applyCSS(css, targetName) {
 }
 //use the objectOptions objects as paramater stores.
 //NOTE: ObjectOptions.location always has to be a string
-function getStageLocation(objectName) {
-    var location = stageLocation[objectName];
+function getStageLocation(objectName, object_options, stage_locations) {
+    var location = object_options[objectName].location;
     if (typeof(location) == "string") {
-        location = stageLocation[objectName].split(",");
+        location = object_options[objectName].location.split(",");
         //Either they're coordinates
         if (location.length == 2) {
             return [parseFloat(location[0]), parseFloat(location[1])];
         }
         //or a relative position
         else {
-            return resolveRelativeLocation(objectName);
+            return resolveRelativeLocation(objectName, object_options, stage_locations);
         }
     } else {
         //Either they're coordinates
@@ -1394,18 +1459,18 @@ function getStageLocation(objectName) {
     }
 }
 
-function resolveRelativeLocation(objectName) {
-    var location = stageLocation[objectName].split(":");
+function resolveRelativeLocation(objectName, object_options, stage_locations) {
+    var location = object_options[objectName].location.split(":");
     var position = location[0].trim();
     var relative_to_object = location[1].trim();
     // var dimensions  = getWidthAndHeight(object);
-    var dimensions_of_relative_object = getWidthAndHeight(relative_to_object);
-    var relative_to_position = getStageLocation(relative_to_object);
+    var dimensions_of_relative_object = getWidthAndHeight(relative_to_object, object_options);
+    var relative_to_position = getStageLocation(relative_to_object, object_options, stage_locations);
 
     // console.log(position + " : " + relative_to_object);
     // console.log(dimensions_of_relative_object);
     // console.log(relative_to_position);
-    var x,y;
+    var x, y;
     switch (position) {
         case "on":
             return relative_to_position;
@@ -1421,7 +1486,6 @@ function resolveRelativeLocation(objectName) {
         case "above":
             y = relative_to_position[1] + parseFloat(dimensions_of_relative_object[1]);
             x = relative_to_position[0];
-            console.log([x, y]);
             return [x, y];
         case "below":
             y = relative_to_position[1] - parseFloat(dimensions_of_relative_object[1]);
@@ -1459,7 +1523,7 @@ TODO: Should provide some feedback on things that are no longer found.
 function parseSavedFile(file) {
     readFile(file, function(e) {
         try {
-            var objects = JSON.parse(e.target.result);
+            var objects = JSON.parse(e.target.result.toLowerCase());
         } catch (x) {
             console.log(x);
         } finally {

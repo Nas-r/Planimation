@@ -66,6 +66,7 @@ function ObjectOption(name, type, image, location, css, size) {
     this.location = location;
     this.css = css;
     this.size = size;
+    this.custom_js = "";
 }
 
 
@@ -87,12 +88,12 @@ function ObjectOption(name, type, image, location, css, size) {
 @param {AnimeationOption} animation - {image,location,css, transition_image}
  *  @constructor
  */
-function PredicateOption(name, truthiness, argument1, argument2, argumentValue, animation) {
+function PredicateOption(name, truthiness, argument1, argument2, argument1_value, animation) {
     this.name = name.toLowerCase(); //predicate name
     this.truthiness = truthiness;
     this.argument1 = argument1;
     this.argument2 = argument2;
-    this.argument1_value = argumentValue;
+    this.argument1_value = argument1_value;
     this.animation = animation;
 }
 
@@ -104,11 +105,12 @@ function ActionOption(name, parameter) {
 }
 
 
-function AnimationOption(image, location, css, size, transition_image) {
+function AnimationOption(image, location, custom_js, size, duration, transition_image) {
     this.image = image;
     this.location = location;
-    this.css = css;
+    this.custom_js = custom_js;
     this.size = size;
+    this.duration = duration;
     this.transition_image = transition_image;
 }
 
