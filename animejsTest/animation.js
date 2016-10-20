@@ -1,8 +1,7 @@
 function walk() {
   anime({
 targets: '#walker',
-top:'400px',
-left: '400px',
+bottom: ["10%","50%"],
 loop: false,
 });
 }

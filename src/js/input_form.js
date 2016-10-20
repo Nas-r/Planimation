@@ -133,6 +133,7 @@ function generateInputForm(name, inputtype) {
         customCSS;
 
     var predicateOptions = imageUrlInput +
+        transitionaryImageUrlInput +
         positionInput +
         sizeInput +
         duration +
@@ -329,7 +330,7 @@ function readPredicateOption() {
     var argument1 = $("#arg1").val();
     var argument2 = $("#arg2").val();
     var argument1_value = $("#objectSelector").val();
-    var animation = new AnimationOption($("#imageURL").val(), $("#position").val(), $("#customCSS").val(), $("#size").val(), $("#duration").val(), $("#transitionaryImageURL").val());
+    var animation = new AnimationOption($("#imageURL").val(), $("#position").val(), $("#customJS").val(), $("#size").val(), $("#duration").val(), $("#transitionaryImageURL").val());
     return [truthiness, argument1, argument2, argument1_value, animation];
 }
 
@@ -347,7 +348,7 @@ function writePredicateOption(index) {
     $("#objectSelector").val(predicateOptions[name][index].argument1_value);
     $("#imageURL").val(predicateOptions[name][index].animation.image);
     $("#position").val(predicateOptions[name][index].animation.location);
-    $("#customCSS").val(predicateOptions[name][index].animation.css);
+    $("#customJS").val(predicateOptions[name][index].animation.custom_js);
     $("#size").val(predicateOptions[name][index].animation.size);
     $("#duration").val(predicateOptions[name][index].animation.duration);
     $("#transitionaryImageURL").val(predicateOptions[name][index].animation.transition_image);
@@ -386,7 +387,8 @@ function writeGlobalOption() {
 function updatePredicateOption(name, input) {
     var pred = predicateOptions[name];
     //if any animation properties are defined
-    if (Boolean(input[4].css) || Boolean(input[4].image) || Boolean(input[4].location) || Boolean(input[4].size)) {
+  console.log(Boolean(input[4].animation));
+    if (Boolean(input[4].css) || Boolean(input[4].image) || Boolean(input[4].location) || Boolean(input[4].size) || Boolean(input[4].animation)) {
         for (var i = 0; i < pred.length; i++) {
             if (pred[i].argument1 == input[1] &&
                 pred[i].truthiness == input[0] &&

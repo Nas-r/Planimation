@@ -176,6 +176,9 @@ function switchToOptions() {
     $("#Window3").html("");
     document.getElementById("Window3").style.display = "none";
     document.getElementById("Window2").style.display = "block";
+    for (var i = 0; i < timeouts.length; i++) {
+        clearTimeout(timeouts[i]);
+    }
 }
 /**
  * Options for the entire animation.
@@ -654,6 +657,7 @@ function generateInputForm(name, inputtype) {
         customCSS;
 
     var predicateOptions = imageUrlInput +
+        transitionaryImageUrlInput +
         positionInput +
         sizeInput +
         duration +
@@ -850,7 +854,7 @@ function readPredicateOption() {
     var argument1 = $("#arg1").val();
     var argument2 = $("#arg2").val();
     var argument1_value = $("#objectSelector").val();
-    var animation = new AnimationOption($("#imageURL").val(), $("#position").val(), $("#customCSS").val(), $("#size").val(), $("#duration").val(), $("#transitionaryImageURL").val());
+    var animation = new AnimationOption($("#imageURL").val(), $("#position").val(), $("#customJS").val(), $("#size").val(), $("#duration").val(), $("#transitionaryImageURL").val());
     return [truthiness, argument1, argument2, argument1_value, animation];
 }
 
@@ -868,7 +872,7 @@ function writePredicateOption(index) {
     $("#objectSelector").val(predicateOptions[name][index].argument1_value);
     $("#imageURL").val(predicateOptions[name][index].animation.image);
     $("#position").val(predicateOptions[name][index].animation.location);
-    $("#customCSS").val(predicateOptions[name][index].animation.css);
+    $("#customJS").val(predicateOptions[name][index].animation.custom_js);
     $("#size").val(predicateOptions[name][index].animation.size);
     $("#duration").val(predicateOptions[name][index].animation.duration);
     $("#transitionaryImageURL").val(predicateOptions[name][index].animation.transition_image);
@@ -907,7 +911,8 @@ function writeGlobalOption() {
 function updatePredicateOption(name, input) {
     var pred = predicateOptions[name];
     //if any animation properties are defined
-    if (Boolean(input[4].css) || Boolean(input[4].image) || Boolean(input[4].location) || Boolean(input[4].size)) {
+  console.log(Boolean(input[4].animation));
+    if (Boolean(input[4].css) || Boolean(input[4].image) || Boolean(input[4].location) || Boolean(input[4].size) || Boolean(input[4].animation)) {
         for (var i = 0; i < pred.length; i++) {
             if (pred[i].argument1 == input[1] &&
                 pred[i].truthiness == input[0] &&
@@ -1082,21 +1087,45 @@ function Argument(name, type, value) {
     this.value = value;
     this.type = type;
 }
+var timeouts = [];
+
+function scheduleAnimations(index) {
+    var delay_between_states = 500;
+    var delay = 500;
+    for (var i = index; i < animationTimeline.length; i++) {
+        timeouts.push(setTimeout(executeAnimationFunction.bind(null, i), delay));
+        if (typeof(animationTimeline[i].duration) == "string") {
+            var duration = parseInt(animationTimeline[i].duration);
+            delay += (duration + delay_between_states);
+            console.log(delay);
+        }
+    }
+}
+
 /**
  * iterates over animation timeline
  If there are stack overflows, it's happening here in the recursive call to this
  function. I only did this because javascript has no sleep method so in order to
 temporally space the animations I need to use settimeout.
  */
-function iterateOverTimeline(index) {
+/*EDIT: REMOVED RECURSIVE CALL*/
+
+
+function executeAnimationFunction(index) {
     console.log("iterating: " + index + " : " + animationTimeline.length);
-    var delay_between_states = 500;
     if (index > animationTimeline.length) {
         return;
     }
     var animation_function;
     switch (animationTimeline[index].type) {
         case "predicate":
+            var log = animationTimeline[index].content.name + " , ";
+            if (typeof(animationTimeline[index].content.parameters) != "undefined") {
+                for (var i = 0; i < animationTimeline[index].content.parameters.length; i++) {
+                    log += animationTimeline[index].content.parameters[i].value + " , ";
+                }
+                console.log(log);
+            }
             if (animationTimeline[index].object_options &&
                 animationTimeline[index].duration &&
                 animationTimeline[index].stage_location) {
@@ -1105,17 +1134,17 @@ function iterateOverTimeline(index) {
                     animationTimeline[index].duration,
                     animationTimeline[index].stage_location);
                 if (typeof(animation_function) != "undefined") {
-                    animation_function[0]();
-                    console.log(animation_function);
-                    console.log(index);
-                    console.log(animationTimeline[index].duration);
-                    setTimeout(iterateOverTimeline(index + 1), animationTimeline[index].duration + delay_between_states);
+                    // setTimeout(iterateOverTimeline(index + 1), animationTimeline[index].duration + delay_between_states);
                     // setTimeout(animation_function[1], animationTimeline[index].duration);
+
+                    animation_function[0]();
+                    objectOptions = animationTimeline[index].object_options;
+                    stageLocation = animationTimeline[index].stage_location;
                 }
             }
             break;
         default:
-            iterateOverTimeline(index + 1);
+            // iterateOverTimeline(index + 1);
     }
 }
 
@@ -1124,42 +1153,45 @@ function iterateOverTimeline(index) {
  * I'll need a function that will take an animation entity and create
  and execute the animation function
  */
-function generateAnimationFunction(object_options, duration, stage_locations) {
+function generateAnimationFunction(object_options, duration, stage_location) {
     var funcdef = "";
     var set_final_images = "";
     var objects = Object.keys(object_options);
     objects.forEach(function(x, index) {
         var item = object_options[x];
         //if there's a transition image, apply it.
-        if (typeof(item.transition_image) != "undefined") {
-            funcdef += "$(\"#\"" + item.name + ").attr(\"src\",\"" + item.transition_image + "\"); ";
-            console.log(funcdef);
+        if (typeof(item.transition_image) != "undefined" && item.transition_image !== "") {
+            funcdef += "$(\'#" + item.name + "\').attr(\'src\',\'" + item.transition_image + "\'); ";
+            // console.log(funcdef);
             item.transition_image = "";
         }
-        if (typeof(item.transition_image) != "undefined" ||
-            item.image != objectOptions[item.name].image) {
+        if ((typeof(item.transition_image) != "undefined" && item.transition_image !== "" ) ||
+            (item.image!="" && item.image != objectOptions[item.name].image && objectOptions[item.name].image !== "")) {
+            console.log("swap-image");
+            console.log([item.image, objectOptions[item.name].image]);
             if (typeof(item.image) != "undefined") {
-                set_final_images += "$(\"#\"" + item.name + ").attr(\"src\",\"" + item.image + "\"); ";
+                set_final_images += "$(\'#" + item.name + "\').attr(\'src\',\'" + item.image + "\'); ";
             }
         }
         //add /\ location translations and duration to animation
         funcdef += "anime({targets: \"#" + item.name + "\",";
         funcdef += "duration: " + duration + ", ";
-        if (stage_locations[item.name] != stageLocation[item.name]) {
-            funcdef += "left: \"" + stage_locations[0] + globalOptions.units + "\",";
-            funcdef += "bottom: \"" + stage_locations[1] + globalOptions.units + "\",";
+        if (stage_location[item.name] != stageLocation[item.name]) {
+            funcdef += "left: [\'" + stageLocation[item.name][0] + globalOptions.units + "\',\'" + stage_location[item.name][0] + globalOptions.units + "\'],";
+            funcdef += "bottom: [\'" + stageLocation[item.name][1] + globalOptions.units + "\',\'" + stage_location[item.name][1] + globalOptions.units + "\'],";
         }
         //add content of custom_js property
-        if (item.custom_js != "undefined") {
+        if (typeof(item.custom_js) != "undefined") {
             funcdef += item.custom_js;
             item.custom_js = "";
         }
         funcdef += "});";
-        funcdef += "objectOptions = JSON.parse(JSON.stringify(object_options)); ";
-        funcdef += "stageLocation = JSON.parse(JSON.stringify(stage_locations)); ";
     });
 
     //set Globals to match new state.
+    // console.log(object_options);
+    // console.log(stage_location);
+    // console.log(funcdef);
     var result = [Function(funcdef)];
     if (set_final_images.length > 1) {
         // result.push(Function(set_final_images));
@@ -1236,7 +1268,7 @@ function findMatchingAnimationOptions(predicate, defined_options) {
                         arg2 = predicate.parameters[j];
                     }
                 }
-                console.log([arg1, arg2]);
+                // console.log([arg1, arg2]);
                 if (options[i].argument1_value == arg1.value) {
                     //add the option and target object
                     result.push([options[i].animation, arg2]);
@@ -1337,9 +1369,9 @@ function createInitialStage() {
     $("#Window3").html("<input id=\"gotoWindow2\" type=\"button\" " +
         " value=\"Return to Options Input Screen\"" +
         " onclick=\"switchToOptions();\" style=\"position:absolute;\">" +
-        "<input id=\"play\" type=\"button\" " +
+        "</input><input id=\"play\" type=\"button\" " +
         " value=\"Play Animation\"" +
-        " onclick=\"iterateOverTimeline(0);\" style=\"position:absolute;\">" +
+        " onclick=\"scheduleAnimations(0);\" style=\"position:absolute;top:15px\"></input>" +
         "<div id=\"stage\">" +
         "</div>");
     //apply typeOptions
@@ -1523,22 +1555,26 @@ TODO: Should provide some feedback on things that are no longer found.
 function parseSavedFile(file) {
     readFile(file, function(e) {
         try {
-            var objects = JSON.parse(e.target.result.toLowerCase());
+            var objects = JSON.parse(e.target.result);
         } catch (x) {
             console.log(x);
         } finally {
             var typekeys = Object.keys(objects[0]);
             var objectkeys = Object.keys(objects[1]);
             var predicatekeys = Object.keys(objects[2]);
+
             for (var i = 0; i < typekeys.length; i++) {
+              typekeys[i] = typekeys[i].toLowerCase();
                 typeOptions[typekeys[i]] = objects[0][typekeys[i]];
                 writeTypeOption(typekeys[i]);
             }
             for (var i = 0; i < objectkeys.length; i++) {
+              objectkeys[i] = objectkeys[i].toLowerCase();
                 objectOptions[objectkeys[i]] = objects[1][objectkeys[i]];
                 writeObjectOption(objectkeys[i]);
             }
             for (var i = 0; i < predicatekeys.length; i++) {
+              predicatekeys[i] = predicatekeys[i].toLowerCase();
                 predicateOptions[predicatekeys[i]] = objects[2][predicatekeys[i]];
                 //writePredicateOption??
             }

@@ -41,4 +41,3 @@
 (stack c f)
 (pick-up d)
 (stack d c)
-(unstack c e)

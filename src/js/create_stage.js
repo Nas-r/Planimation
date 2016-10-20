@@ -8,9 +8,9 @@ function createInitialStage() {
     $("#Window3").html("<input id=\"gotoWindow2\" type=\"button\" " +
         " value=\"Return to Options Input Screen\"" +
         " onclick=\"switchToOptions();\" style=\"position:absolute;\">" +
-        "<input id=\"play\" type=\"button\" " +
+        "</input><input id=\"play\" type=\"button\" " +
         " value=\"Play Animation\"" +
-        " onclick=\"iterateOverTimeline(0);\" style=\"position:absolute;\">" +
+        " onclick=\"scheduleAnimations(0);\" style=\"position:absolute;top:15px\"></input>" +
         "<div id=\"stage\">" +
         "</div>");
     //apply typeOptions

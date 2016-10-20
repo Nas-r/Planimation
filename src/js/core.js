@@ -176,4 +176,7 @@ function switchToOptions() {
     $("#Window3").html("");
     document.getElementById("Window3").style.display = "none";
     document.getElementById("Window2").style.display = "block";
+    for (var i = 0; i < timeouts.length; i++) {
+        clearTimeout(timeouts[i]);
+    }
 }

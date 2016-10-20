@@ -1,18 +1,42 @@
+var timeouts = [];
+
+function scheduleAnimations(index) {
+    var delay_between_states = 500;
+    var delay = 500;
+    for (var i = index; i < animationTimeline.length; i++) {
+        timeouts.push(setTimeout(executeAnimationFunction.bind(null, i), delay));
+        if (typeof(animationTimeline[i].duration) == "string") {
+            var duration = parseInt(animationTimeline[i].duration);
+            delay += (duration + delay_between_states);
+            console.log(delay);
+        }
+    }
+}
+
 /**
  * iterates over animation timeline
  If there are stack overflows, it's happening here in the recursive call to this
  function. I only did this because javascript has no sleep method so in order to
 temporally space the animations I need to use settimeout.
  */
-function iterateOverTimeline(index) {
+/*EDIT: REMOVED RECURSIVE CALL*/
+
+
+function executeAnimationFunction(index) {
     console.log("iterating: " + index + " : " + animationTimeline.length);
-    var delay_between_states = 500;
     if (index > animationTimeline.length) {
         return;
     }
     var animation_function;
     switch (animationTimeline[index].type) {
         case "predicate":
+            var log = animationTimeline[index].content.name + " , ";
+            if (typeof(animationTimeline[index].content.parameters) != "undefined") {
+                for (var i = 0; i < animationTimeline[index].content.parameters.length; i++) {
+                    log += animationTimeline[index].content.parameters[i].value + " , ";
+                }
+                console.log(log);
+            }
             if (animationTimeline[index].object_options &&
                 animationTimeline[index].duration &&
                 animationTimeline[index].stage_location) {
@@ -21,17 +45,17 @@ function iterateOverTimeline(index) {
                     animationTimeline[index].duration,
                     animationTimeline[index].stage_location);
                 if (typeof(animation_function) != "undefined") {
-                    animation_function[0]();
-                    console.log(animation_function);
-                    console.log(index);
-                    console.log(animationTimeline[index].duration);
-                    setTimeout(iterateOverTimeline(index + 1), animationTimeline[index].duration + delay_between_states);
+                    // setTimeout(iterateOverTimeline(index + 1), animationTimeline[index].duration + delay_between_states);
                     // setTimeout(animation_function[1], animationTimeline[index].duration);
+
+                    animation_function[0]();
+                    objectOptions = animationTimeline[index].object_options;
+                    stageLocation = animationTimeline[index].stage_location;
                 }
             }
             break;
         default:
-            iterateOverTimeline(index + 1);
+            // iterateOverTimeline(index + 1);
     }
 }
 
@@ -40,42 +64,45 @@ function iterateOverTimeline(index) {
  * I'll need a function that will take an animation entity and create
  and execute the animation function
  */
-function generateAnimationFunction(object_options, duration, stage_locations) {
+function generateAnimationFunction(object_options, duration, stage_location) {
     var funcdef = "";
     var set_final_images = "";
     var objects = Object.keys(object_options);
     objects.forEach(function(x, index) {
         var item = object_options[x];
         //if there's a transition image, apply it.
-        if (typeof(item.transition_image) != "undefined") {
-            funcdef += "$(\"#\"" + item.name + ").attr(\"src\",\"" + item.transition_image + "\"); ";
-            console.log(funcdef);
+        if (typeof(item.transition_image) != "undefined" && item.transition_image !== "") {
+            funcdef += "$(\'#" + item.name + "\').attr(\'src\',\'" + item.transition_image + "\'); ";
+            // console.log(funcdef);
             item.transition_image = "";
         }
-        if (typeof(item.transition_image) != "undefined" ||
-            item.image != objectOptions[item.name].image) {
+        if ((typeof(item.transition_image) != "undefined" && item.transition_image !== "" ) ||
+            (item.image!="" && item.image != objectOptions[item.name].image && objectOptions[item.name].image !== "")) {
+            console.log("swap-image");
+            console.log([item.image, objectOptions[item.name].image]);
             if (typeof(item.image) != "undefined") {
-                set_final_images += "$(\"#\"" + item.name + ").attr(\"src\",\"" + item.image + "\"); ";
+                set_final_images += "$(\'#" + item.name + "\').attr(\'src\',\'" + item.image + "\'); ";
             }
         }
         //add /\ location translations and duration to animation
         funcdef += "anime({targets: \"#" + item.name + "\",";
         funcdef += "duration: " + duration + ", ";
-        if (stage_locations[item.name] != stageLocation[item.name]) {
-            funcdef += "left: \"" + stage_locations[0] + globalOptions.units + "\",";
-            funcdef += "bottom: \"" + stage_locations[1] + globalOptions.units + "\",";
+        if (stage_location[item.name] != stageLocation[item.name]) {
+            funcdef += "left: [\'" + stageLocation[item.name][0] + globalOptions.units + "\',\'" + stage_location[item.name][0] + globalOptions.units + "\'],";
+            funcdef += "bottom: [\'" + stageLocation[item.name][1] + globalOptions.units + "\',\'" + stage_location[item.name][1] + globalOptions.units + "\'],";
         }
         //add content of custom_js property
-        if (item.custom_js != "undefined") {
+        if (typeof(item.custom_js) != "undefined") {
             funcdef += item.custom_js;
             item.custom_js = "";
         }
         funcdef += "});";
-        funcdef += "objectOptions = JSON.parse(JSON.stringify(object_options)); ";
-        funcdef += "stageLocation = JSON.parse(JSON.stringify(stage_locations)); ";
     });
 
     //set Globals to match new state.
+    // console.log(object_options);
+    // console.log(stage_location);
+    // console.log(funcdef);
     var result = [Function(funcdef)];
     if (set_final_images.length > 1) {
         // result.push(Function(set_final_images));
@@ -152,7 +179,7 @@ function findMatchingAnimationOptions(predicate, defined_options) {
                         arg2 = predicate.parameters[j];
                     }
                 }
-                console.log([arg1, arg2]);
+                // console.log([arg1, arg2]);
                 if (options[i].argument1_value == arg1.value) {
                     //add the option and target object
                     result.push([options[i].animation, arg2]);
