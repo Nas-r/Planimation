@@ -109,7 +109,7 @@ function generateInputForm(name, inputtype) {
     var imageUrlInput = "<div><p>ImageURL</p><textarea id=\"imageURL\" rows=\"1\" cols=\"25\"></textarea></div>";
     var transitionaryImageUrlInput = "<div><p>Transitionary Image URL</p><textarea id=\"transitionaryImageURL\" rows=\"1\" cols=\"25\"></textarea></div>";
     var positionInput = "<div><p>Location</p><textarea id=\"position\" rows=\"1\" cols=\"25\"></textarea></div>";
-    var customCSS = "<div><p>Custom CSS Properties</p><textarea id=\"customCSS\" rows=\"1\" cols=\"25\"></textarea></div>";
+    var customCSS = "<div><p>Custom CSS Properties</p><textarea id=\"customCSS\" rows=\"5\" cols=\"35\"></textarea></div>";
     var customJS = "<div><p>Custom AnimeJS Properties</p><textarea id=\"customJS\" rows=\"1\" cols=\"25\"></textarea></div>";
     var duration = "<div><p>Animation Duration (ms)</p><input type=\"number\" id=\"duration\"></input></div>";
     var sizeInput = "<div><p>Dimensions(W * H) </p><textarea id=\"size\" rows=\"1\" cols=\"25\"></textarea></div>";
@@ -125,6 +125,7 @@ function generateInputForm(name, inputtype) {
         "<p>Stage Dimensions</p><textarea id=\"dimensions\" rows=\"1\" cols=\"25\"></textarea>" +
         unitsInput +
         labelledInput +
+        customCSS +
         "</div>";
 
     var objectOptions = imageUrlInput +
@@ -365,6 +366,7 @@ function readActionOption() {
 function readGlobalOption() {
     globalOptions.dimensions = $("#dimensions").val();
     globalOptions.units = $("#units").val();
+    globalOptions.css = $("#customCSS").val();
     globalOptions.labelled = $("#labelled").val();
 }
 
@@ -375,6 +377,8 @@ function writeGlobalOption() {
     $("#dimensions").val(globalOptions.dimensions);
     $("#units").val(globalOptions.units);
     $("#labelled").val(globalOptions.labelled);
+    $("#customCSS").val(globalOptions.css);
+
 }
 
 /**
@@ -387,8 +391,9 @@ function writeGlobalOption() {
 function updatePredicateOption(name, input) {
     var pred = predicateOptions[name];
     //if any animation properties are defined
-  console.log(Boolean(input[4].animation));
-    if (Boolean(input[4].css) || Boolean(input[4].image) || Boolean(input[4].location) || Boolean(input[4].size) || Boolean(input[4].animation)) {
+    if (Boolean(input[4].transition_image) || Boolean(input[4].image) ||
+        Boolean(input[4].location) || Boolean(input[4].size) ||
+        Boolean(input[4].custom_js) || Boolean(input[4].duration)) {
         for (var i = 0; i < pred.length; i++) {
             if (pred[i].argument1 == input[1] &&
                 pred[i].truthiness == input[0] &&

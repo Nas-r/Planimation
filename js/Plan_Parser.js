@@ -72,12 +72,12 @@
   }
 */
 var Plan_Parser = (function(){
-var o=function(k,v,o,l){for(o=o||{},l=k.length;l--;o[k[l]]=v);return o},$V0=[1,6],$V1=[1,9],$V2=[2,5],$V3=[1,8],$V4=[7,9,11];
+var o=function(k,v,o,l){for(o=o||{},l=k.length;l--;o[k[l]]=v);return o},$V0=[1,5],$V1=[1,7],$V2=[2,5];
 var parser = {trace: function trace() { },
 yy: {},
-symbols_: {"error":2,"start":3,"BEGIN":4,"actions":5,"LPAREN":6,"STRING":7,"argument_list":8,"RPAREN":9,"argument":10,"VARIABLE":11,"HYPHEN":12,"$accept":0,"$end":1},
-terminals_: {2:"error",4:"BEGIN",6:"LPAREN",7:"STRING",9:"RPAREN",11:"VARIABLE",12:"HYPHEN"},
-productions_: [0,[3,2],[5,5],[5,0],[8,2],[8,0],[10,1],[10,3],[10,1]],
+symbols_: {"error":2,"start":3,"actions":4,"LPAREN":5,"STRING":6,"argument_list":7,"RPAREN":8,"argument":9,"$accept":0,"$end":1},
+terminals_: {2:"error",5:"LPAREN",6:"STRING",8:"RPAREN"},
+productions_: [0,[3,1],[4,5],[4,0],[7,2],[7,0],[9,1]],
 performAction: function anonymous(yytext, yyleng, yylineno, yy, yystate /* action[1] */, $$ /* vstack */, _$ /* lstack */) {
 /* this == yyval */
 
@@ -98,18 +98,12 @@ case 4:
   
 break;
 case 6:
-this.$ = new Argument($$[$0], "", "");
-break;
-case 7:
-this.$ = new Argument($$[$0-2], $$[$0], "");
-break;
-case 8:
 this.$ = new Argument("", "", $$[$0]);
 break;
 }
 },
-table: [{3:1,4:[1,2]},{1:[3]},o($V0,[2,3],{5:3}),{1:[2,1],6:[1,4]},{7:[1,5]},{7:$V1,8:6,9:$V2,10:7,11:$V3},{9:[1,10]},{7:$V1,8:11,9:$V2,10:7,11:$V3},o($V4,[2,6],{12:[1,12]}),o($V4,[2,8]),o($V0,[2,2]),{9:[2,4]},{7:[1,13]},o($V4,[2,7])],
-defaultActions: {11:[2,4]},
+table: [o($V0,[2,3],{3:1,4:2}),{1:[3]},{1:[2,1],5:[1,3]},{6:[1,4]},{6:$V1,7:5,8:$V2,9:6},{8:[1,8]},{6:$V1,7:9,8:$V2,9:6},o([6,8],[2,6]),o($V0,[2,2]),{8:[2,4]}],
+defaultActions: {9:[2,4]},
 parseError: function parseError(str, hash) {
     if (hash.recoverable) {
         this.trace(str);
@@ -603,15 +597,15 @@ var YYSTATE=YY_START;
 switch($avoiding_name_collisions) {
 case 0:
 break;
-case 1:return 4;
+case 1:
 break;
-case 2:return 7;
+case 2:return 6;
 break;
 case 3:
 break;
-case 4: return 6; 
+case 4: return 5; 
 break;
-case 5: return 9; 
+case 5: return 8; 
 break;
 case 6:
 break;

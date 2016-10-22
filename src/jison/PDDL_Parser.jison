@@ -7,9 +7,13 @@ NUMBER = [0-9]*;
 STRING = {CHAR}+(\-|{CHAR}|{DIGIT})*;
 QUESTION_TAG = [?];
 VARIABLE = {QUESTION_TAG}+(\-|{CHAR}|{DIGIT})*;
-
+%x ignore
 %%
-[;;].*					   	{ /* ignore non animation comments */}
+<ignore>"("         {lp+=1;}
+<ignore>")"         {rp+=1;if(rp==(lp+1)){lp=0;rp=0;this.popState();}}
+<ignore>.          {}
+
+[;;].*					   	{ /* ignore comments */}
 
 "domain"            { return 'DOMAIN';}
 "define"            { return 'DEFINE';}
@@ -24,7 +28,7 @@ VARIABLE = {QUESTION_TAG}+(\-|{CHAR}|{DIGIT})*;
 ":predicates"       { return 'PREDICATES';}
 ":constants"        { return 'CONSTANTS';}
 ":parameters"       { return 'PARAMETERS';}
-":action"           { return 'ACTION';}
+":action "           { return 'ACTION';}
 ":precondition"     { return 'PRECONDITION';}
 ":effect"           { return 'EFFECT';}
 ":observe"          { return 'OBSERVE';}
@@ -34,6 +38,7 @@ VARIABLE = {QUESTION_TAG}+(\-|{CHAR}|{DIGIT})*;
 ":INIT"             { return 'INIT';}
 ":goal"             { return 'GOAL';}
 
+":"                {this.begin('ignore');}
 "and"               { return 'AND';}
 "AND"               { return 'AND';}
 
@@ -48,7 +53,7 @@ VARIABLE = {QUESTION_TAG}+(\-|{CHAR}|{DIGIT})*;
 [\-]                {return 'HYPHEN';}
 {VARIABLE}          {return 'VARIABLE';}
 {STRING}            {return 'STRING'; }
-
+.                   {}
 /lex
 
 %%
@@ -71,6 +76,7 @@ domain_body
   | predicates_def domain_body
   | constants_def domain_body
   | action_def domain_body
+  | LPAREN
   |
 ;
 
@@ -78,6 +84,7 @@ problem_body
   : object_definitions problem_body
   | init_state problem_body
   | goal_state problem_body
+  | LPAREN
   |
 ;
 
@@ -278,6 +285,8 @@ fluent
 
 
 %%
+var lp=0;
+var rp=0;
 
 var requirements = [];
 var types = [];

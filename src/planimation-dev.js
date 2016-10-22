@@ -633,7 +633,7 @@ function generateInputForm(name, inputtype) {
     var imageUrlInput = "<div><p>ImageURL</p><textarea id=\"imageURL\" rows=\"1\" cols=\"25\"></textarea></div>";
     var transitionaryImageUrlInput = "<div><p>Transitionary Image URL</p><textarea id=\"transitionaryImageURL\" rows=\"1\" cols=\"25\"></textarea></div>";
     var positionInput = "<div><p>Location</p><textarea id=\"position\" rows=\"1\" cols=\"25\"></textarea></div>";
-    var customCSS = "<div><p>Custom CSS Properties</p><textarea id=\"customCSS\" rows=\"1\" cols=\"25\"></textarea></div>";
+    var customCSS = "<div><p>Custom CSS Properties</p><textarea id=\"customCSS\" rows=\"5\" cols=\"35\"></textarea></div>";
     var customJS = "<div><p>Custom AnimeJS Properties</p><textarea id=\"customJS\" rows=\"1\" cols=\"25\"></textarea></div>";
     var duration = "<div><p>Animation Duration (ms)</p><input type=\"number\" id=\"duration\"></input></div>";
     var sizeInput = "<div><p>Dimensions(W * H) </p><textarea id=\"size\" rows=\"1\" cols=\"25\"></textarea></div>";
@@ -649,6 +649,7 @@ function generateInputForm(name, inputtype) {
         "<p>Stage Dimensions</p><textarea id=\"dimensions\" rows=\"1\" cols=\"25\"></textarea>" +
         unitsInput +
         labelledInput +
+        customCSS +
         "</div>";
 
     var objectOptions = imageUrlInput +
@@ -889,6 +890,7 @@ function readActionOption() {
 function readGlobalOption() {
     globalOptions.dimensions = $("#dimensions").val();
     globalOptions.units = $("#units").val();
+    globalOptions.css = $("#customCSS").val();
     globalOptions.labelled = $("#labelled").val();
 }
 
@@ -899,6 +901,8 @@ function writeGlobalOption() {
     $("#dimensions").val(globalOptions.dimensions);
     $("#units").val(globalOptions.units);
     $("#labelled").val(globalOptions.labelled);
+    $("#customCSS").val(globalOptions.css);
+
 }
 
 /**
@@ -911,8 +915,9 @@ function writeGlobalOption() {
 function updatePredicateOption(name, input) {
     var pred = predicateOptions[name];
     //if any animation properties are defined
-  console.log(Boolean(input[4].animation));
-    if (Boolean(input[4].css) || Boolean(input[4].image) || Boolean(input[4].location) || Boolean(input[4].size) || Boolean(input[4].animation)) {
+    if (Boolean(input[4].transition_image) || Boolean(input[4].image) ||
+        Boolean(input[4].location) || Boolean(input[4].size) ||
+        Boolean(input[4].custom_js) || Boolean(input[4].duration)) {
         for (var i = 0; i < pred.length; i++) {
             if (pred[i].argument1 == input[1] &&
                 pred[i].truthiness == input[0] &&
@@ -1138,10 +1143,15 @@ function executeAnimationFunction(index) {
                     // setTimeout(animation_function[1], animationTimeline[index].duration);
 
                     animation_function[0]();
+                    if (animation_function.length > 1) {
+                      console.log(animationTimeline[index].duration);
+                        setTimeout(animation_function[1](), animationTimeline[index].duration);
+                    }
                     objectOptions = animationTimeline[index].object_options;
                     stageLocation = animationTimeline[index].stage_location;
                 }
             }
+            case 'heading' : console.log(animationTimeline[index].content);
             break;
         default:
             // iterateOverTimeline(index + 1);
@@ -1160,17 +1170,17 @@ function generateAnimationFunction(object_options, duration, stage_location) {
     objects.forEach(function(x, index) {
         var item = object_options[x];
         //if there's a transition image, apply it.
-        if (typeof(item.transition_image) != "undefined" && item.transition_image !== "") {
-            funcdef += "$(\'#" + item.name + "\').attr(\'src\',\'" + item.transition_image + "\'); ";
+        if (typeof(item.transition_image) != "undefined" && item.transition_image != "") {
+            funcdef += "$(\'#" + item.name + " > img\').attr(\'src\',\'" + item.transition_image + "\'); ";
             // console.log(funcdef);
             item.transition_image = "";
         }
-        if ((typeof(item.transition_image) != "undefined" && item.transition_image !== "" ) ||
-            (item.image!="" && item.image != objectOptions[item.name].image && objectOptions[item.name].image !== "")) {
-            console.log("swap-image");
-            console.log([item.image, objectOptions[item.name].image]);
+        if ((typeof(item.transition_image) != "undefined" && item.transition_image != "") ||
+            (item.image != "")) {
             if (typeof(item.image) != "undefined") {
-                set_final_images += "$(\'#" + item.name + "\').attr(\'src\',\'" + item.image + "\'); ";
+              set_final_images += "$(\'#" + item.name + " > img\').attr(\'src\',\'" + item.image + "\'); ";
+            } else {
+              set_final_images += "$(\'#" + item.name + " > img\').attr(\'src\',\'" + objectOptions[item.name].image + "\'); ";
             }
         }
         //add /\ location translations and duration to animation
@@ -1193,8 +1203,8 @@ function generateAnimationFunction(object_options, duration, stage_location) {
     // console.log(stage_location);
     // console.log(funcdef);
     var result = [Function(funcdef)];
-    if (set_final_images.length > 1) {
-        // result.push(Function(set_final_images));
+    if (set_final_images.length != "") {
+        result.push(Function(set_final_images));
     }
     return result;
 }
@@ -1226,13 +1236,13 @@ function generateNewState(animation_entity, object_options, stage_locations) {
     if (animation_entity.type == "predicate") {
         var predicate = animation_entity.content;
         var animations = findMatchingAnimationOptions(predicate, predicateOptions);
-        console.log(animations);
+        // console.log(animations);
         if (animations != false && typeof(animations) != "undefined" && animations[0].length > 0) {
             var updated_object_options = get_updated_objectOptions(animations, object_options);
             var duration = updated_object_options[1];
-            console.log(updated_object_options);
+            // console.log(updated_object_options);
             var updated_stage_locations = get_updated_stageLocations(updated_object_options[0], stage_locations);
-            console.log(updated_stage_locations);
+            // console.log(updated_stage_locations);
             return [updated_object_options, updated_stage_locations];
         }
     }
@@ -1260,7 +1270,7 @@ function findMatchingAnimationOptions(predicate, defined_options) {
             if (options[i].truthiness == predicate.truthiness) {
                 //If it's an exact match, add to end of array
                 for (var j = 0; j < predicate.parameters.length; j++) {
-                    console.log("option: " + options[i].argument1 + " parameter: " + predicate.parameters[j].name);
+                    // console.log("option: " + options[i].argument1 + " parameter: " + predicate.parameters[j].name);
                     if (options[i].argument1 === predicate.parameters[j].name) {
                         arg1 = predicate.parameters[j];
                     }
@@ -1305,7 +1315,7 @@ function get_updated_objectOptions(animation, object_options) {
     var result = JSON.parse(JSON.stringify(object_options));
     for (var i = 0; i < animations.length; i++) {
         var target = animations[i][1];
-        console.log(target);
+        // console.log(target);
         //if there's a transition image, apply it here
         if (typeof(animations[i][0].transition_image) != "undefined") {
             result[target.value].transition_image = animations[i][0].transition_image;
@@ -1329,10 +1339,10 @@ function get_updated_objectOptions(animation, object_options) {
             }
         }
         //update css
-        if (typeof(animations[i][0].custom_js) != "undefined") {
+        if (typeof(animations[i][0].custom_js) != "undefined" && animations[i][0].custom_js != "") {
             result[target.value].custom_js = animations[i][0].custom_js;
         }
-        if (typeof(animations[i][0].image) != "undefined") {
+        if (typeof(animations[i][0].image) != "undefined" && animations[i][0].image != "") {
             result[target.value].image = animations[i][0].image;
         }
         //updtae duration
@@ -1376,6 +1386,7 @@ function createInitialStage() {
         "</div>");
     //apply typeOptions
     var typekeys = Object.keys(typeOptions);
+    console.log(globalOptions.css);
     for (var i = 0; i < typekeys.length; i++) {
         var object_type = typekeys[i];
         var targets = getObjectListFromType(object_type);
@@ -1412,7 +1423,9 @@ function createInitialStage() {
     }
 
     $("#stage").html(objectshtml);
-
+    if(typeof(globalOptions.css)!="undefined"){
+    applyCSS(globalOptions.css, "Window3");
+}
 
     for (var i = 0; i < object_keys.length; i++) {
         var key = object_keys[i];
@@ -1462,10 +1475,11 @@ function applyCSS(css, targetName) {
     if (css_statements != false) {
         for (var i = 0; i < css_statements.length; i++) {
             var item = css_statements[i];
-            var property = item.split(":");
+            var property = item.split(':')[0];
+            var value = item.split(':').slice(1).join(':');
             console.log("#" + targetName);
             console.log(property);
-            $("#" + targetName).css(property[0].trim(), property[1].trim());
+            $("#" + targetName).css(property.trim(), value.trim());
         }
     }
 }
@@ -1493,6 +1507,7 @@ function getStageLocation(objectName, object_options, stage_locations) {
 
 function resolveRelativeLocation(objectName, object_options, stage_locations) {
     var location = object_options[objectName].location.split(":");
+    console.log(position);
     var position = location[0].trim();
     var relative_to_object = location[1].trim();
     // var dimensions  = getWidthAndHeight(object);

@@ -49,10 +49,15 @@ function executeAnimationFunction(index) {
                     // setTimeout(animation_function[1], animationTimeline[index].duration);
 
                     animation_function[0]();
+                    if (animation_function.length > 1) {
+                      console.log(animationTimeline[index].duration);
+                        setTimeout(animation_function[1](), animationTimeline[index].duration);
+                    }
                     objectOptions = animationTimeline[index].object_options;
                     stageLocation = animationTimeline[index].stage_location;
                 }
             }
+            case 'heading' : console.log(animationTimeline[index].content);
             break;
         default:
             // iterateOverTimeline(index + 1);
@@ -71,17 +76,17 @@ function generateAnimationFunction(object_options, duration, stage_location) {
     objects.forEach(function(x, index) {
         var item = object_options[x];
         //if there's a transition image, apply it.
-        if (typeof(item.transition_image) != "undefined" && item.transition_image !== "") {
-            funcdef += "$(\'#" + item.name + "\').attr(\'src\',\'" + item.transition_image + "\'); ";
+        if (typeof(item.transition_image) != "undefined" && item.transition_image != "") {
+            funcdef += "$(\'#" + item.name + " > img\').attr(\'src\',\'" + item.transition_image + "\'); ";
             // console.log(funcdef);
             item.transition_image = "";
         }
-        if ((typeof(item.transition_image) != "undefined" && item.transition_image !== "" ) ||
-            (item.image!="" && item.image != objectOptions[item.name].image && objectOptions[item.name].image !== "")) {
-            console.log("swap-image");
-            console.log([item.image, objectOptions[item.name].image]);
+        if ((typeof(item.transition_image) != "undefined" && item.transition_image != "") ||
+            (item.image != "")) {
             if (typeof(item.image) != "undefined") {
-                set_final_images += "$(\'#" + item.name + "\').attr(\'src\',\'" + item.image + "\'); ";
+              set_final_images += "$(\'#" + item.name + " > img\').attr(\'src\',\'" + item.image + "\'); ";
+            } else {
+              set_final_images += "$(\'#" + item.name + " > img\').attr(\'src\',\'" + objectOptions[item.name].image + "\'); ";
             }
         }
         //add /\ location translations and duration to animation
@@ -104,8 +109,8 @@ function generateAnimationFunction(object_options, duration, stage_location) {
     // console.log(stage_location);
     // console.log(funcdef);
     var result = [Function(funcdef)];
-    if (set_final_images.length > 1) {
-        // result.push(Function(set_final_images));
+    if (set_final_images.length != "") {
+        result.push(Function(set_final_images));
     }
     return result;
 }
@@ -137,13 +142,13 @@ function generateNewState(animation_entity, object_options, stage_locations) {
     if (animation_entity.type == "predicate") {
         var predicate = animation_entity.content;
         var animations = findMatchingAnimationOptions(predicate, predicateOptions);
-        console.log(animations);
+        // console.log(animations);
         if (animations != false && typeof(animations) != "undefined" && animations[0].length > 0) {
             var updated_object_options = get_updated_objectOptions(animations, object_options);
             var duration = updated_object_options[1];
-            console.log(updated_object_options);
+            // console.log(updated_object_options);
             var updated_stage_locations = get_updated_stageLocations(updated_object_options[0], stage_locations);
-            console.log(updated_stage_locations);
+            // console.log(updated_stage_locations);
             return [updated_object_options, updated_stage_locations];
         }
     }
@@ -171,7 +176,7 @@ function findMatchingAnimationOptions(predicate, defined_options) {
             if (options[i].truthiness == predicate.truthiness) {
                 //If it's an exact match, add to end of array
                 for (var j = 0; j < predicate.parameters.length; j++) {
-                    console.log("option: " + options[i].argument1 + " parameter: " + predicate.parameters[j].name);
+                    // console.log("option: " + options[i].argument1 + " parameter: " + predicate.parameters[j].name);
                     if (options[i].argument1 === predicate.parameters[j].name) {
                         arg1 = predicate.parameters[j];
                     }
@@ -216,7 +221,7 @@ function get_updated_objectOptions(animation, object_options) {
     var result = JSON.parse(JSON.stringify(object_options));
     for (var i = 0; i < animations.length; i++) {
         var target = animations[i][1];
-        console.log(target);
+        // console.log(target);
         //if there's a transition image, apply it here
         if (typeof(animations[i][0].transition_image) != "undefined") {
             result[target.value].transition_image = animations[i][0].transition_image;
@@ -240,10 +245,10 @@ function get_updated_objectOptions(animation, object_options) {
             }
         }
         //update css
-        if (typeof(animations[i][0].custom_js) != "undefined") {
+        if (typeof(animations[i][0].custom_js) != "undefined" && animations[i][0].custom_js != "") {
             result[target.value].custom_js = animations[i][0].custom_js;
         }
-        if (typeof(animations[i][0].image) != "undefined") {
+        if (typeof(animations[i][0].image) != "undefined" && animations[i][0].image != "") {
             result[target.value].image = animations[i][0].image;
         }
         //updtae duration

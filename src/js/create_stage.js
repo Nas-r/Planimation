@@ -15,6 +15,7 @@ function createInitialStage() {
         "</div>");
     //apply typeOptions
     var typekeys = Object.keys(typeOptions);
+    console.log(globalOptions.css);
     for (var i = 0; i < typekeys.length; i++) {
         var object_type = typekeys[i];
         var targets = getObjectListFromType(object_type);
@@ -51,7 +52,9 @@ function createInitialStage() {
     }
 
     $("#stage").html(objectshtml);
-
+    if(typeof(globalOptions.css)!="undefined"){
+    applyCSS(globalOptions.css, "Window3");
+}
 
     for (var i = 0; i < object_keys.length; i++) {
         var key = object_keys[i];
@@ -101,10 +104,11 @@ function applyCSS(css, targetName) {
     if (css_statements != false) {
         for (var i = 0; i < css_statements.length; i++) {
             var item = css_statements[i];
-            var property = item.split(":");
+            var property = item.split(':')[0];
+            var value = item.split(':').slice(1).join(':');
             console.log("#" + targetName);
             console.log(property);
-            $("#" + targetName).css(property[0].trim(), property[1].trim());
+            $("#" + targetName).css(property.trim(), value.trim());
         }
     }
 }
@@ -132,6 +136,7 @@ function getStageLocation(objectName, object_options, stage_locations) {
 
 function resolveRelativeLocation(objectName, object_options, stage_locations) {
     var location = object_options[objectName].location.split(":");
+    console.log(position);
     var position = location[0].trim();
     var relative_to_object = location[1].trim();
     // var dimensions  = getWidthAndHeight(object);

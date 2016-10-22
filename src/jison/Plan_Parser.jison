@@ -8,7 +8,7 @@ STRING = {CHAR}+(\-|{CHAR}|{DIGIT})*;
 %%
 
 "Found Plan"        {}
-"(output)"          {return 'BEGIN';}
+"(output)"          {}
 {STRING}            {return 'STRING';}
 
 #.*$                {}
@@ -22,7 +22,7 @@ STRING = {CHAR}+(\-|{CHAR}|{DIGIT})*;
 %%
 
 start
-  : BEGIN actions
+  : actions
   {return actions;}
 ;
 
@@ -45,11 +45,8 @@ argument_list
 ;
 
 argument
-  : VARIABLE
-  {$$ = new Argument($1, "", "");}
-  | VARIABLE HYPHEN STRING
-  {$$ = new Argument($1, $3, "");}
-  | STRING
+  :
+  STRING
   {$$ = new Argument("", "", $1);}
 ;
 
