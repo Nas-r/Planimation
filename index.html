@@ -1,33 +1,39 @@
 <!DOCTYPE html>
 <html lang="en-US">
+
 <head>
-  <title>Planimation</title>
+    <title>Planimation</title>
 
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <style>
-  </style>
+    <style>
 
-  <!-- Import JQuery -->
-  <script src="js/jquery.min.js"></script>
+    </style>
 
-  <!-- Import Bootstrap -->
-  <script src="js/bootstrap.min.js"></script>
-  <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- Import JQuery and JQuery UI -->
+    <script src="js/jquery.min.js"></script>
+    <script src="js/jquery-ui.min.js"></script>
+    <!-- Import Jquery ui CSS, implement sortable for Predicate name sorting-->
+    <link rel="stylesheet" href="css/jquery-ui.structure.min.css">
+    <link rel="stylesheet" href="css/jquery-ui.theme.min.css">
 
-  <!-- Import anime.js -->
-  <script src="js/anime.min.js"></script>
+    <!-- Import Bootstrap -->
+    <script src="js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
 
-  <!-- Import PDDL Parsers -->
-  <script src="js/PDDL_Parser.js"></script>
-  <script src="js/Plan_Parser.js"></script>
+    <!-- Import anime.js -->
+    <script src="js/anime.min.js"></script>
 
-  <!-- Import Planimation.js-->
-  <script src="src/planimation-dev.js"></script>
+    <!-- Import PDDL Parsers -->
+    <script src="js/PDDL_Parser.js"></script>
+    <script src="js/Plan_Parser.js"></script>
 
-  <!-- Import custom stylesheet -->
-  <link rel="stylesheet" href="css/styling.css">
+    <!-- Import Planimation.js-->
+    <script src="src/planimation-dev.js"></script>
+
+    <!-- Import custom stylesheet -->
+    <link rel="stylesheet" href="css/styling.css">
 </head>
 
 <body>
@@ -38,8 +44,9 @@
                 </div>
                 <div class="row" style="transform:translateY(-50%);">
 
-                <div id="bigP">P</div><div id="title">LANIMATION</div>
-                <p id="subtitle">Animate your PDDL Plans</p>
+                    <div id="bigP">P</div>
+                    <div id="title">LANIMATION</div>
+                    <p id="subtitle">Animate your PDDL Plans</p>
                 </div>
             </div>
 
@@ -47,63 +54,70 @@
                 <div class="row" style="height:50%;">
                 </div>
                 <div class="row" style="transform:translateY(-50%);">
-                <!-- File Input -->
-                <div id="fileInputWindow">
-                    <h2>Please Load a Domain File</h2>
-                    <input id="inputdomain" type="file">
-                    <p></p><p></p>
+                    <!-- File Input -->
+                    <div id="fileInputWindow">
+                        <h2>Please Load a Domain File</h2>
+                        <input id="inputdomain" type="file">
+                        <p></p>
+                        <p></p>
 
-                    <h2>Please Load a Problem File</h2>
-                    <input id="inputproblem" type="file">
-                    <p></p><p></p>
+                        <h2>Please Load a Problem File</h2>
+                        <input id="inputproblem" type="file">
+                        <p></p>
+                        <p></p>
 
-                    <h2>Please Load a Solution File</h2>
-                    <input id="inputplan" type="file">
-                    <p></p><p></p>
-                </div>
-                <p></p><p></p><p></p><p></p><p></p>
-                <input id="loadfiles" type="button" value="BEGIN" onclick="parseInputFiles();">
+                        <h2>Please Load a Solution File</h2>
+                        <input id="inputplan" type="file">
+                        <p></p>
+                        <p></p>
+                    </div>
+                    <p></p>
+                    <p></p>
+                    <p></p>
+                    <p></p>
+                    <p></p>
+                    <input id="loadfiles" type="button" value="BEGIN" onclick="parseInputFiles();">
                 </div>
             </div>
-          </div>
-          <div id="Window2" class="row" style="margin:0;padding:0;">
+        </div>
+        <div id="Window2" class="row" style="margin:0;padding:0;">
 
             <div class="col-md-7" style="height:100%;background-color:white;">
 
                 <div class="col-md-4" style="padding:0;border-right: 2px solid grey;height:100%; text-align: center;">
-                  <div id="inputSelector"></div>
+                    <div id="inputSelector"></div>
                 </div>
                 <div class="col-md-8">
-                <div class="row">
-                  <p></p>
-                  <input id="savebutton" type="button" value="Save Animation Settings to File" onclick="downloadAnimationOptions();">
-                  <p></p>
-                  <input id="apply" type="button" value="Save and Apply Input" onclick="saveAndApply();">
-                  <p></p>
-                  <input id="view_animation" type="button" value="View Animation" onclick="switchToAnimation();">
-                  <p></p>
+                    <div class="row">
+                        <p></p>
+                        <input id="savebutton" type="button" value="Save Animation Settings to File" onclick="downloadAnimationOptions();">
+                        <p></p>
+                        <input id="apply" type="button" value="Save and Apply Input" onclick="saveAndApply();">
+                        <p></p>
+                        <input id="view_animation" type="button" value="View Animation" onclick="switchToAnimationWindow();">
+                        <p></p>
+                    </div>
+                    <div class="row" style="margin:auto;">
+                        <div id="inputOptions">
+                            <div id="loadButton"><input id="loadbutton" type="file"></div>
+                        </div>
+                    </div>
                 </div>
-                <div class="row" style="margin:auto;">
-                  <div id="inputOptions">
-                    <div id="loadButton"><input id="loadbutton" type="file"></div>
-                  </div>
-                </div>
-              </div>
             </div>
 
             <div class="col-md-5" style="overflow-y:scroll; height:100%;">
                 <div id="previewHeading" class="row">
-                  Limited Preview
-                  <p></p>
+                    Limited Preview
+                    <p></p>
                 </div>
                 <div id="optionsPreview" class="row">
 
                 </div>
             </div>
-            </div>
-            <div id="Window3" class="row" style="margin:0;padding:0;">
-            </div>
-  </div>
+        </div>
+        <div id="Window3" class="row" style="margin:0;padding:0;">
+        </div>
+    </div>
 
 </body>
 

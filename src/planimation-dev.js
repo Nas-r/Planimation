@@ -27,10 +27,14 @@ var constants;
  * @global
  */
 var types;
-
-/*
- ****************      LOAD TEST FILES     **********************
+/**Global store of parsed Actions
+ * @global
  */
+var actions;
+
+/*----------------------------------------------------------------------------|
+#SECTION 0.1                       Load Files
+|----------------------------------------------------------------------------*/
 
 $(document).ready(function() {
 
@@ -58,9 +62,9 @@ function readFile(file, callback) {
     reader.readAsText(file);
 }
 
-/*
- ****************      PARSE LOADED FILES     **********************
- */
+/*----------------------------------------------------------------------------|
+#SECTION 0.2                  Parse Loaded Files
+|----------------------------------------------------------------------------*/
 
 /**Parses the loaded plan and returns a list of actions
  *@param {array} domain - Objects from parsed domain file. [types, constants, predicates, actionList]
@@ -123,63 +127,72 @@ function parseDomain(callback) {
     });
 }
 
+
+/*----------------------------------------------------------------------------|
+#SECTION 0.3            Generate the Selected Window
+|----------------------------------------------------------------------------*/
 /**
  *
- Shouldmt be called getInput, this function is passed as a callbasck to
+ This function is passed as a callbasck to
  parseDomain becasue FileReader runs ASYNC and I need to ensure files are prased
- before the rest of the script is exectured]
+ before the rest of the script is exectured
  *@param {array} domain - Objects from parsed domain file. [types, constants, predicates, actionList]
  *@param {array} problem - Objects from the parsed problem file. [objects, startPredicates]
  *@param {array} plan - Objects from parsed plan file. [actions]
  */
-function getInput(domain, problem, plan) {
+function generateInputWindow(domain, problem, plan) {
     types = domain[0];
     constants = domain[1];
     predicates = domain[2];
     objects = problem[0];
+    actions = domain[3];
 
     var inputSelector = createInputSelector();
     document.getElementById("Window1").style.display = "none";
     document.getElementById("Window2").style.display = "block";
     createAnimationObjects();
-    generateAnimationTimeline(domain, problem, plan);
-
-    //set objects layout and initial location, display=none;
-    //apply initial predicate options
-    //-match predicate to options (there should be some match ranking
-    //(i.e anything loses to a direct arg1val match))
-    //set objects display=block;
-    //apply predicate options (match each predicate type animation entity with
-    //its matching options)
+    generateAnimationTimeline(predicates, problem, plan);
     $("#inputSelector").append(inputSelector);
     generateInputForm();
 
 }
 
 /**
- * Parse the input files
+ * Parse the input files and generate the input window
  */
 function parseInputFiles() {
-    parseDomain(getInput);
+    parseDomain(generateInputWindow);
 }
 
-function switchToAnimation() {
+/**
+ * Switch the webpage to the animation and generate the animation states
+ */
+function switchToAnimationWindow() {
     document.getElementById("Window2").style.display = "none";
     document.getElementById("Window3").style.display = "block";
     createInitialStage();
+
     console.log(animationTimeline.length);
     addStatesToAnimationEntities();
-    console.log(animationTimeline);
 }
 
-function switchToOptions() {
+/**
+ * Switch from the animatino stage to the Input Option screen
+ */
+function switchToInputWindow() {
     $("#Window3").html("");
     document.getElementById("Window3").style.display = "none";
     document.getElementById("Window2").style.display = "block";
+    // Clear pending animations
     for (var i = 0; i < timeouts.length; i++) {
         clearTimeout(timeouts[i]);
     }
 }
+
+/*----------------------------------------------------------------------------|
+#SECTION 1.0                    Animation Objects
+|----------------------------------------------------------------------------*/
+
 /**
  * Options for the entire animation.
  * used to store the stage dimensions.
@@ -198,7 +211,13 @@ var typeOptions = {};
  * for fast lookup.
  * @global
  */
-var objectOptions = {};
+var initialObjectProperties = {};
+/**
+ * Used to store options specified on objects as an assosciative array
+ * for fast lookup.
+ * @global
+ */
+var objectProperties = {};
 /**
  * Used to store options specified on predicates as an assosciative array
  * for fast lookup. For predicates, each key points to a list of objects of
@@ -206,6 +225,12 @@ var objectOptions = {};
  * @global
  */
 var predicateOptions = {};
+
+/**
+ * Used to store options specified on actions as an assosciative array
+ * @global
+ */
+var actionOptions = {};
 
 /**
  * Store options that will be applied as default to all objects of the
@@ -241,7 +266,7 @@ function GlobalOption(stageDimensions, units) {
     @param {array} location - The current coordinates of the object on the stage
     @param {string} css - The transformations to apply by default to the input image
  */
-function ObjectOption(name, type, image, location, css, size) {
+function ObjectProperty(name, type, image, location, css, size) {
     this.name = name;
     this.type = type;
     this.image = image;
@@ -262,12 +287,12 @@ function ObjectOption(name, type, image, location, css, size) {
 
 /**
  * Store options that will be applied to an object given a defined predicate outcome
- @param {string} name - The name of the predicate
- @param {boolean} truthiness - Does this apply when the predicate eveluates to true or false
-@param {string} argument1 - The first argument to the predicate
-@param {string} argument1 - The second argument to the predicate
-@param {string} argumentValue - The value taken by the first argument
-@param {AnimeationOption} animation - {image,location,css, transition_image}
+  @param {string} name - The name of the predicate
+  @param {boolean} truthiness - Does this apply when the predicate eveluates to true or false
+  @param {string} argument1 - The first argument to the predicate
+  @param {string} argument1 - The second argument to the predicate
+  @param {string} argumentValue - The value taken by the first argument
+  @param {AnimeationOption} animation - {image,location,css, transition_image}
  *  @constructor
  */
 function PredicateOption(name, truthiness, argument1, argument2, argument1_value, animation) {
@@ -279,14 +304,25 @@ function PredicateOption(name, truthiness, argument1, argument2, argument1_value
     this.animation = animation;
 }
 
-function ActionOption(name, parameter) {
-    this.name = name;
-    this.parameter = parameter;
-    //hmm, how do I handle an arbitrary number of parameters?
-    //do I treat action rules the same as predicate rules?
+function ActionOption(predicateOrdering) {
+    // array containing the name of the action's predicates in the order they
+    // will be animated
+    this.predicateOrdering = predicateOrdering;
 }
 
-
+/**
+ * Store the changes that will be applied when a predicate option is matched.
+ @param {string} image - The URL of the image to swap the object to at the end
+ of the predicate's animation sequence.
+ @param {string} location - The location (coords or relative) of the applicable
+ object.
+ @param {string} custom_js - Any custom anime.js actions a user would like to
+ specify.
+ @param {string} size - The size of the target object.
+ @param {string} duration - The duration of the animation (default is 1 second).
+ @param {string} transition_image - The URL of the image to display while the
+ predicate's animation is in progress.
+ */
 function AnimationOption(image, location, custom_js, size, duration, transition_image) {
     this.image = image;
     this.location = location;
@@ -297,16 +333,35 @@ function AnimationOption(image, location, custom_js, size, duration, transition_
 }
 
 /**
- * Initializes the input option containers and their structure
+ * Initializes the input option containers based on the parsed pddl entities
  */
 function createAnimationObjects() {
-    if (predicates.length > 0) {
+    //Populate initial Action option information
+    if (actions != "undefined" && actions.length > 0) {
+        for (var i = 0; i < actions[i].length; i++) {
+            predicateOrder = [];
+            for (var j = 0; j < actions[i].effects.length; j++) {
+                predicateOrder.push(actions[i].effects[j].name);
+            }
+            actionOptions[actions[i].name].predicateOrdering =
+                new ActionOption(predicateOrder);
+        }
+    }
+
+    //Create the assosciative array that will hold lists of option predicates
+    if (predicates != "undefined" && predicates.length > 0) {
         for (var i = 0; i < predicates.length; i++) {
             predicateOptions[predicates[i].name.toLowerCase()] = [];
         }
     }
-    //types objects and constants
-    if (types.length > 0) {
+
+    /*  Ditto for types AND constants/objects that will for the remainder of
+        this program be referred to as objects(they 're treated identically)
+        It begins by applying the types to each object, which is necessary due
+        to the formatting of the parser 's output, then populates the
+        assosciative array
+    */
+    if (types != "undefined" && types.length > 0) {
         for (var i = 0; i < types.length; i++) {
             typeOptions[types[i]] = new TypeOption(types[i]);
         }
@@ -320,8 +375,8 @@ function createAnimationObjects() {
                 type = constants.types[typeCounter];
             }
             var name = constants.names[i];
-            objectOptions[name] = new ObjectOption(name, type);
-            objectOptions[name].location = [0, 0];
+            initialObjectProperties[name] = new ObjectProperty(name, type);
+            initialObjectProperties[name].location = [0, 0];
         }
         typeCounter = 0;
         for (var i = 0; i < objects.names.length; i++) {
@@ -332,87 +387,84 @@ function createAnimationObjects() {
                 type = objects.types[typeCounter];
             }
             var name = objects.names[i];
-            objectOptions[name] = new ObjectOption(name, type);
-            objectOptions[name].location = [0, 0];
+            initialObjectProperties[name] = new ObjectProperty(name, type);
+            initialObjectProperties[name].location = [0, 0];
         }
     } else {
         for (var i = 0; i < constants.names.length; i++) {
             var name = constants.names[i];
-            objectOptions[name] = new ObjectOption(name);
-            objectOptions[name].location = [0, 0];
+            initialObjectProperties[name] = new ObjectProperty(name);
+            initialObjectProperties[name].location = [0, 0];
         }
         for (var i = 0; i < objects.names.length; i++) {
             var name = objects.names[i];
-            objectOptions[name] = new ObjectOption(name);
-            objectOptions[name].location = [0, 0];
+            initialObjectProperties[name] = new ObjectProperty(name);
+            initialObjectProperties[name].location = [0, 0];
         }
     }
 
-    console.log(objectOptions);
-    //I won't do this prepopulation for predicate and action options because
-    //they need to be created upon input submission. In fact this was probably
-    //entirely unnecessary except for allowing me to attach the types easily
-
+    console.log(initialObjectProperties);
 }
 
-/*
-****************      GENERATE INPUT FORM    **********************
-*/
+/*----------------------------------------------------------------------------|
+#SECTION 2.0               Generate Input Form Selector
+|----------------------------------------------------------------------------*/
 
 /**When Load File is selected from the menu, present the file input field and
 ensure the event handler is active*/
-function loadFileSelector(){
-  $("#inputOptions").html(
-    "<br><br><br><input id=\"loadbutton\" type=\"file\">");
-    $('#loadbutton').on('change', function(e){
-      parseSavedFile(this.files[0]);
+function loadFileSelector() {
+    $("#inputOptions").html(
+        "<br><br><br><input id=\"loadbutton\" type=\"file\">");
+    $('#loadbutton').on('change', function(e) {
+        parseSavedFile(this.files[0]);
     });
 }
 
 /**Populate the input selector with all available configurable entities such as
 constants, objects, prediucates, actions and types.*/
 function createInputSelector() {
-  var itemCell = "<td class=\"item\" onclick=\"selectInput(event);\"";
-  var output = "";
-  output += "<table id=\"inputTable\"><tbody><tr>"
-          + "<td class=\"item\" onclick=\"loadFileSelector();\""+">Load Options</td></tr>";
+    var itemCell = "<td class=\"item\" tabindex=\"0\" onclick=\"selectInput(event);\"";
+    var output = "";
+    output += "<table id=\"inputTable\"><tbody><tr>" +
+        "<td class=\"item\" onclick=\"loadFileSelector();\"" + ">Load Options</td></tr>";
 
-  output +=  "<tr><td class=\"item\" onclick=\"selectInput(event);\" data-type=\"global\""+">Global Options</td></tr>";
+    output += "<tr><td class=\"item\" onclick=\"selectInput(event);\" " +
+        "data-type=\"global\">Global Options</td></tr>";
 
-  if(types.length>0){
-    output += "<tr><td class=\"itemGroup\">Types</td></tr>";
-    for(var i=0; i<types.length; i++){
-        output += "<tr>" + itemCell + "data-type=\"type\">"
-                + types[i] + "</td></tr>";
+    if (types.length > 0) {
+        output += "<tr><td class=\"itemGroup\">Types</td></tr>";
+        for (var i = 0; i < types.length; i++) {
+            output += "<tr>" + itemCell + "data-type=\"type\">" +
+                types[i] + "</td></tr>";
+        }
     }
-  }
 
-  if(constants.names.length>0) {
-    output += "<tr><td class=\"itemGroup\">Constants</td></tr>";
-    for(var i = 0; i<constants.names.length; i++){
-      output += "<tr>" + itemCell + "data-type=\"constant\">"
-              + constants.names[i] + "</td></tr>";
+    if (constants.names.length > 0) {
+        output += "<tr><td class=\"itemGroup\">Constants</td></tr>";
+        for (var i = 0; i < constants.names.length; i++) {
+            output += "<tr>" + itemCell + "data-type=\"constant\">" +
+                constants.names[i] + "</td></tr>";
+        }
     }
-  }
 
-  if (objects.names.length>0){
-    output += "<tr><td class=\"itemGroup\">Objects</td></tr>";
-    for(var i = 0; i<objects.names.length; i++){
-      output += "<tr>" + itemCell + "data-type=\"object\">"
-              + objects.names[i] + "</td></tr>";
+    if (objects.names.length > 0) {
+        output += "<tr><td class=\"itemGroup\">Objects</td></tr>";
+        for (var i = 0; i < objects.names.length; i++) {
+            output += "<tr>" + itemCell + "data-type=\"object\">" +
+                objects.names[i] + "</td></tr>";
+        }
     }
-  }
 
-  if(predicates.length>0){
-    output += "<tr><td class=\"itemGroup\">Predicates</td></tr>";
-    for(var i = 0; i<predicates.length; i++){
-      output += "<tr>" + itemCell + "data-type=\"predicate\">"
-              + predicates[i].name + "</td></tr>";
+    if (predicates.length > 0) {
+        output += "<tr><td class=\"itemGroup\">Predicates</td></tr>";
+        for (var i = 0; i < predicates.length; i++) {
+            output += "<tr>" + itemCell + "data-type=\"predicate\">" +
+                predicates[i].name + "</td></tr>";
+        }
     }
-  }
 
-  output += "</tbody></table>";
-  return output;
+    output += "</tbody></table>";
+    return output;
 }
 
 /**Keep track of the currently selected objcet. This facilitates updating the
@@ -420,9 +472,9 @@ option's parameters when another is selected so the user doesn't have to trigger
 the save/apply function every time they want to record changes.
 @constructor
 */
-function SelectedInput(name,type){
-  this.name = name;
-  this.type = type;
+function SelectedInput(name, type) {
+    this.name = name;
+    this.type = type;
 }
 
 var selectedInput = new SelectedInput('', '');
@@ -433,100 +485,112 @@ var selectedInput = new SelectedInput('', '');
 @param {array} collection - one of the the arrays yielded from the parser's output
 */
 function getObjectByName(name, collection) {
-  for(var i=0;i<collection.length;i++){
-    if(collection[i].name==name) {
-      return collection[i];
+    for (var i = 0; i < collection.length; i++) {
+        if (collection[i].name == name) {
+            return collection[i];
+        }
     }
-  }
 }
 
+/*----------------------------------------------------------------------------|
+#SECTION 2.1                Generate Input Form
+|----------------------------------------------------------------------------*/
 /**This is the function that runs when an item from the list of objects/types
 is clicked. It loads the available options into the #inputOptions div*/
 function selectInput(e) {
-  //get the name of the selected option
-  var name = e.target.innerHTML;
-  var type = e.target.getAttribute('data-type');
-  //update the previously selected option's parameters
-  if($("#selectionType").html()!="predicate"){
-    updateInputOptionEntity($("#selectionName").html(),$("#selectionType").html());
-  }
-  //construct the input form
-  var form = "";
-  form += "<h1 id=\"selectionType\">" + type + "</h1>";
-  form += "<h2 id=\"selectionName\">" + name + "</h2>";
-  if(type=="object"||type=="constant"){
-    if(objectOptions[name].type!="undefined"){
-    form += "<h2 id=\"selectionObjectType\">" + objectOptions[name].type + "</h2>"}
-
-  form+="<p></p>";}
-  form += generateInputForm(name, type);
-
-  //insert the input form
-  $('#inputOptions').html(form);
-
-  //Populate and activate the preview area if the option is a predicate
-  if(type=="predicate"){
-    $("#previewHeading").html("Existing Options");
-    generatePredicateOptionPreview(name);
-    var predicate = getObjectByName(name, predicates);
-    var argument = $("#arg1").val();
-    var argtype;
-    if(types.length==0){
-      $("#objectSelector").html(generateObjectSelector(getObjectListFromType()));
-    } else {
-      for(var i=0;i<predicate.parameters.length;i++){
-          if(predicate.parameters[i].name==argument) {
-            argtype=predicate.parameters[i].type;
-          }
-      }
-      $("#objectSelector").html(generateObjectSelector(getObjectListFromType(argtype)));
+    //get the name of the selected option
+    var name = e.target.innerHTML;
+    var type = e.target.getAttribute('data-type');
+    //update the previously selected option's parameters
+    if ($("#selectionType").html() != "predicate") {
+        updateInputOptionEntity($("#selectionName").html(), $("#selectionType").html());
     }
-    /*set event handler to populate argument value options based on the first
-    argument selected.*/
-    $("#arg1").on('change', function(e) {
-        argument = this.value;
-        if(types.length==0){
-          $("#objectSelector").html(generateObjectSelector(getObjectListFromType()));
-        } else {
-          for(var i=0;i<predicate.parameters.length;i++){
-              if(predicate.parameters[i].name==argument) {
-                argtype=predicate.parameters[i].type;
-              }
-          }
-          $("#objectSelector").html(generateObjectSelector(getObjectListFromType(argtype)));
+    //construct the input form
+    var form = "";
+    form += "<h1 id=\"selectionType\">" + type + "</h1>";
+    form += "<h2 id=\"selectionName\">" + name + "</h2>";
+    if (type == "object" || type == "constant") {
+        if (initialObjectProperties[name].type != "undefined" &&
+            typeof(initialObjectProperties[name].type) != "undefined") {
+            form += "<h2 id=\"selectionObjectType\">" +
+                initialObjectProperties[name].type + "</h2>";
         }
-    });
-  } else {
-    //TODO
-    //If it's not a predicate, global options or load screen,
-    //place an image preview based on the input image URL and the css Options
-       $("#previewHeading").html("Preview");
-       generateObjectOptionPreview(name,type);
+
+        form += "<p></p>";
+    }
+    form += generateInputForm(name, type);
+
+    //insert the input form
+    $('#inputOptions').html(form);
+
+    //Populate and activate the preview area if the option is a predicate
+    if (type == "predicate") {
+        $("#previewHeading").html("Existing Options");
+        generatePredicateOptionPreview(name);
+        var predicate = getObjectByName(name, predicates);
+        var argument = $("#arg1").val();
+        var argtype;
+        if (types.length === 0) {
+            $("#objectSelector").html(generateObjectSelector(getObjectListFromType()));
+        } else {
+            for (var i = 0; i < predicate.parameters.length; i++) {
+                if (predicate.parameters[i].name == argument) {
+                    argtype = predicate.parameters[i].type;
+                }
+            }
+            $("#objectSelector").html(generateObjectSelector(getObjectListFromType(argtype)));
+        }
+        /*set event handler to populate argument value options based on the first
+        argument selected.*/
+        $("#arg1").on('change', function(e) {
+            argument = this.value;
+            if (types.length === 0) {
+                $("#objectSelector").html(generateObjectSelector(getObjectListFromType()));
+            } else {
+                for (var i = 0; i < predicate.parameters.length; i++) {
+                    if (predicate.parameters[i].name == argument) {
+                        argtype = predicate.parameters[i].type;
+                    }
+                }
+                $("#objectSelector").html(generateObjectSelector(getObjectListFromType(argtype)));
+            }
+        });
+    } else {
+        //TODO
+        //If it's not a predicate, global options or load screen,
+        //place an image preview based on the input image URL and the css Options
+        $("#previewHeading").html("Preview");
+        generateObjectPropertyPreview(name, type);
+    }
+
+    //Load already saved values into the input form
+    //(so that options persist accross selections)
+    switch (type) {
+        case 'type':
+            writeTypeOption(name);
+            break;
+        case 'object':
+            writeObjectProperty(name);
+            break;
+        case 'constant':
+            writeObjectProperty(name);
+            break;
+        case 'predicate':
+            generatePredicateInputForm(name);
+            break;
+        case 'global':
+            writeGlobalOption();
+        default:
+            break;
+    }
+    selectedInput.type = type;
+    selectedInput.name = name;
 }
 
-//Load already saved values into the input form
-//(so that options persist accross selections)
-  switch (type) {
-    case 'type':      writeTypeOption(name);
-                      break;
-    case 'object':    writeObjectOption(name);
-                      break;
-    case 'constant':  writeObjectOption(name);
-                      break;
-    case 'predicate': generatePredicateInputForm(name);
-                      break;
-    case 'global':    writeGlobalOption();
-    default:
-                      break;
-   }
-  selectedInput.type=type;
-  selectedInput.name=name;
-}
 /**
  * Update the settings for an item when the user selects another input form.
  This avoids users having to always manually click save & apply.
  */
-
 function saveAndApply() {
     updateInputOptionEntity($("#selectionName").html(), $("#selectionType").html());
 }
@@ -549,9 +613,10 @@ function argumentDescriptor(arg) {
   *I should see where I've called this function,
   *seems to me the number argument is... useless.
   *@param {array} argumentList - List of objects of type Argument.
-  @param {number} number - The number of argument, this will always be a 1 or 2,
-  and is used to differentiate between the two argument selectors in a predicates
-  input page.
+  @param {number} number - The number of the argument in the context of the
+  predicate option logic (i.e: When true and ?x(arg 1) apply animation to
+  ?y(arg 2). It is used to differentiate between the two argument selectors
+  in a predicate's input page.
   */
 function generateArgumentSelector(argumentList, number) {
     if (typeof(argumentList) != "undefined") {
@@ -575,19 +640,20 @@ function generateArgumentSelector(argumentList, number) {
 function getObjectListFromType(type) {
     var result = [];
     if (typeof(type) != "undefined") {
-        Object.keys(objectOptions).forEach(function(key, index) {
-            if (objectOptions[key].type == type) {
+        Object.keys(initialObjectProperties).forEach(function(key, index) {
+            if (initialObjectProperties[key].type == type) {
                 result.push(key);
             }
         });
         return result;
     } else {
-        Object.keys(objectOptions).forEach(function(key, index) {
+        Object.keys(initialObjectProperties).forEach(function(key, index) {
             result.push(key);
         });
         return result;
     }
 }
+
 /**Takes an array of object names and generates a html select object with
  * those objects as options, as well as a catch-all option.
  *@param {array} objectList - Array of object names
@@ -610,20 +676,24 @@ function generateObjectSelector(objectList) {
  */
 function generatePredicateInputForm(name) {
     var predicate = getObjectByName(name, predicates);
-    var predicateHeader = "<div class=\"predicateOptionSpecification\">When " + name + " is " +
+    var predicateHeader = "<div class=\"predicateOptionSpecification\">When " +
+        name + " is " +
         "<select id=\"truthiness\">" +
         "<option value=\"true\">True</option>" +
         "<option value=\"false\">False</option></select>" +
         " and " + generateArgumentSelector(predicate.parameters, 1) +
-        " is <select id=\"objectSelector\"><option value=\"anything\"> ** ANY ** </option></select> then the transformation" +
-        " below will be applied to the argument " + generateArgumentSelector(predicate.parameters, 2) + " : " +
+        " is <select id=\"objectSelector\"><option value=\"anything\">" +
+        "** ANY ** </option></select> then the transformation" +
+        " below will be applied to the argument " +
+        generateArgumentSelector(predicate.parameters, 2) + " : " +
         "</div>";
 
     return predicateHeader;
 }
 
 /**
- * Generates the input form from the passed parameters and returns it as an html div
+ * Generates the input form from the passed parameters and returns it as an
+ html div
  @param {string} name - name of the entity
  @param {string} inputtype - type of the entity
  */
@@ -696,6 +766,10 @@ function generateInputForm(name, inputtype) {
     return "<div class=\"inputOptions\" style=\"margin:auto;\">" + result + "</div>";
 }
 
+/*----------------------------------------------------------------------------|
+#SECTION 2.2                  Generate Previews
+|----------------------------------------------------------------------------*/
+
 /**
  * Generates a div containing a preview of a submitted predicate option.
  It includes a thumbnail of an image and the specified parameters.
@@ -712,7 +786,8 @@ function generatePredicateOptionPreview(name) {
                 pred.argument1 + " is " + pred.argument1_value + " animate " +
                 pred.argument2 + "</div><div><img class=optionPreviewImage src=\"" +
                 pred.animation.image + "\"></img><br>" +
-                "</div></div><div class=\"deletebutton\" onclick=\"deletePredicateOption('" + name + "'," + i + ");\"" +
+                "</div></div><div class=\"deletebutton\" onclick=\"deletePredicateOption('" +
+                name + "'," + i + ");\"" +
                 "\"><img src=\"images\\delete.png\" style=\"width:35px;height:35px;\"></img></div>";
         }
         $("#optionsPreview").html(result);
@@ -725,7 +800,7 @@ function generatePredicateOptionPreview(name) {
  It includes a thumbnail of an image and the specified parameters.
  @param {string} name - name of the object whose options are to be displayed.
  */
-function generateObjectOptionPreview(name, type) {
+function generateObjectPropertyPreview(name, type) {
     var result = '';
     if (type == "type") {
         if (typeOptions[name].image != "undefined") {
@@ -735,10 +810,10 @@ function generateObjectOptionPreview(name, type) {
                 "</div></div>";
         }
     } else if (type == "object" || type == "constant") {
-        if (objectOptions[name].image != "undefined") {
+        if (initialObjectProperties[name].image != "undefined") {
             result += "<div class=\"optionPreview\"><div>" +
                 "<img class=objectOptionPreviewImage src=\"" +
-                objectOptions[name].image + "\"></img>" +
+                initialObjectProperties[name].image + "\"></img>" +
                 "</div></div>";
         }
     }
@@ -746,6 +821,9 @@ function generateObjectOptionPreview(name, type) {
     return;
 }
 
+/*----------------------------------------------------------------------------|
+#SECTION 2.3              CRUD Animation Objects
+|----------------------------------------------------------------------------*/
 /**Takes the users input
 or a given entity and saves them in the requisite options object
 from those defined in input_options_objects.js
@@ -762,14 +840,14 @@ function updateInputOptionEntity(name, optionType) {
             console.log(typeOptions[name]);
             break;
         case "constant":
-            input = readObjectOption();
-            updateObjectOption(name, input);
-            console.log(objectOptions[name]);
+            input = readObjectProperty();
+            updateObjectProperty(name, input);
+            console.log(initialObjectProperties[name]);
             break;
         case "object":
-            input = readObjectOption();
-            updateObjectOption(name, input);
-            console.log(objectOptions[name]);
+            input = readObjectProperty();
+            updateObjectProperty(name, input);
+            console.log(initialObjectProperties[name]);
             break;
         case "predicate":
             input = readPredicateOption();
@@ -799,8 +877,9 @@ function readTypeOption() {
     var result = [image, customCSS, layout, size];
     return result;
 }
+
 /**
- * Write the values of an existing type option object
+ * Write the values of an existing type option object to the input form
   @param {string} name - name of the type
  */
 function writeTypeOption(name) {
@@ -810,6 +889,11 @@ function writeTypeOption(name) {
     $("#spatialLayout").val(typeOptions[name].layout);
 }
 
+/**
+ * Update the values of a Type Option Object (override them if they exist).
+ @param {string} name - the name of the type
+ @param {Array} input - a list containing the specified input options
+ */
 function updateTypeOption(name, input) {
     typeOptions[name] =
         new TypeOption(name, input[0], input[1], input[2], input[3]);
@@ -819,7 +903,7 @@ function updateTypeOption(name, input) {
 /**
  * Read the input from an object options input form
  */
-function readObjectOption() {
+function readObjectProperty() {
     var image = $("#imageURL").val();
     var location = $("#position").val();
     var customCSS = $("#customCSS").val();
@@ -829,22 +913,27 @@ function readObjectOption() {
 }
 
 /**
- * Write the values of an existing object option object
+ * Write the values of an existing object option object to the input form
   @param {string} name - name of the type
  */
-function writeObjectOption(name) {
-    $("#imageURL").val(objectOptions[name].image);
-    $("#position").val(objectOptions[name].location);
-    $("#customCSS").val(objectOptions[name].css);
-    $("#size").val(objectOptions[name].size);
+function writeObjectProperty(name) {
+    $("#imageURL").val(initialObjectProperties[name].image);
+    $("#position").val(initialObjectProperties[name].location);
+    $("#customCSS").val(initialObjectProperties[name].css);
+    $("#size").val(initialObjectProperties[name].size);
 
 }
 
-function updateObjectOption(name, input) {
-    objectOptions[name].image = input[0];
-    objectOptions[name].location = input[1];
-    objectOptions[name].size = input[2];
-    objectOptions[name].css = input[3];
+/**
+ * Update the values of a Type Option Object (override them if they exist).
+ @param {string} name - the name of the type
+ @param {Array} input - a list containing the specified input options
+ */
+function updateObjectProperty(name, input) {
+    initialObjectProperties[name].image = input[0];
+    initialObjectProperties[name].location = input[1];
+    initialObjectProperties[name].size = input[2];
+    initialObjectProperties[name].css = input[3];
 }
 
 /**
@@ -859,11 +948,11 @@ function readPredicateOption() {
     return [truthiness, argument1, argument2, argument1_value, animation];
 }
 
-//this is more complicated, it will need to write them like cards
 /**
  * Write the values of existing predicate option objects to the
- preview area
-  @param {integer} index - location of the option in the array of PredicateOption objects in predicateOptions.name
+  preview area
+  @param {integer} index - location of the option in the array of
+  PredicateOption objects in predicateOptions.name
  */
 function writePredicateOption(index) {
     var name = selectedInput.name;
@@ -880,7 +969,40 @@ function writePredicateOption(index) {
 
 }
 
+/**
+* This takes a predicates name and the inputs from an input form and, if there is
+existing input for this scenario, updates it, otherwise it creates a new predicate
+option.
+@param {string} name - name of the predicate
+@param {array} input - list containing user input
+*/
+function updatePredicateOption(name, input) {
+    var pred = predicateOptions[name];
+    //if any animation properties are defined
+    if (Boolean(input[4].transition_image) || Boolean(input[4].image) ||
+        Boolean(input[4].location) || Boolean(input[4].size) ||
+        Boolean(input[4].custom_js) || Boolean(input[4].duration)) {
+        for (var i = 0; i < pred.length; i++) {
+            if (pred[i].argument1 == input[1] &&
+                pred[i].truthiness == input[0] &&
+                pred[i].argument2 == input[2] &&
+                pred[i].argument1_value == input[3]) {
+                pred[i].animation = input[4];
+                return;
+            }
+        }
+        console.log("matching predicate option not found");
+        predicateOptions[name].push(
+            new PredicateOption(name, input[0], input[1], input[2], input[3], input[4])
+        );
+    }
+}
+
 function readActionOption() {
+
+}
+
+function writeActionOption(action_name) {
 
 }
 
@@ -906,35 +1028,6 @@ function writeGlobalOption() {
 }
 
 /**
- * This takes a predicates name and the inputs from an input form and, if there is
- existing input for this scenario, updates it, otherwise it creates a new predicate
- option.
- @param {string} name - name of the predicate
- @param {array} input - list containing user input
- */
-function updatePredicateOption(name, input) {
-    var pred = predicateOptions[name];
-    //if any animation properties are defined
-    if (Boolean(input[4].transition_image) || Boolean(input[4].image) ||
-        Boolean(input[4].location) || Boolean(input[4].size) ||
-        Boolean(input[4].custom_js) || Boolean(input[4].duration)) {
-        for (var i = 0; i < pred.length; i++) {
-            if (pred[i].argument1 == input[1] &&
-                pred[i].truthiness == input[0] &&
-                pred[i].argument2 == input[2] &&
-                pred[i].argument1_value == input[3]) {
-                pred[i].animation = input[4];
-                return;
-            }
-        }
-        console.log("matching predicate option not found");
-        predicateOptions[name].push(
-            new PredicateOption(name, input[0], input[1], input[2], input[3], input[4])
-        );
-    }
-}
-
-/**
  * Removes a predicate option and updates the preview Window2
  @param {string} name - the name of the predicate
  @param {integer} index - the location of the option to be removed in the list
@@ -944,35 +1037,26 @@ function deletePredicateOption(name, index) {
     predicateOptions[name].splice(index, 1);
     generatePredicateOptionPreview(name);
 }
-/*all animations should accept a duration parameter.
-Perhaps I should a) store this as a multiple of itself
-and scale using anime.speed, (to allow fast forwarding)
-and b) replace with with a 'speed' input with 3/5 discrete
-steps.*/
 
-function translate(item, destination, path, relativePosition, duration){
-  /*destination can be a set of coordinates or an identifier
-  relativePosition is an optional argument (for example, if target is
-  an identifier relatePosition might be onTop so the object moves ontop
-  of the target position)*/
-  /*Path will be a user defined SVG line definition to allow non-linear
-   movement*/
-}
-
-function animate(item, animation){
-
-}
-
-function scale(item, factor){
-
-}
+/*----------------------------------------------------------------------------|
+#SECTION 3.0             Generate Animation Timeline
+|----------------------------------------------------------------------------*/
+/**
+ * A chronnological list of animation entities as defined by all provided input
+ */
 var animationTimeline = [];
 
-function generateAnimationTimeline(domain, problem, plan) {
+/**
+ * The function that populates the chronological list of animation entities
+ @param {Array} predicates - List of predicate objects from the parsed domain file
+ @param {Array} problem - List of objects from the parsed problem file
+ @param {Array} plan - List of Action objects from the parsed plan file
+ */
+function generateAnimationTimeline(predicates, problem, plan) {
     initialPredicates = problem[1];
     var actionTitle = '';
     animationTimeline.push(new animationEntity("heading", "Initial State"));
-    var initial_predicates = list_initial_predicates(domain[2], initialPredicates);
+    var initial_predicates = listInitialPredicates(predicates, initialPredicates);
     for (var i = 0; i < initial_predicates.length; i++) {
         //attach predicate arguent values with their argument names from the definitions
         animationTimeline.push(new animationEntity("predicate", initial_predicates[i]));
@@ -985,33 +1069,21 @@ function generateAnimationTimeline(domain, problem, plan) {
         animationTimeline.push(new animationEntity("heading", actionTitle));
         //create an entry for each action's predicate and
         //attach action parameter values with their names from the definitions
-        var action_predicates = list_action_predicates(domain[3], plan[i]);
+        var action_predicates = listActionPredicates(actions, plan[i]);
         for (var k = 0; k < action_predicates.length; k++) {
             animationTimeline.push(new animationEntity("predicate", action_predicates[k]));
         }
     }
 }
 
-/**
- *Ties the value to the attribute name (e.g ?x = airplane)
- There are a few ways to do this without using nested for loops (e.g making the name a key
-and setting it equal to the value or undefined) but to be honest even a problem with
-a hundred predicates won't notice the slowdown doing it this way, and it'll save me an hour.
- */
-// function label_predicate_parameters(predicate_definitions, predicates) {
-//   for(var i = 0; i<predicates.length;i++){
-//     for(var j=0; j<predicate_definitions.length;j++) {
-//       if(predicates[i].name==predicate_definitions[j].name){
-//         for(var k=0;k<predicates[i].parameters.length;k++){
-//           predicates[i].parameters[k].name=predicate_definitions[j].parameters[k].name;
-//           predicates[i].parameters[k].type=predicate_definitions[j].parameters[k].type;
-//         }
-//       }
-//     }
-//   }
-// }
 
-function list_initial_predicates(predicate_definitions, initial_predicates) {
+/**
+ * Return a list of  predicates based on this intiial state's definition from
+ the input problem file with the parameter values filled in.
+  @param {Object} predicate_definitions - The predicate definitions from the input pddl domain
+  @param {Object} initial_predicates - The definitions that specify the initial state
+ */
+function listInitialPredicates(predicate_definitions, initial_predicates) {
     var result = [];
     initial_predicates.forEach(function(item, index) {
         for (var i = 0; i < predicate_definitions.length; i++) {
@@ -1023,13 +1095,20 @@ function list_initial_predicates(predicate_definitions, initial_predicates) {
                     }
                     result.push(item);
                 }
-            } break;
+            }
+            break;
         }
     });
     return result;
 }
 
-function list_action_predicates(action_definitions, action) {
+/**
+ * Return a list of defined predicates based on this action's postconditions
+   with the parameter values filled in from the input plan.
+   @param {Object} action_definitions - The action definitions from the input pddl domain
+   @param {Object} action - An instance of an action from the input plan.
+ */
+function listActionPredicates(action_definitions, action) {
     var result = [];
     //for each action definition
     for (var j = 0; j < action_definitions.length; j++) {
@@ -1060,14 +1139,20 @@ function list_action_predicates(action_definitions, action) {
     }
     return result;
 }
+
 /**
  * The entities present on the animation timeline (allows distinction between
 headings and predicates)
+@param {string} type - the type of the animation entity (heading, predicate, etc)
+@param {Object} content - Whatever information you want to identify with this state.
+For example, when type="predicate" this will contain a Predicate Object
+When type="heading" it will contain a string, etc.
  */
 function animationEntity(type, content) {
     this.type = type;
     this.content = content;
 }
+
 /**
  * Store predicate description; this is the same constructor used in the parser
   @param {string} name - The name of the predicate
@@ -1092,6 +1177,10 @@ function Argument(name, type, value) {
     this.value = value;
     this.type = type;
 }
+
+/*----------------------------------------------------------------------------|
+#SECTION 3.1                Schedule Animation Functions
+|----------------------------------------------------------------------------*/
 var timeouts = [];
 
 function scheduleAnimations(index) {
@@ -1108,13 +1197,8 @@ function scheduleAnimations(index) {
 }
 
 /**
- * iterates over animation timeline
- If there are stack overflows, it's happening here in the recursive call to this
- function. I only did this because javascript has no sleep method so in order to
-temporally space the animations I need to use settimeout.
+ *
  */
-/*EDIT: REMOVED RECURSIVE CALL*/
-
 
 function executeAnimationFunction(index) {
     console.log("iterating: " + index + " : " + animationTimeline.length);
@@ -1139,19 +1223,18 @@ function executeAnimationFunction(index) {
                     animationTimeline[index].duration,
                     animationTimeline[index].stage_location);
                 if (typeof(animation_function) != "undefined") {
-                    // setTimeout(iterateOverTimeline(index + 1), animationTimeline[index].duration + delay_between_states);
-                    // setTimeout(animation_function[1], animationTimeline[index].duration);
-
                     animation_function[0]();
                     if (animation_function.length > 1) {
-                      console.log(animationTimeline[index].duration);
+                        console.log(animationTimeline[index].duration);
                         setTimeout(animation_function[1](), animationTimeline[index].duration);
                     }
-                    objectOptions = animationTimeline[index].object_options;
+                    objectProperties = animationTimeline[index].object_options;
                     stageLocation = animationTimeline[index].stage_location;
                 }
             }
-            case 'heading' : console.log(animationTimeline[index].content);
+            break;
+        case 'heading':
+            console.log(animationTimeline[index].content);
             break;
         default:
             // iterateOverTimeline(index + 1);
@@ -1159,9 +1242,16 @@ function executeAnimationFunction(index) {
 }
 
 
+/*----------------------------------------------------------------------------|
+#SECTION  3.2                Generate Animation Functions
+|----------------------------------------------------------------------------*/
 /**
- * I'll need a function that will take an animation entity and create
- and execute the animation function
+ * Takes an animation entity and creates and executes the function required to
+ transition between the current visual state and the visual state defined by the
+ animation entities attached defintions.
+ @param {Object} object_options - The desired visualisation specification for each object
+ @param {number} duration - The duration of the desired animation function in ms
+ @param {Object} stage_location - The desired coordinates on the stage for each object.
  */
 function generateAnimationFunction(object_options, duration, stage_location) {
     var funcdef = "";
@@ -1178,9 +1268,9 @@ function generateAnimationFunction(object_options, duration, stage_location) {
         if ((typeof(item.transition_image) != "undefined" && item.transition_image != "") ||
             (item.image != "")) {
             if (typeof(item.image) != "undefined") {
-              set_final_images += "$(\'#" + item.name + " > img\').attr(\'src\',\'" + item.image + "\'); ";
+                set_final_images += "$(\'#" + item.name + " > img\').attr(\'src\',\'" + item.image + "\'); ";
             } else {
-              set_final_images += "$(\'#" + item.name + " > img\').attr(\'src\',\'" + objectOptions[item.name].image + "\'); ";
+                set_final_images += "$(\'#" + item.name + " > img\').attr(\'src\',\'" + objectProperties[item.name].image + "\'); ";
             }
         }
         //add /\ location translations and duration to animation
@@ -1199,9 +1289,9 @@ function generateAnimationFunction(object_options, duration, stage_location) {
     });
 
     //set Globals to match new state.
-    // console.log(object_options);
-    // console.log(stage_location);
-    // console.log(funcdef);
+    console.log(object_options);
+    console.log(stage_location);
+    console.log(funcdef);
     var result = [Function(funcdef)];
     if (set_final_images.length != "") {
         result.push(Function(set_final_images));
@@ -1209,9 +1299,15 @@ function generateAnimationFunction(object_options, duration, stage_location) {
     return result;
 }
 
+/*----------------------------------------------------------------------------|
+#SECTION 3.3          Generate Animation's Visual States
+|----------------------------------------------------------------------------*/
+/**
+ *
+ */
 function addStatesToAnimationEntities() {
     //Creates a deep copy
-    var object_options = JSON.parse(JSON.stringify(objectOptions));
+    var object_options = JSON.parse(JSON.stringify(objectProperties));
     var stage_location = JSON.parse(JSON.stringify(stageLocation));
     animationTimeline.forEach(function(item, index) {
         if (item.type == "predicate") {
@@ -1238,7 +1334,7 @@ function generateNewState(animation_entity, object_options, stage_locations) {
         var animations = findMatchingAnimationOptions(predicate, predicateOptions);
         // console.log(animations);
         if (animations != false && typeof(animations) != "undefined" && animations[0].length > 0) {
-            var updated_object_options = get_updated_objectOptions(animations, object_options);
+            var updated_object_options = get_updated_objectProperties(animations, object_options);
             var duration = updated_object_options[1];
             // console.log(updated_object_options);
             var updated_stage_locations = get_updated_stageLocations(updated_object_options[0], stage_locations);
@@ -1271,14 +1367,10 @@ function findMatchingAnimationOptions(predicate, defined_options) {
                 //If it's an exact match, add to end of array
                 for (var j = 0; j < predicate.parameters.length; j++) {
                     // console.log("option: " + options[i].argument1 + " parameter: " + predicate.parameters[j].name);
-                    if (options[i].argument1 === predicate.parameters[j].name) {
-                        arg1 = predicate.parameters[j];
-                    }
-                    if (options[i].argument2 === predicate.parameters[j].name) {
-                        arg2 = predicate.parameters[j];
-                    }
+                    arg1 = predicate.parameters[j];
+                    arg2 = predicate.parameters[j];
                 }
-                // console.log([arg1, arg2]);
+                console.log([arg1, arg2]);
                 if (options[i].argument1_value == arg1.value) {
                     //add the option and target object
                     result.push([options[i].animation, arg2]);
@@ -1303,11 +1395,12 @@ function findMatchingAnimationOptions(predicate, defined_options) {
 
 }
 
+
 /**This function should be iteratively run over the results of the findMatchingPredicateAnimations
 function with the exception of updated location, which will come from get_updated_stageLocations
  *'changed' is returned for debugging
  */
-function get_updated_objectOptions(animation, object_options) {
+function get_updated_objectProperties(animation, object_options) {
 
     var animations = animation[0];
     var predicate = animation[1];
@@ -1353,7 +1446,7 @@ function get_updated_objectOptions(animation, object_options) {
 
 /**
  * return coordinates of all objects whose location has changed due to an
-    updated objectOption property
+    updated ObjectProperty property
  */
 function get_updated_stageLocations(object_options, stage_locations) {
     // console.log(object_options);
@@ -1372,13 +1465,19 @@ function get_updated_stageLocations(object_options, stage_locations) {
 var stageLocation = {};
 
 function getWidthAndHeight(object, object_options) {
-    return object_options[object].size.split(",");
+    if (typeof(object_options[object].size) != "undefined") {
+        return object_options[object].size.split(",");
+    }
 }
 
+/*----------------------------------------------------------------------------|
+#SECTION 4.0           Generate Stage and Populate with Objects
+|----------------------------------------------------------------------------*/
 function createInitialStage() {
+    objectProperties = JSON.parse(JSON.stringify(initialObjectProperties));
     $("#Window3").html("<input id=\"gotoWindow2\" type=\"button\" " +
         " value=\"Return to Options Input Screen\"" +
-        " onclick=\"switchToOptions();\" style=\"position:absolute;\">" +
+        " onclick=\"switchToInputWindow();\" style=\"position:absolute;\">" +
         "</input><input id=\"play\" type=\"button\" " +
         " value=\"Play Animation\"" +
         " onclick=\"scheduleAnimations(0);\" style=\"position:absolute;top:15px\"></input>" +
@@ -1392,26 +1491,26 @@ function createInitialStage() {
         var targets = getObjectListFromType(object_type);
         for (var j = 0; j < targets.length; j++) {
             var object_name = targets[j];
-            if (!objectOptions[object_name].css) {
-                objectOptions[object_name].css = typeOptions[object_type].css;
+            if (!objectProperties[object_name].css) {
+                objectProperties[object_name].css = typeOptions[object_type].css;
             }
-            if (!objectOptions[object_name].image) {
-                objectOptions[object_name].image = typeOptions[object_type].image;
+            if (!objectProperties[object_name].image) {
+                objectProperties[object_name].image = typeOptions[object_type].image;
             }
-            if (!objectOptions[object_name].size) {
-                objectOptions[object_name].size = typeOptions[object_type].size;
+            if (!objectProperties[object_name].size) {
+                objectProperties[object_name].size = typeOptions[object_type].size;
             }
         }
     }
     //apply regex options
 
-    //apply objectOptions
+    //apply ObjectPropertys
     //1. Place them on the stage
-    var object_keys = Object.keys(objectOptions);
+    var object_keys = Object.keys(objectProperties);
     var objectshtml = "";
     for (var i = 0; i < object_keys.length; i++) {
         var key = object_keys[i];
-        var object = objectOptions[key];
+        var object = objectProperties[key];
         var objectcontainer = "";
         objectcontainer += "<div id=\"" + object.name + "\" style=\"position:absolute\"><img src=\"" + object.image +
             "\" style=\"max-width:100%;max-height:100%\"></img>";
@@ -1423,28 +1522,31 @@ function createInitialStage() {
     }
 
     $("#stage").html(objectshtml);
-    if(typeof(globalOptions.css)!="undefined"){
-    applyCSS(globalOptions.css, "Window3");
-}
+    if (typeof(globalOptions.css) != "undefined") {
+        applyCSS(globalOptions.css, "Window3");
+    }
 
     for (var i = 0; i < object_keys.length; i++) {
         var key = object_keys[i];
-        stageLocation[key] = objectOptions[key].location;
+        stageLocation[key] = objectProperties[key].location;
     }
 
     for (var i = 0; i < object_keys.length; i++) {
         var key = object_keys[i];
         //2. set their size
-        var size = getWidthAndHeight(key, objectOptions);
+        var size = getWidthAndHeight(key, objectProperties);
         // console.log("Size of "+key+" :" + size[0] +" , "+ size[1]);
-        $("#" + key).css("width", "" + size[0] + globalOptions.units);
-        //NOTE: Height is currently useless. object-fit doesnt work. need to fix
-        $("#" + key).css("max-height", "" + size[1] + globalOptions.units);
-
-        //3. set their location
-        stageLocation[key] = getStageLocation(key, objectOptions, stageLocation);
-        var x = stageLocation[key][0] - 0.5 * parseFloat(size[0]);
-        var y = stageLocation[key][1] - 0.5 * parseFloat(size[1]);
+        stageLocation[key] = getStageLocation(key, objectProperties, stageLocation);
+        var x = stageLocation[key][0];
+        var y = stageLocation[key][1];
+        if (typeof(size) != "undefined") {
+            $("#" + key).css("width", "" + size[0] + globalOptions.units);
+            //NOTE: Height is currently useless. object-fit doesnt work. need to fix
+            $("#" + key).css("max-height", "" + size[1] + globalOptions.units);
+            //3. set their location
+            x -= 0.5 * parseFloat(size[0]);
+            y -= 0.5 * parseFloat(size[1]);
+        }
 
         // console.log("Location of "+key+" :" + location[0] +" , "+ location[1]);
         // location[0] -= 0.5*parseFloat(size[0]);
@@ -1455,7 +1557,7 @@ function createInitialStage() {
         $("#" + key).css("left", mleft);
         $("#" + key).css("bottom", mtop);
         //4. apply any custom CSS
-        applyCSS(objectOptions[key].css, key);
+        applyCSS(objectProperties[key].css, key);
     }
 
 
@@ -1471,21 +1573,29 @@ function createInitialStage() {
  */
 function applyCSS(css, targetName) {
     // console.log("applyCSS("+targetName+")");
-    var css_statements = css.split(/[\n\r]/g);
-    if (css_statements != false) {
-        for (var i = 0; i < css_statements.length; i++) {
-            var item = css_statements[i];
-            var property = item.split(':')[0];
-            var value = item.split(':').slice(1).join(':');
-            console.log("#" + targetName);
-            console.log(property);
-            $("#" + targetName).css(property.trim(), value.trim());
+    if (typeof(css) != "undefined") {
+        var css_statements = css.split(/[\n\r]/g);
+        if (css_statements != false) {
+            for (var i = 0; i < css_statements.length; i++) {
+                var item = css_statements[i];
+                var property = item.split(':')[0];
+                var value = item.split(':').slice(1).join(':');
+                console.log("#" + targetName);
+                console.log(property);
+                $("#" + targetName).css(property.trim(), value.trim());
+            }
         }
     }
 }
-//use the objectOptions objects as paramater stores.
-//NOTE: ObjectOptions.location always has to be a string
+
+/*----------------------------------------------------------------------------|
+#SECTION 4.1           Resolve Location Input to Coordinates
+|----------------------------------------------------------------------------*/
+
+//use the ObjectPropertys objects as paramater stores.
+//NOTE: ObjectPropertys.location always has to be a string
 function getStageLocation(objectName, object_options, stage_locations) {
+if(object_options[objectName].location){
     var location = object_options[objectName].location;
     if (typeof(location) == "string") {
         location = object_options[objectName].location.split(",");
@@ -1503,20 +1613,27 @@ function getStageLocation(objectName, object_options, stage_locations) {
             return [location[0], location[1]];
         }
     }
+  }
 }
-
+//I should throw an exception if these two functions mutually recurse more times than there
+//are objects and let the user knwo they mucked up their relative positioning spec
 function resolveRelativeLocation(objectName, object_options, stage_locations) {
     var location = object_options[objectName].location.split(":");
-    console.log(position);
+    if(location.length<2) {return;}
+    console.log(location);
     var position = location[0].trim();
     var relative_to_object = location[1].trim();
     // var dimensions  = getWidthAndHeight(object);
-    var dimensions_of_relative_object = getWidthAndHeight(relative_to_object, object_options);
     var relative_to_position = getStageLocation(relative_to_object, object_options, stage_locations);
 
     // console.log(position + " : " + relative_to_object);
     // console.log(dimensions_of_relative_object);
     // console.log(relative_to_position);
+
+    var dimensions_of_relative_object = getWidthAndHeight(relative_to_object, object_options);
+    if (typeof(dimensions_of_relative_object) == "undefined") {
+        dimensions_of_relative_object = [0, 0];
+    }
     var x, y;
     switch (position) {
         case "on":
@@ -1540,6 +1657,11 @@ function resolveRelativeLocation(objectName, object_options, stage_locations) {
             return [x, y];
     }
 }
+
+/*----------------------------------------------------------------------------|
+#SECTION 5.0               Save Animation Specification
+|----------------------------------------------------------------------------*/
+
 /**Serialize and output the animation options objects,
 I should add a call to updateInputOptionEntity to ensure the last option input
 is not lost in case the user forgets to click save & apply
@@ -1549,7 +1671,9 @@ is not lost in case the user forgets to click save & apply
 */
 function downloadOptionsInput(text, name, type) {
     var a = document.createElement("a");
-    var file = new Blob([text], {type: type});
+    var file = new Blob([text], {
+        type: type
+    });
     a.href = URL.createObjectURL(file);
     a.download = name;
     a.click();
@@ -1560,17 +1684,25 @@ function downloadOptionsInput(text, name, type) {
  * Stringifies the animation input and runs the download function.
  */
 function downloadAnimationOptions() {
-  var saveFile  = JSON.stringify([typeOptions,objectOptions,predicateOptions,globalOptions]);
-  downloadOptionsInput(saveFile, 'animation_options.txt', 'text/plain');
+    var saveFile = JSON.stringify([typeOptions, objectProperties, predicateOptions, globalOptions]);
+    downloadOptionsInput(saveFile, 'animation_options.txt', 'text/plain');
 }
+
+/*----------------------------------------------------------------------------|
+#SECTION  5.1             Load Animation Specification
+|----------------------------------------------------------------------------*/
+
 /**Deserialize the saved objects from txt file and repopulate based on whether
 the objects/predicates/etc exist in the newly parsed problem.
 TODO: Should provide some feedback on things that are no longer found.
 @param {file} file - the text file output from a previous save*/
 function parseSavedFile(file) {
     readFile(file, function(e) {
+        var objects;
+
+
         try {
-            var objects = JSON.parse(e.target.result);
+            objects = JSON.parse(e.target.result);
         } catch (x) {
             console.log(x);
         } finally {
@@ -1579,17 +1711,17 @@ function parseSavedFile(file) {
             var predicatekeys = Object.keys(objects[2]);
 
             for (var i = 0; i < typekeys.length; i++) {
-              typekeys[i] = typekeys[i].toLowerCase();
+                typekeys[i] = typekeys[i].toLowerCase();
                 typeOptions[typekeys[i]] = objects[0][typekeys[i]];
                 writeTypeOption(typekeys[i]);
             }
             for (var i = 0; i < objectkeys.length; i++) {
-              objectkeys[i] = objectkeys[i].toLowerCase();
-                objectOptions[objectkeys[i]] = objects[1][objectkeys[i]];
-                writeObjectOption(objectkeys[i]);
+                objectkeys[i] = objectkeys[i].toLowerCase();
+                initialObjectProperties[objectkeys[i]] = objects[1][objectkeys[i]];
+                writeObjectProperty(objectkeys[i]);
             }
             for (var i = 0; i < predicatekeys.length; i++) {
-              predicatekeys[i] = predicatekeys[i].toLowerCase();
+                predicatekeys[i] = predicatekeys[i].toLowerCase();
                 predicateOptions[predicatekeys[i]] = objects[2][predicatekeys[i]];
                 //writePredicateOption??
             }
