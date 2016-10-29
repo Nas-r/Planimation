@@ -15,6 +15,13 @@ var plan_file;
  * @global
  */
 var predicates;
+
+/**Global store of parsed predicates as and assosciative array. This
+is simply a transformation of the global predicates value intended to
+simplify and speed up lookup based on a predicates name
+ * @global
+ */
+var aa_predicates = {};
 /**Global store of parsed objects
  * @global
  */
@@ -90,7 +97,8 @@ function parseSolution(domain, problem, callback) {
 NOTE: Sometimes has problems if the file ends in an RPAREN,
 I think the parser misses the EOF token when this is the case, adding a
 whitespace character at the end seems to fix it. Could be some weird
-CRLF v LF based bug, but I've covered both line endings in the parser
+CRLF v LF based bug, but I've consciously covered both line endings in
+the parser
   *@param {array} domain - Objects from parsed domain file. [types, constants, predicates, actionList]
   *@param {function} callback - the function that will run on the parsed files.
   */
@@ -109,7 +117,8 @@ function parseProblem(domain, callback) {
     });
 }
 
-/**Parses the loaded domain file and returns a lists of objects
+/**Parses the loaded domain file and returns lists of objects in the form
+[types, constants, predicates, actionList]
  *@param {function} callback - the function that will run on the parsed files.
  */
 function parseDomain(callback) {
@@ -127,6 +136,12 @@ function parseDomain(callback) {
     });
 }
 
+/**
+ * Parse the input files and generate the input window
+ */
+function parseInputFiles() {
+    parseDomain(generateInputWindow);
+}
 
 /*----------------------------------------------------------------------------|
 #SECTION 0.3            Generate the Selected Window
@@ -134,34 +149,40 @@ function parseDomain(callback) {
 /**
  *
  This function is passed as a callbasck to
- parseDomain becasue FileReader runs ASYNC and I need to ensure files are prased
+ parseDomain becasue FileReader runs ASYNC and I need to ensure files are parsed
  before the rest of the script is exectured
  *@param {array} domain - Objects from parsed domain file. [types, constants, predicates, actionList]
  *@param {array} problem - Objects from the parsed problem file. [objects, startPredicates]
  *@param {array} plan - Objects from parsed plan file. [actions]
  */
 function generateInputWindow(domain, problem, plan) {
+
+  //set the globals
     types = domain[0];
     constants = domain[1];
     predicates = domain[2];
+    for (var i = 0; i < predicates.length; i++) {
+        aa_predicates[predicates[i].name] = predicates[i];
+    }
     objects = problem[0];
     actions = domain[3];
 
     var inputSelector = createInputSelector();
+
+    //Switch to the input window
     document.getElementById("Window1").style.display = "none";
     document.getElementById("Window2").style.display = "block";
+
+    //Generate the objects that will store user input
     createAnimationObjects();
+
+    //generate the timeline of possible animations based on the input plan
     generateAnimationTimeline(predicates, problem, plan);
+
+    //populate the input selector and generate the initial input form
     $("#inputSelector").append(inputSelector);
     generateInputForm();
 
-}
-
-/**
- * Parse the input files and generate the input window
- */
-function parseInputFiles() {
-    parseDomain(generateInputWindow);
 }
 
 /**
@@ -177,7 +198,7 @@ function switchToAnimationWindow() {
 }
 
 /**
- * Switch from the animatino stage to the Input Option screen
+ * Switch from the animation stage to the Input Option screen
  */
 function switchToInputWindow() {
     $("#Window3").html("");
@@ -275,15 +296,6 @@ function ObjectProperty(name, type, image, location, css, size) {
     this.size = size;
     this.custom_js = "";
 }
-
-
-//NOTE: If constants and objects don't share the same namespace
-//I'll have to create a separate type and store for constants.
-//: Usually you use either constants or objects depending if you want them
-//in the problem def or domain file.
-//predicate options apply on conditionals consisting of at most two arguments,
-//as well as a (truth)value
-
 
 /**
  * Store options that will be applied to an object given a defined predicate outcome
@@ -402,8 +414,6 @@ function createAnimationObjects() {
             initialObjectProperties[name].location = [0, 0];
         }
     }
-
-    console.log(initialObjectProperties);
 }
 
 /*----------------------------------------------------------------------------|
@@ -455,6 +465,14 @@ function createInputSelector() {
         }
     }
 
+    if (actions.length > 0) {
+      output += "<tr><td class=\"itemGroup\">Actions</td></tr>";
+      for (var i = 0; i < actions.length; i++) {
+          output += "<tr>" + itemCell + "data-type=\"predicate\">" +
+              actions[i].name + "</td></tr>";
+      }
+    }
+
     if (predicates.length > 0) {
         output += "<tr><td class=\"itemGroup\">Predicates</td></tr>";
         for (var i = 0; i < predicates.length; i++) {
@@ -477,10 +495,15 @@ function SelectedInput(name, type) {
     this.type = type;
 }
 
+/**
+ * Keeps track of the object currently selected in the input selector.
+ @global
+ */
 var selectedInput = new SelectedInput('', '');
 
 /**
- * Return an object stored in an array of objects by it's name.
+ * Return an object stored in an array of objects by it's name. Object is used
+ here to refer to a JavaScript object, not a PDDL one.
 @param {string} name - name of the object
 @param {array} collection - one of the the arrays yielded from the parser's output
 */
@@ -610,8 +633,6 @@ function argumentDescriptor(arg) {
   *number will always be 1 or 2 because options apply
   *across at most two parameters.
   *i.e: when ?x takes some value, ?y adopts some transformation
-  *I should see where I've called this function,
-  *seems to me the number argument is... useless.
   *@param {array} argumentList - List of objects of type Argument.
   @param {number} number - The number of the argument in the context of the
   predicate option logic (i.e: When true and ?x(arg 1) apply animation to
@@ -656,7 +677,7 @@ function getObjectListFromType(type) {
 
 /**Takes an array of object names and generates a html select object with
  * those objects as options, as well as a catch-all option.
- *@param {array} objectList - Array of object names
+ *@param {Array} objectList - Array of object names
  */
 function generateObjectSelector(objectList) {
     var result = "<select id=\"objectSelector\">";
@@ -826,7 +847,6 @@ function generateObjectPropertyPreview(name, type) {
 |----------------------------------------------------------------------------*/
 /**Takes the users input
 or a given entity and saves them in the requisite options object
-from those defined in input_options_objects.js
 @param {string} name - Name of the object
 @param {string} optionType - Type of the object
 */
@@ -998,10 +1018,16 @@ function updatePredicateOption(name, input) {
     }
 }
 
+/**
+ * TBC
+ */
 function readActionOption() {
 
 }
 
+/**
+ * TBC
+ */
 function writeActionOption(action_name) {
 
 }
@@ -1042,7 +1068,7 @@ function deletePredicateOption(name, index) {
 #SECTION 3.0             Generate Animation Timeline
 |----------------------------------------------------------------------------*/
 /**
- * A chronnological list of animation entities as defined by all provided input
+ * A chronological list of animation entities as defined by all provided input
  */
 var animationTimeline = [];
 
@@ -1122,13 +1148,14 @@ function listActionPredicates(action_definitions, action) {
             }
             for (var k = 0; k < action_definitions[j].effects.length; k++) {
                 var temp_predicate = JSON.parse(JSON.stringify(action_definitions[j].effects[k]));
-                // console.log(temp_predicate);
+                console.log(temp_predicate);
                 if (typeof(temp_predicate.parameters) != "undefined") {
                     for (var x = 0; x < temp_predicate.parameters.length; x++) {
                         for (var y = 0; y < action.parameters.length; y++)
                             if (action.parameters[y].name == temp_predicate.parameters[x].name) {
                                 temp_predicate.parameters[x].type = action.parameters[y].type;
                                 temp_predicate.parameters[x].value = action.parameters[y].value;
+                                temp_predicate.parameters[x].name = aa_predicates[temp_predicate.name].parameters[x].name;
                             }
                     }
                 }
@@ -1184,7 +1211,7 @@ function Argument(name, type, value) {
 var timeouts = [];
 
 function scheduleAnimations(index) {
-    var delay_between_states = 500;
+    var delay_between_states = 500; //Should make this user config'd
     var delay = 500;
     for (var i = index; i < animationTimeline.length; i++) {
         timeouts.push(setTimeout(executeAnimationFunction.bind(null, i), delay));
@@ -1199,7 +1226,6 @@ function scheduleAnimations(index) {
 /**
  *
  */
-
 function executeAnimationFunction(index) {
     console.log("iterating: " + index + " : " + animationTimeline.length);
     if (index > animationTimeline.length) {
@@ -1237,7 +1263,6 @@ function executeAnimationFunction(index) {
             console.log(animationTimeline[index].content);
             break;
         default:
-            // iterateOverTimeline(index + 1);
     }
 }
 
@@ -1353,7 +1378,6 @@ function setImage(object, image) {
  returns a list of all applicable animations and which argument they target.
  @param {Object} predicate - A predicate object generated from an input plan action
  */
-
 function findMatchingAnimationOptions(predicate, defined_options) {
     var options = defined_options[predicate.name];
     // console.log(options);
@@ -1367,10 +1391,14 @@ function findMatchingAnimationOptions(predicate, defined_options) {
                 //If it's an exact match, add to end of array
                 for (var j = 0; j < predicate.parameters.length; j++) {
                     // console.log("option: " + options[i].argument1 + " parameter: " + predicate.parameters[j].name);
-                    arg1 = predicate.parameters[j];
-                    arg2 = predicate.parameters[j];
+                    if (options[i].argument1 === predicate.parameters[j].name) {
+                        arg1 = predicate.parameters[j];
+                    }
+                    if (options[i].argument2 === predicate.parameters[j].name) {
+                        arg2 = predicate.parameters[j];
+                    }
                 }
-                console.log([arg1, arg2]);
+                // console.log([arg1, arg2]);
                 if (options[i].argument1_value == arg1.value) {
                     //add the option and target object
                     result.push([options[i].animation, arg2]);
@@ -1410,22 +1438,25 @@ function get_updated_objectProperties(animation, object_options) {
         var target = animations[i][1];
         // console.log(target);
         //if there's a transition image, apply it here
-        if (typeof(animations[i][0].transition_image) != "undefined") {
+        if (typeof(animations[i][0].transition_image) != "undefined" && animations[i][0].transition_image != "") {
             result[target.value].transition_image = animations[i][0].transition_image;
         }
         //update location
 
-        if (typeof(animations[i][0].location) != "undefined") {
+        if (typeof(animations[i][0].location) != "undefined" && animations[i][0].location != "") {
             if (typeof(animations[i][0].location) == "string" &&
                 animations[i][0].location.indexOf("?") > -1) {
+                console.log("parameter location : " + animations[i][0].location);
                 //resolve the parameter to an object name and get it's updated stage location
                 var temp = animations[i][0].location.split(":");
                 var target_object;
                 for (var j = 0; j < predicate.parameters.length; j++) {
+                  console.log("HERE: " +predicate.parameters[j].name +":" + temp[1]);
                     if (predicate.parameters[j].name == temp[1]) {
                         target_object = predicate.parameters[j].value;
                     }
                     result[target.value].location = temp[0] + ":" + target_object;
+                    console.log("resolved to: " + result[target.value].location);
                 }
             } else {
                 result[target.value].location = animations[i][0].location;
@@ -1435,6 +1466,7 @@ function get_updated_objectProperties(animation, object_options) {
         if (typeof(animations[i][0].custom_js) != "undefined" && animations[i][0].custom_js != "") {
             result[target.value].custom_js = animations[i][0].custom_js;
         }
+
         if (typeof(animations[i][0].image) != "undefined" && animations[i][0].image != "") {
             result[target.value].image = animations[i][0].image;
         }
@@ -1560,7 +1592,7 @@ function createInitialStage() {
         applyCSS(objectProperties[key].css, key);
     }
 
-
+    console.log(stageLocation);
     //NOTE: I need to copy object.locations to stageLocation after each
     //location change and then resolve all stageLocations to coordinates
     //to get new coordinates.
@@ -1595,40 +1627,46 @@ function applyCSS(css, targetName) {
 //use the ObjectPropertys objects as paramater stores.
 //NOTE: ObjectPropertys.location always has to be a string
 function getStageLocation(objectName, object_options, stage_locations) {
-if(object_options[objectName].location){
-    var location = object_options[objectName].location;
-    if (typeof(location) == "string") {
-        location = object_options[objectName].location.split(",");
-        //Either they're coordinates
-        if (location.length == 2) {
-            return [parseFloat(location[0]), parseFloat(location[1])];
-        }
-        //or a relative position
-        else {
-            return resolveRelativeLocation(objectName, object_options, stage_locations);
+    if (object_options[objectName].location) {
+        var location = object_options[objectName].location;
+        console.log(object_options);
+        console.log(objectName + "  :  " + location);
+
+        if (typeof(location) == "string") {
+            location = object_options[objectName].location.split(",");
+            //Either they're coordinates
+            if (location.length == 2) {
+                return [parseFloat(location[0]), parseFloat(location[1])];
+            }
+            //or a relative position
+            else {
+                return resolveRelativeLocation(objectName, object_options, stage_locations);
+            }
+        } else {
+            //Either they're coordinates
+            if (location.length == 2) {
+                return [location[0], location[1]];
+            }
         }
     } else {
-        //Either they're coordinates
-        if (location.length == 2) {
-            return [location[0], location[1]];
-        }
+        console.log("no location : " + objectName);
     }
-  }
 }
 //I should throw an exception if these two functions mutually recurse more times than there
 //are objects and let the user knwo they mucked up their relative positioning spec
+
+//Should also throw error when an object is assigned a location relative to itself.
 function resolveRelativeLocation(objectName, object_options, stage_locations) {
     var location = object_options[objectName].location.split(":");
-    if(location.length<2) {return;}
     console.log(location);
     var position = location[0].trim();
     var relative_to_object = location[1].trim();
     // var dimensions  = getWidthAndHeight(object);
     var relative_to_position = getStageLocation(relative_to_object, object_options, stage_locations);
-
-    // console.log(position + " : " + relative_to_object);
+    if(objectName==relative_to_object){return [0,0];}
+    console.log(position + " : " + relative_to_object);
     // console.log(dimensions_of_relative_object);
-    // console.log(relative_to_position);
+    console.log(relative_to_position);
 
     var dimensions_of_relative_object = getWidthAndHeight(relative_to_object, object_options);
     if (typeof(dimensions_of_relative_object) == "undefined") {
@@ -1684,7 +1722,7 @@ function downloadOptionsInput(text, name, type) {
  * Stringifies the animation input and runs the download function.
  */
 function downloadAnimationOptions() {
-    var saveFile = JSON.stringify([typeOptions, objectProperties, predicateOptions, globalOptions]);
+    var saveFile = JSON.stringify([typeOptions, initialObjectProperties, predicateOptions, globalOptions]);
     downloadOptionsInput(saveFile, 'animation_options.txt', 'text/plain');
 }
 
@@ -1699,8 +1737,6 @@ TODO: Should provide some feedback on things that are no longer found.
 function parseSavedFile(file) {
     readFile(file, function(e) {
         var objects;
-
-
         try {
             objects = JSON.parse(e.target.result);
         } catch (x) {

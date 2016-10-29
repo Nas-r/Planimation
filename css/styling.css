@@ -16,6 +16,10 @@ html, body{
   text-align: center;
 }
 
+#previewSection{
+  background-color: rgb(227, 227, 227);
+}
+
 #Window2, #Window3 {
   display:none;
 }

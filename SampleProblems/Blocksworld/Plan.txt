@@ -18,7 +18,7 @@
 (pick-up g)
 (stack g i)
 (pick-up a)
-(stack a g)
+(stack a g) 
 (unstack h b)
 (put-down h)
 (pick-up b)
