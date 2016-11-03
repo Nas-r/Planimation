@@ -1,15 +1,15 @@
 /**The input domain text file
  * @global
  */
-var domain_file;
+var Domain_file;
 /**The input problem text file
  * @global
  */
-var problem_file;
+var Problem_file;
 /**The input plan text file
  * @global
  */
-var plan_file;
+var Plan_file;
 
 /**Global store of parsed predicates
  * @global
@@ -465,13 +465,6 @@ function createInputSelector() {
         }
     }
 
-    if (actions.length > 0) {
-        output += "<tr><td class=\"itemGroup\">Actions</td></tr>";
-        for (var i = 0; i < actions.length; i++) {
-            output += "<tr>" + itemCell + "data-type=\"action\">" +
-                actions[i].name + "</td></tr>";
-        }
-    }
 
     if (predicates.length > 0) {
         output += "<tr><td class=\"itemGroup\">Predicates</td></tr>";
@@ -479,6 +472,14 @@ function createInputSelector() {
             output += "<tr>" + itemCell + "data-type=\"predicate\">" +
                 predicates[i].name + "</td></tr>";
         }
+    }
+
+    if (actions.length > 0) {
+      output += "<tr><td class=\"itemGroup\">Actions</td></tr>";
+      for (var i = 0; i < actions.length; i++) {
+        output += "<tr>" + itemCell + "data-type=\"action\">" +
+        actions[i].name + "</td></tr>";
+      }
     }
 
     output += "</tbody></table>";
@@ -717,6 +718,18 @@ function generatePredicateInputForm(name) {
 }
 
 /**
+ *
+ */
+function generateActionInputForm(name) {
+  var predicate_list = listActionPredicates(actions, name);
+  var result = "";
+  result += "<ul id=\"sortable\">"
+  for(var i = 0; i<predicate_list.length;i++){
+
+  }
+}
+
+/**
  * Generates the input form from the passed parameters and returns it as an
  html div
  @param {string} name - name of the entity
@@ -775,6 +788,9 @@ function generateInputForm(name, inputtype) {
             break;
         case 'constant':
             result += objectOptions;
+            break;
+        case 'action':
+            result += generateActionInputForm(name);
             break;
         case 'predicate':
             result += generatePredicateInputForm(name);
@@ -1456,16 +1472,19 @@ function with the exception of updated location, which will come from get_update
  *'changed' is returned for debugging
  */
 function get_updated_objectProperties(animation, object_properties) {
-  //null all previous transition images
-  // var keys = Object.keys(object_properties);
-  // for(var i = 0; i<keys.length; i++){
-  //   object_properties[keys[i]].transition_image = "";
-  // }
 
     var animations = animation[0];
     var predicate = animation[1];
     var duration = 0;
     var result = JSON.parse(JSON.stringify(object_properties));
+
+    var keys = Object.keys(result);
+
+    //null all previous transition images
+    for(var i = 0; i<keys.length; i++){
+      result[keys[i]].transition_image = "";
+    }
+
     for (var i = 0; i < animations.length; i++) {
         var target = animations[i][1];
         // console.log(target);
