@@ -475,11 +475,11 @@ function createInputSelector() {
     }
 
     if (actions.length > 0) {
-      output += "<tr><td class=\"itemGroup\">Actions</td></tr>";
-      for (var i = 0; i < actions.length; i++) {
-        output += "<tr>" + itemCell + "data-type=\"action\">" +
-        actions[i].name + "</td></tr>";
-      }
+        output += "<tr><td class=\"itemGroup\">Actions</td></tr>";
+        for (var i = 0; i < actions.length; i++) {
+            output += "<tr>" + itemCell + "data-type=\"action\">" +
+                actions[i].name + "</td></tr>";
+        }
     }
 
     output += "</tbody></table>";
@@ -612,7 +612,7 @@ function selectInput(e) {
     }
     selectedInput.type = type;
     selectedInput.name = name;
-  console.log(type,name);
+    console.log(type, name);
 }
 
 /**
@@ -721,12 +721,12 @@ function generatePredicateInputForm(name) {
  *
  */
 function generateActionInputForm(name) {
-  var predicate_list = listActionPredicates(actions, name);
-  var result = "";
-  result += "<ul id=\"sortable\">"
-  for(var i = 0; i<predicate_list.length;i++){
+    var predicate_list = listActionPredicates(actions, name);
+    var result = "";
+    result += "<ul id=\"sortable\">"
+    for (var i = 0; i < predicate_list.length; i++) {
 
-  }
+    }
 }
 
 /**
@@ -1244,8 +1244,8 @@ function scheduleAnimations(index) {
             duration = animationTimeline[i].duration;
         }
         console.log(duration);
-        if(duration>0){
-        delay += (duration + delay_between_states);
+        if (duration > 0) {
+            delay += (duration + delay_between_states);
         }
     }
 }
@@ -1275,7 +1275,7 @@ function executeAnimationFunction(index) {
                 animation_function = generateAnimationFunction(animationTimeline[index].object_properties,
                     animationTimeline[index].duration,
                     animationTimeline[index].stage_location);
-                    console.log(animation_function);
+                console.log(animation_function);
                 if (typeof(animation_function) != "undefined") {
                     //run the animation
                     animation_function[0]();
@@ -1310,11 +1310,14 @@ function executeAnimationFunction(index) {
  @param {Object} stage_location - The desired coordinates on the stage for each object.
  */
 function generateAnimationFunction(object_properties, duration, stage_location) {
+    //the animation function
     var funcdef = "";
+    //the function that sets an image if theer's a transition image defined
     var set_final_images = "";
+
     var objects = Object.keys(object_properties);
-    objects.forEach(function(x, index) {
-        var item = object_properties[x];
+    objects.forEach(function(key, index) {
+        var item = object_properties[key];
         //if there's a transition image, apply it.
         if (typeof(item.transition_image) != "undefined" && item.transition_image != "") {
             funcdef += "$(\'#" + item.name + "IMAGE\').attr(\'src\',\'" + item.transition_image + "\'); ";
@@ -1333,21 +1336,29 @@ function generateAnimationFunction(object_properties, duration, stage_location) 
         funcdef += "anime({targets: \"#" + item.name + "\",";
         funcdef += "duration: " + duration + ", ";
         console.log(duration);
-        // console.log(stage_location[item.name]);
-        // console.log(stageLocation[item.name]);
         if (stage_location[item.name][0] != stageLocation[item.name][0] || stage_location[item.name][1] != stageLocation[item.name][1]) {
+          console.log(item.name +": "+stageLocation[item.name] +" to "+stage_location[item.name]);
+          console.log(stageLocation);
             funcdef += "left: [\'" + stageLocation[item.name][0] + globalOptions.units + "\',\'" + stage_location[item.name][0] + globalOptions.units + "\'],";
             funcdef += "bottom: [\'" + stageLocation[item.name][1] + globalOptions.units + "\',\'" + stage_location[item.name][1] + globalOptions.units + "\'],";
         }
+
+        //TODO : problem: This doesn't update stageLocation once it's done.
+
         //add content of custom_js property
         if (typeof(item.custom_js) != "undefined") {
             funcdef += item.custom_js;
             item.custom_js = "";
         }
         funcdef += "});";
+
+
     });
 
     //set Globals to match new state.
+
+    stageLocation = stage_location;
+    objectProperties = object_properties;
     // console.log(object_properties);
     // console.log(stage_location);
     // console.log(funcdef);
@@ -1369,16 +1380,21 @@ function addStatesToAnimationEntities() {
     var object_properties = JSON.parse(JSON.stringify(objectProperties));
     var stage_location = JSON.parse(JSON.stringify(stageLocation));
 
-    for(var i = 0; i<animationTimeline.length; i++) {
+    var previous_state = {};
+    previous_state.object_properties = object_properties;
+    previous_state.stage_location = stage_location;
+
+    for (var i = 0; i < animationTimeline.length; i++) {
         if (animationTimeline[i].type == "predicate") {
-            var temp = generateNewState(animationTimeline[i], object_properties, stage_location);
+            var temp = generateNewState(animationTimeline[i], previous_state.object_properties, previous_state.stage_location);
             if (typeof(temp) != "undefined") {
-                object_properties = temp[0][0];
-                stage_location = temp[1];
                 duration = temp[0][1];
-                animationTimeline[i].object_properties = object_properties;
-                animationTimeline[i].stage_location = stage_location;
-                if (typeof(duration) == "number" || typeof(duration) == "string") {
+                animationTimeline[i].object_properties = temp[0][0];
+                previous_state.object_properties = temp[0][0];
+                animationTimeline[i].stage_location = temp[1];
+                previous_state.stage_location = temp[1];
+                if (typeof(duration) == "number" ||
+                    (typeof(duration) == "string" && duration !== "")) {
                     animationTimeline[i].duration = duration;
                 } else {
                     animationTimeline[i].duration = 0;
@@ -1394,11 +1410,10 @@ function addStatesToAnimationEntities() {
  This should then be attached to the animationEntity*/
 function generateNewState(animation_entity, object_properties, stage_locations) {
     if (animation_entity.type == "predicate") {
+
         var predicate = animation_entity.content;
         var keys = Object.keys(object_properties);
-        for(var i = 0; i<keys.length; i++){
-          object_properties[keys[i]].transition_image="";
-        }
+
         var animations = findMatchingAnimationOptions(predicate, predicateOptions);
         // console.log(animations);
         if (animations != false && typeof(animations) != "undefined" && animations[0].length > 0) {
@@ -1481,24 +1496,25 @@ function get_updated_objectProperties(animation, object_properties) {
     var keys = Object.keys(result);
 
     //null all previous transition images
-    for(var i = 0; i<keys.length; i++){
-      result[keys[i]].transition_image = "";
+    for (var i = 0; i < keys.length; i++) {
+        result[keys[i]].transition_image = "";
     }
 
     for (var i = 0; i < animations.length; i++) {
         var target = animations[i][1];
         // console.log(target);
-        //if there's a transition image, apply it here
-        if (typeof(animations[i][0].transition_image) != "undefined" && animations[i][0].transition_image != "") {
+
+        //if there's a transition image, add it to the updated properties
+        if (typeof(animations[i][0].transition_image) != "undefined" && animations[i][0].transition_image !== "") {
             result[target.value].transition_image = animations[i][0].transition_image;
         }
-        //update location
 
-        if (typeof(animations[i][0].location) != "undefined" && animations[i][0].location != "") {
+        //update location
+        if (typeof(animations[i][0].location) != "undefined" && animations[i][0].location !== "") {
+            //if the location is relative to a predicate's parameter, resolve it to an object
             if (typeof(animations[i][0].location) == "string" &&
                 animations[i][0].location.indexOf("?") > -1) {
                 // console.log("parameter location : " + animations[i][0].location);
-                //resolve the parameter to an object name and get it's updated stage location
                 var temp = animations[i][0].location.split(":");
                 var target_object;
                 for (var j = 0; j < predicate.parameters.length; j++) {
@@ -1513,6 +1529,7 @@ function get_updated_objectProperties(animation, object_properties) {
                 result[target.value].location = animations[i][0].location;
             }
         }
+
         //update css
         if (typeof(animations[i][0].custom_js) != "undefined" && animations[i][0].custom_js != "") {
             result[target.value].custom_js = animations[i][0].custom_js;
@@ -1528,6 +1545,11 @@ function get_updated_objectProperties(animation, object_properties) {
     }
     return [result, duration];
 }
+
+/**User to store current location of visual objects (coordinates)
+ * @global
+ */
+var stageLocation = {};
 
 /**
  * return coordinates of all objects whose location has changed due to an
@@ -1547,7 +1569,7 @@ function get_updated_stageLocations(object_properties, stage_locations) {
     }
     return result;
 }
-var stageLocation = {};
+
 
 function getWidthAndHeight(object, object_properties) {
     if (typeof(object_properties[object].size) != "undefined") {
@@ -1559,7 +1581,9 @@ function getWidthAndHeight(object, object_properties) {
 #SECTION 4.0           Generate Stage and Populate with Objects
 |----------------------------------------------------------------------------*/
 function createInitialStage() {
+    //create a copy of the initial properties
     objectProperties = JSON.parse(JSON.stringify(initialObjectProperties));
+
     $("#Window3").html("<input id=\"gotoWindow2\" type=\"button\" " +
         " value=\"Return to Options Input Screen\"" +
         " onclick=\"switchToInputWindow();\" style=\"position:absolute;z-index:99\">" +
@@ -1568,9 +1592,11 @@ function createInitialStage() {
         " onclick=\"scheduleAnimations(0);\" style=\"position:absolute;top:15px;z-index:99;\"></input>" +
         "<div id=\"stage\">" +
         "</div>");
+
+    console.log(globalOptions.css);
+
     //apply typeOptions
     var typekeys = Object.keys(typeOptions);
-    console.log(globalOptions.css);
     for (var i = 0; i < typekeys.length; i++) {
         var object_type = typekeys[i];
         var targets = getObjectListFromType(object_type);
@@ -1587,7 +1613,6 @@ function createInitialStage() {
             }
         }
     }
-    //apply regex options
 
     //apply ObjectPropertys
     //1. Place them on the stage
@@ -1607,7 +1632,9 @@ function createInitialStage() {
     }
 
     $("#stage").html(objectshtml);
-    if (typeof(globalOptions.css) != "undefined") {
+
+    //apply user defined CSS to the stage
+    if (typeof(globalOptions.css) != "undefined" && globalOptions.css !== "") {
         applyCSS(globalOptions.css, "stage");
     }
 
@@ -1628,13 +1655,8 @@ function createInitialStage() {
             $("#" + key).css("width", "" + size[0] + globalOptions.units);
             //NOTE: Height is currently useless. object-fit doesnt work. need to fix
             $("#" + key).css("max-height", "" + size[1] + globalOptions.units);
-
         }
 
-        // console.log("Location of "+key+" :" + location[0] +" , "+ location[1]);
-        // location[0] -= 0.5*parseFloat(size[0]);
-        // location[1] -= 0.5*parseFloat(size[1]);
-        // console.log("margins of "+key+" :" + location[0] +" , "+ location[1]);
         var mleft = x.toString() + globalOptions.units;
         var mtop = y.toString() + globalOptions.units;
         $("#" + key).css("left", mleft);
@@ -1642,11 +1664,6 @@ function createInitialStage() {
         //4. apply any custom CSS
         applyCSS(objectProperties[key].css, key);
     }
-
-    console.log(stageLocation);
-    //NOTE: I need to copy object.locations to stageLocation after each
-    //location change and then resolve all stageLocations to coordinates
-    //to get new coordinates.
 }
 
 /**
@@ -1664,7 +1681,7 @@ function applyCSS(css, targetName) {
                 var property = item.split(':')[0];
                 var value = item.split(':').slice(1).join(':');
                 console.log("#" + targetName);
-                console.log(property + " , " + value);
+                console.log(property + "," + value);
                 $("#" + targetName).css(property, value);
             }
         }

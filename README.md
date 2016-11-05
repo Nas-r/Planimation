@@ -26,8 +26,7 @@ Using typed objects is recommended as it makes creating the initial stage much
 quicker, particularly when a problem has more than 10 or so objects/constants.
 
 ##TODO
-Transition Images are buggy.
-
 Still need to implement optional postcondition grouping/ordering
 
-global css options are not being applied properly.
+global css options are not being applied properly. For example,
+disabling label's doesn't seem to work, nor does setting a background-image.
