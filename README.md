@@ -56,7 +56,7 @@ A user can set the ordering of predicate animations associated with an action’
 
 ####Predicate Options
 
-# ![PredicatePage](images/predicatepage.png)
+<img src="https://github.com/Nas-r/Planimation/blob/master/images/predicatepage.png" width="400px;margin:auto;text-align:center">
 
 Predicate options require a user to specify when the defined visualisations will apply. Their inputs are then applied from most general to most specific in a given scenario, with conflicting inputs being overwritten in favour of the most specific applicable option.
 
