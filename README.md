@@ -1,5 +1,5 @@
 # Planimation
-<img src="https://github.com/Nas-r/Planimation/blob/master/images/logo.gif" width="600px;margin:auto;">
+<img src="https://github.com/Nas-r/Planimation/blob/master/images/logo.gif" width="600px;margin:auto;text-align:center">
 
 A tool to animate plans generated from PDDL definitions.
 
