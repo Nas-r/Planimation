@@ -7,7 +7,7 @@ A tool to animate plans generated from PDDL definitions.
 
 First a user loads their valid PDDL domain and problem files as well as a properly formatted text file containing the plan, at the input screen pictured below.
 
-## ![LandingPage](images/landingpage.png)
+## ![LandingPage](images/landingpage.jpg)
 
 The text file containing the plan must resemble the example below. Specifically, it must not contain extraneous information contained in braces as the parser will attempt to interpret this as an action in the plan and either fail completely or corrupt part of the animation timeline.
 
