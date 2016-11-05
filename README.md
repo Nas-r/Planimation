@@ -4,6 +4,8 @@
 A tool to animate plans generated from PDDL definitions.
 
 ## Usage
+If you would like to play along at home, run a http-server from the root of the Planimation project directory and use the files in SampleProblems/BlocksWorld
+
 First a user loads their valid PDDL domain and problem files as well as a properly formatted text file containing the plan, at the input screen pictured below.
 
 ## ![LandingPage](images/landingpage.jpg)
@@ -59,8 +61,8 @@ Where “**ANY**” appears in the image above, a user is able to select a speci
 Please see the included jsdoc generated file in the /src folder
 
 ##Notes:
-If you're looking for good images to use, I recommend openclipart.org
-opengameart is also a good resource.
+If you're looking for good images to use, I recommend openclipart.org.
+Opengameart is another good resource.
 
 Objects and Constants are treated the same
 
