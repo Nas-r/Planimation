@@ -1099,7 +1099,6 @@ function generateAnimationTimeline(predicates, problem, plan) {
     var actionTitle = '';
     animationTimeline.push(new animationEntity("heading", "Initial State"));
     var initial_predicates = listInitialPredicates(predicates, initialPredicates);
-    console.log(initial_predicates);
     for (var i = 0; i < initial_predicates.length; i++) {
         //attach predicate arguent values with their argument names from the definitions
         animationTimeline.push(new animationEntity("predicate", initial_predicates[i]));
@@ -1129,8 +1128,8 @@ function generateAnimationTimeline(predicates, problem, plan) {
  */
 function listInitialPredicates(predicate_definitions, initial_predicates) {
     var result = [];
-    for (var index = 0; index< initial_predicates.length; index++) {
-      item = initial_predicates[index];
+    for (var index = 0; index < initial_predicates.length; index++) {
+        item = initial_predicates[index];
         for (var i = 0; i < predicate_definitions.length; i++) {
             if (item.name == predicate_definitions[i].name) {
                 if (typeof(predicate_definitions[i].parameters) != "undefined") {
@@ -1161,9 +1160,11 @@ function listActionPredicates(action_definitions, action) {
         if (action.name == action_definitions[j].name) {
             // for each of this actions parameters, set its name and type
             //NOTE:should make sure parameters exist
-            for (var k = 0; k < action.parameters.length; k++) {
-                action.parameters[k].name = action_definitions[j].parameters[k].name;
-                action.parameters[k].type = action_definitions[j].parameters[k].type;
+            if (typeof(action.parameters) != "undefined") {
+                for (var k = 0; k < action.parameters.length; k++) {
+                    action.parameters[k].name = action_definitions[j].parameters[k].name;
+                    action.parameters[k].type = action_definitions[j].parameters[k].type;
+                }
             }
             for (var k = 0; k < action_definitions[j].effects.length; k++) {
                 var temp_predicate = JSON.parse(JSON.stringify(action_definitions[j].effects[k]));
@@ -1230,8 +1231,8 @@ function Argument(name, type, value) {
 var timeouts = [];
 
 function scheduleAnimations(index) {
-    var delay_between_states = 500; //Should make this user config'd
-    var delay = 500;
+    var delay_between_states = 20; //Should make this user config'd
+    var delay = 1000;
     var duration;
     for (var i = index; i < animationTimeline.length; i++) {
         timeouts.push(setTimeout(executeAnimationFunction.bind(null, i), delay));
@@ -1335,8 +1336,8 @@ function generateAnimationFunction(object_properties, duration, stage_location) 
         funcdef += "duration: " + duration + ", ";
         console.log(duration);
         if (stage_location[item.name][0] != stageLocation[item.name][0] || stage_location[item.name][1] != stageLocation[item.name][1]) {
-          console.log(item.name +": "+stageLocation[item.name] +" to "+stage_location[item.name]);
-          console.log(stageLocation);
+            console.log(item.name + ": " + stageLocation[item.name] + " to " + stage_location[item.name]);
+            console.log(stageLocation);
             funcdef += "left: [\'" + stageLocation[item.name][0] + globalOptions.units + "\',\'" + stage_location[item.name][0] + globalOptions.units + "\'],";
             funcdef += "bottom: [\'" + stageLocation[item.name][1] + globalOptions.units + "\',\'" + stage_location[item.name][1] + globalOptions.units + "\'],";
         }
@@ -1633,7 +1634,7 @@ function createInitialStage() {
 
     //apply user defined CSS to the stage
     if (typeof(globalOptions.css) != "undefined" && globalOptions.css !== "") {
-      console.log(globalOptions);
+        console.log(globalOptions);
         applyCSS(globalOptions.css, "stage");
     }
 

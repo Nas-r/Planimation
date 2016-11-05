@@ -33,7 +33,7 @@ Based on the entity selected in the input selector, a form is generated and plac
 Here users set the units that will be used for all sizing and location inputs (Percent or Pixels). The user can then specify whether to label images of objects with their names, and any additional options they would like to apply to the stage via CSS (such as a background image, for example).
 
 ####Object Options
-A user can set the location of the image used to represent an object by default, the object’s initial location and dimensions in the units specified in the global options. Planimation also allows users to specify a relative location for an object using the following syntax:
+A user can set the location of the image used to represent an object, the object’s initial location and dimensions in the units specified in the global options. Planimation also allows users to specify a relative location for an object using the following syntax:
 
 ```
 on:x    ;;  current object is placed at the same coordinates as x
@@ -53,7 +53,7 @@ NOTE: These are not yet implemented, and I'm still debating whether they're usef
 
 Predicate options require a user to specify when the defined visualisations will apply. Their inputs are then applied from most general to most specific in a given scenario, with conflicting inputs being overwritten in favour of the most specific applicable option.
 
-Where “**ANY**” appears in the image above, a user is able to select a specific object whose value the selected parameter can take. The specified visual inputs are then applied to the object passed to the parameter specified only when the first parameter takes the chosen value. Of note is the fact that in the instance of a predicate option, a relative location input can refer not only to a specific object, but also any of the predicates parameters/arguments.  
+Where “**ANY**” appears in the image above, a user is able to select a specific object whose value the selected parameter can take. The specified visual inputs are then applied to the object passed to the parameter specified only when the first parameter takes the chosen value. Of note is the fact that in the instance of a predicate option, a relative location input can refer not only to a specific object, but also any of the predicates parameters/arguments (as in 'above:?y' in the example above).
 
 ##Documentation
 Please see the included jsdoc generated file in the /src folder

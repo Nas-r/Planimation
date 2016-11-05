@@ -138,15 +138,14 @@ problem_name
 
 /*I can ignore the domain definition and requirements.*/
 domain_definitions
-  : LPAREN definition RPAREN
-  {}
+  : LPAREN REQUIREMENTS definition RPAREN
 ;
 
 /*I can ignore these but I might as well store them somewhere*/
 definition
-  : REQUIREMENTS definition
-  |  TYPING  definition {requirements.push("types");}
+  :  TYPING  definition {requirements.push("types");}
   |  STRIPS  definition {requirements.push("strips");}
+  |
 ;
 
 /*Types*/
