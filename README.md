@@ -4,11 +4,9 @@
 A tool to animate plans generated from PDDL definitions.
 
 ## Usage
-
 First a user loads their valid PDDL domain and problem files as well as a properly formatted text file containing the plan, at the input screen pictured below.
 
 ## ![LandingPage](images/landingpage.jpg)
-
 The text file containing the plan must resemble the example below. Specifically, it must not contain extraneous information contained in braces as the parser will attempt to interpret this as an action in the plan and either fail completely or corrupt part of the animation timeline.
 
 ```
@@ -18,15 +16,12 @@ Found Plan (output)
 (unstack p j)
 (put-down e)
 ```
-Fig: Properly formatted input plan
-
 Note: the newlines and the contents of the first line above are not necessary.
 
 Once a user clicks ‘Begin’, these files are passed to the relevant parsing functions and the required entities are returned as JavaScript objects. The user is then taken to the input specification page.
 
 ## ![InputPage](images/inputpage.png)
-
-The input page is separated into three sections. From left to right, these are:
+The input page is separated into three sections. From left to right, these are the input selector section, the input specification section and the input preview section.
 
 ###The Input Selector Section
 The input selector section is the menu from which the user selects the entity they want to attach a visual specification to. It also contains two additional entries, Load Options, to load a saved specification, and Global Options, used to set parameters relevant to the stage used to display the animation.
@@ -52,10 +47,10 @@ right:x
 Users are also able to specify any custom CSS they would like to apply to the object’s visualisation by default, for example a user could set fonts and sizes thereby styling the object’s label, if labels are enabled in the global options.
 
 ####Action Options
-A user can set the ordering of predicate animations associated with an action’s postconditions. NOTE: These are not yet implemented, and I'm still debating whether they're useful.
+A user can set the ordering of predicate animations associated with an action’s postconditions.
+NOTE: These are not yet implemented, and I'm still debating whether they're useful.
 
 ####Predicate Options
-
 <img src="https://github.com/Nas-r/Planimation/blob/master/images/predicatepage.png" width="400px;margin:auto;text-align:center">
 
 Predicate options require a user to specify when the defined visualisations will apply. Their inputs are then applied from most general to most specific in a given scenario, with conflicting inputs being overwritten in favour of the most specific applicable option.
