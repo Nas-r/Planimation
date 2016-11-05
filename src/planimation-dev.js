@@ -271,8 +271,7 @@ function TypeOption(name, image, css, layout, size) {
  * @param {array} stageDimensions - The dimensions of the animation stage in pixels
  *  @constructor
  */
-function GlobalOption(stageDimensions, units) {
-    this.dimensions = stageDimensions;
+function GlobalOption(units) {
     this.units = units;
     this.labelled = "false";
 }
@@ -754,7 +753,6 @@ function generateInputForm(name, inputtype) {
         "<option value=\"%\">Percent</option>" +
         "<option value=\"px\">Pixels</option></select></div>";
     var globalOptionsInput = "<div id=\"globalOptions\" data-type=\"global\">" +
-        "<p>Stage Dimensions</p><textarea id=\"dimensions\" rows=\"1\" cols=\"25\"></textarea>" +
         unitsInput +
         labelledInput +
         customCSS +
@@ -1056,7 +1054,6 @@ function writeActionOption(action_name) {
  * Read the values from a global options input form
  */
 function readGlobalOption() {
-    globalOptions.dimensions = $("#dimensions").val();
     globalOptions.units = $("#units").val();
     globalOptions.css = $("#customCSS").val();
     globalOptions.labelled = $("#labelled").val();
@@ -1066,7 +1063,6 @@ function readGlobalOption() {
  * Write the existing values to a global options input form
  */
 function writeGlobalOption() {
-    $("#dimensions").val(globalOptions.dimensions);
     $("#units").val(globalOptions.units);
     $("#labelled").val(globalOptions.labelled);
     $("#customCSS").val(globalOptions.css);
