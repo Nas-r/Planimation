@@ -1,0 +1,1 @@
+﻿Found Plan (output)(pick ball1 rooma right)(move rooma roomb)(drop ball1 roomb right)(move roomb rooma)(pick ball2 rooma right)(move rooma roomb)(drop ball2 roomb right)(move roomb rooma)(pick ball3 rooma right)(move rooma roomb)(drop ball3 roomb right)(move roomb rooma)(pick ball4 rooma right)(move rooma roomb)(drop ball4 roomb right)

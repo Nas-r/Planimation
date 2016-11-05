@@ -193,7 +193,7 @@ function switchToAnimationWindow() {
     document.getElementById("Window3").style.display = "block";
     createInitialStage();
 
-    console.log(animationTimeline.length);
+    console.log(animationTimeline);
     addStatesToAnimationEntities();
 }
 
@@ -1099,10 +1099,11 @@ function generateAnimationTimeline(predicates, problem, plan) {
     var actionTitle = '';
     animationTimeline.push(new animationEntity("heading", "Initial State"));
     var initial_predicates = listInitialPredicates(predicates, initialPredicates);
+    console.log(initial_predicates);
     for (var i = 0; i < initial_predicates.length; i++) {
         //attach predicate arguent values with their argument names from the definitions
         animationTimeline.push(new animationEntity("predicate", initial_predicates[i]));
-        animationTimeline[i + 1].duration = 100;
+        animationTimeline[i + 1].duration = 10;
     }
     for (var i = 0; i < plan.length; i++) {
         actionTitle = plan[i].name + " ";
@@ -1128,7 +1129,8 @@ function generateAnimationTimeline(predicates, problem, plan) {
  */
 function listInitialPredicates(predicate_definitions, initial_predicates) {
     var result = [];
-    initial_predicates.forEach(function(item, index) {
+    for (var index = 0; index< initial_predicates.length; index++) {
+      item = initial_predicates[index];
         for (var i = 0; i < predicate_definitions.length; i++) {
             if (item.name == predicate_definitions[i].name) {
                 if (typeof(predicate_definitions[i].parameters) != "undefined") {
@@ -1136,12 +1138,12 @@ function listInitialPredicates(predicate_definitions, initial_predicates) {
                         item.parameters[j].name = predicate_definitions[i].parameters[j].name;
                         item.parameters[j].type = predicate_definitions[i].parameters[j].type;
                     }
-                    result.push(item);
                 }
+                result.push(item);
+                break;
             }
-            break;
         }
-    });
+    }
     return result;
 }
 
@@ -1631,6 +1633,7 @@ function createInitialStage() {
 
     //apply user defined CSS to the stage
     if (typeof(globalOptions.css) != "undefined" && globalOptions.css !== "") {
+      console.log(globalOptions);
         applyCSS(globalOptions.css, "stage");
     }
 

@@ -60,7 +60,6 @@ VARIABLE = {QUESTION_TAG}+(\-|{CHAR}|{DIGIT})*;
 
 start
   : LPAREN DEFINE LPAREN DOMAIN domain_name RPAREN
-    domain_definitions
     domain_body
     RPAREN
     {return [types, constants, predicates, actionList];}
@@ -72,7 +71,8 @@ start
 ;
 
 domain_body
-  : domain_types domain_body
+  : domain_definitions domain_body
+  | domain_types domain_body
   | predicates_def domain_body
   | constants_def domain_body
   | action_def domain_body
@@ -147,7 +147,6 @@ definition
   : REQUIREMENTS definition
   |  TYPING  definition {requirements.push("types");}
   |  STRIPS  definition {requirements.push("strips");}
-  |
 ;
 
 /*Types*/

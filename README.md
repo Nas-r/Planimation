@@ -41,9 +41,7 @@ above:x ;;  current object is placed above object x
 below:x
 left:x
 right:x
-
 ```
-
 Users are also able to specify any custom CSS they would like to apply to the object’s visualisation by default, for example a user could set fonts and sizes thereby styling the object’s label, if labels are enabled in the global options.
 
 ####Action Options
@@ -57,30 +55,39 @@ Predicate options require a user to specify when the defined visualisations will
 
 Where “**ANY**” appears in the image above, a user is able to select a specific object whose value the selected parameter can take. The specified visual inputs are then applied to the object passed to the parameter specified only when the first parameter takes the chosen value. Of note is the fact that in the instance of a predicate option, a relative location input can refer not only to a specific object, but also any of the predicates parameters/arguments.  
 
+##Documentation
+Please see the included jsdoc generated file in the /src folder
+
 ##Notes:
+If you're looking for good images to use, I recommend openclipart.org
+opengameart is also a good resource.
+
 Objects and Constants are treated the same
 
 Inputs applied to Types, Objects and Constants are applied when the stage is created.
 
-Inputs applied to Types apply to all object's of that type. If the object has its
-own inputs and there is a conflict, the object's inputs will override those
+Inputs applied to Types apply to all object's of that type. If the object has its own inputs and there is a conflict, the object's inputs will override those
 inferred from its type.
 
-Inputs applied to predicates are applied when the scenario is matched and the
-target objects properties are updated. This occurs from loosest match to the
-tightest match (i.e options specified for a specific object override conflicts
-  with those specified using the catchall **ANY**)
+Inputs applied to predicates are applied when the scenario is matched and the target objects properties are updated. This occurs from loosest match to the tightest match (i.e options specified for a specific object override conflicts with those specified using the catchall **ANY**)
 
 Postconditions can be animated all together based on the action, or in
 sequence (this is configurable in Global Options).
 
 These options are exportable/importable via JSON.
 
-Using typed objects is recommended as it makes creating the initial stage much
-quicker, particularly when a problem has more than 10 or so objects/constants.
+Using typed objects is recommended as it makes creating the initial stage much quicker, particularly when a problem has more than 10 or so objects/constants.
+
+Sometimes if names are too long the input selector looks like it's blank. In fact you just need to scroll to find the text since it doesn't properly fit in the input selector div and hence the overflow becomes scrollable.
+This should be fixed at some point.
+
+If you get a parser error like "expecting LPAREN RPAREN got 1" it usually means the parser missed the EOF token for some reason. Adding a space to the end of the affected file seems to fix this.
 
 ##TODO
-Still need to implement optional postcondition grouping/ordering
+Still need to implement optional postcondition grouping/ordering:
+The user should be able to choose whether to play all of an action's postcondition animations at once or sequentially, and if sequentially the user should be able to specify the order.
 
 global css options are not being applied properly. For example,
 disabling label's doesn't seem to work, nor does setting a background-image.
+
+Maybe some input to rotate an image so that it's facing some degree. e.g box:120 would rotate the box 120 degrees clockwise from its default orientation.
