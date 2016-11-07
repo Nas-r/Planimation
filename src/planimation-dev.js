@@ -744,7 +744,8 @@ function generateInputForm(name, inputtype) {
     var customJS = "<div><p>Custom AnimeJS Properties</p><textarea id=\"customJS\" rows=\"1\" cols=\"25\"></textarea></div>";
     var duration = "<div><p>Animation Duration (ms)</p><input type=\"number\" id=\"duration\"></input></div>";
     var sizeInput = "<div><p>Dimensions(W * H) </p><textarea id=\"size\" rows=\"1\" cols=\"25\"></textarea></div>";
-    var labelledInput = "<div><p>Label Objects? : </p><input type=\"checkbox\" id=\"labelled\" value=\"true\" checked></input></div>";
+    var labelledInput =  "<div><p>Labelled Objects : </p><select id=\"labelled\"><option value=\"true\">True</option>" +
+        "<option value=\"false\">False</option></select></div>";
     var spatialOptionsInput = "<div><p>Spatial Layout : </p><select id=\"spatialLayout\"><option value=\"free\">Free</option>" +
         "<option value=\"network\">Network</option>" +
         "<option value=\"grid\">Grid</option></select></div> ";
@@ -1624,6 +1625,7 @@ function createInitialStage() {
         objectcontainer += "<div id=\"" + object.name + "\" class=\"objectImage\" style=\"position:absolute;\"><img id=\"" + object.name + "IMAGE\"src=\"" + object.image +
             "\" style=\"max-width:100%;max-height:100%;\"></img>";
         if (globalOptions.labelled === "true") {
+          console.log(globalOptions.labelled);
             objectcontainer += "<p>" + key + "</p>";
         }
         objectcontainer += "</div>";
@@ -1635,7 +1637,7 @@ function createInitialStage() {
     //apply user defined CSS to the stage
     if (typeof(globalOptions.css) != "undefined" && globalOptions.css !== "") {
         console.log(globalOptions);
-        applyCSS(globalOptions.css, "stage");
+        applyCSS(globalOptions.css, "Window3");
     }
 
     for (var i = 0; i < object_keys.length; i++) {
