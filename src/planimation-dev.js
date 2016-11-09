@@ -1372,7 +1372,8 @@ function generateAnimationFunction(object_properties, duration, stage_location) 
 /*----------------------------------------------------------------------------|
 #SECTION 3.3          Generate Animation's Visual States
 |----------------------------------------------------------------------------*/
-/**
+/** Adds the state of the objects, their locations, and the desired duration
+of any animation to the relevant entity in the animation timeline
  *
  */
 function addStatesToAnimationEntities() {
@@ -1484,7 +1485,6 @@ function findMatchingAnimationOptions(predicate, defined_options) {
 
 /**This function should be iteratively run over the results of the findMatchingPredicateAnimations
 function with the exception of updated location, which will come from get_updated_stageLocations
- *'changed' is returned for debugging
  */
 function get_updated_objectProperties(animation, object_properties) {
 
@@ -1570,7 +1570,12 @@ function get_updated_stageLocations(object_properties, stage_locations) {
     return result;
 }
 
-
+/**
+ * Returns the width and height of the object given its current properties.
+ @param {string} object - The name of the object
+ @param {Object} object_properties - Assosciative array containing the current
+ properties of all objects.
+ */
 function getWidthAndHeight(object, object_properties) {
     if (typeof(object_properties[object].size) != "undefined") {
         return object_properties[object].size.split(",");
@@ -1580,6 +1585,10 @@ function getWidthAndHeight(object, object_properties) {
 /*----------------------------------------------------------------------------|
 #SECTION 4.0           Generate Stage and Populate with Objects
 |----------------------------------------------------------------------------*/
+/**
+ * Creates the animation stage, applies specified CSS and displays objects in
+ their specified initial state
+ */
 function createInitialStage() {
     //create a copy of the initial properties
     objectProperties = JSON.parse(JSON.stringify(initialObjectProperties));
@@ -1595,7 +1604,8 @@ function createInitialStage() {
 
     console.log(globalOptions.css);
 
-    //apply typeOptions
+    //apply typeOptions (shit these are overriding the specific inputs, which
+  //inverts the desired heirarchy. I should do this first, then write over everything)
     var typekeys = Object.keys(typeOptions);
     for (var i = 0; i < typekeys.length; i++) {
         var object_type = typekeys[i];

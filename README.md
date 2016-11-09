@@ -35,7 +35,11 @@ Based on the entity selected in the input selector, a form is generated and plac
 Here users set the units that will be used for all sizing and location inputs (Percent or Pixels). The user can then specify whether to label images of objects with their names, and any additional options they would like to apply to the stage via CSS (such as a background image, for example).
 
 ####Object Options
-A user can set the location of the image used to represent an object, the object’s initial location and dimensions in the units specified in the global options. Planimation also allows users to specify a relative location for an object using the following syntax:
+A user can set the location of the image used to represent an object, the object’s initial location and dimensions in the units specified in the global options.
+
+A Note about dimensions: Dimensions set the size of the div containing an objects image. By default, the image is set to 'cover' the container div. This means the image maintains its proportions, but will not scale larger than its resolution. I'm open to feedback on whether users think this is a good approach or an annoying caveat that should be easy to change.
+
+Planimation also allows users to specify a relative location for an object using the following syntax:
 
 ```
 on:x    ;;  current object is placed at the same coordinates as x
@@ -88,8 +92,5 @@ If you get a parser error like "expecting LPAREN RPAREN got 1" it usually means 
 ##TODO
 Still need to implement optional postcondition grouping/ordering:
 The user should be able to choose whether to play all of an action's postcondition animations at once or sequentially, and if sequentially the user should be able to specify the order.
-
-global css options are not being applied properly. For example,
-disabling label's doesn't seem to work, nor does setting a background-image.
 
 Maybe some input to rotate an image so that it's facing some degree. e.g box:120 would rotate the box 120 degrees clockwise from its default orientation.
