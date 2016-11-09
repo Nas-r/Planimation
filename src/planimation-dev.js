@@ -219,7 +219,7 @@ function switchToInputWindow() {
  * used to store the stage dimensions.
  * @global
  */
-var globalOptions = new GlobalOption("100,100", "%");
+var globalOptions = new GlobalOption("%");
 
 /**
  * Used to store options specified on types as an assosciative array
@@ -1612,19 +1612,18 @@ function createInitialStage() {
         var targets = getObjectListFromType(object_type);
         for (var j = 0; j < targets.length; j++) {
             var object_name = targets[j];
-            if (!objectProperties[object_name].css) {
+            if (typeof(objectProperties[object_name].css) == "undefined" || objectProperties[object_name].css==="") {
                 objectProperties[object_name].css = typeOptions[object_type].css;
             }
-            if (!objectProperties[object_name].image) {
+            if (typeof(objectProperties[object_name].image) == "undefined" || objectProperties[object_name].image==="") {
                 objectProperties[object_name].image = typeOptions[object_type].image;
             }
-            if (!objectProperties[object_name].size) {
+            if (typeof(objectProperties[object_name].size) =="undefined" || objectProperties[object_name].size === "") {
                 objectProperties[object_name].size = typeOptions[object_type].size;
             }
         }
     }
 
-    //apply ObjectPropertys
     //1. Place them on the stage
     var object_keys = Object.keys(objectProperties);
     var objectshtml = "";
@@ -1664,9 +1663,9 @@ function createInitialStage() {
         var x = stageLocation[key][0];
         var y = stageLocation[key][1]
         if (typeof(size) != "undefined") {
-            $("#" + key).css("width", "" + size[0] + globalOptions.units);
+            $("#" + key).css("width", size[0] + globalOptions.units);
             //NOTE: Height is currently useless. object-fit doesnt work. need to fix
-            $("#" + key).css("max-height", "" + size[1] + globalOptions.units);
+            $("#" + key).css("max-height", size[1] + globalOptions.units);
         }
 
         var mleft = x.toString() + globalOptions.units;
