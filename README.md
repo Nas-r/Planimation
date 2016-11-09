@@ -52,7 +52,6 @@ Users are also able to specify any custom CSS they would like to apply to the ob
 
 ####Action Options
 A user can set the ordering of predicate animations associated with an action’s postconditions.
-NOTE: These are not yet implemented, and I'm still debating whether they're useful.
 
 ####Predicate Options
 <img src="https://github.com/Nas-r/Planimation/blob/master/images/predicatepage.png" width="400px;margin:auto;text-align:center">
@@ -83,9 +82,6 @@ sequence (this is configurable in Global Options).
 These options are exportable/importable via JSON.
 
 Using typed objects is recommended as it makes creating the initial stage much quicker, particularly when a problem has more than 10 or so objects/constants.
-
-Sometimes if names are too long the input selector looks like it's blank. In fact you just need to scroll to find the text since it doesn't properly fit in the input selector div and hence the overflow becomes scrollable.
-This should be fixed at some point.
 
 If you get a parser error like "expecting LPAREN RPAREN got 1" it usually means the parser missed the EOF token for some reason. Adding a space to the end of the affected file seems to fix this.
 

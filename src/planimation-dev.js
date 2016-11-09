@@ -390,12 +390,13 @@ function createAnimationObjects() {
             initialObjectProperties[name].location = [0, 0];
         }
         typeCounter = 0;
+
         for (var i = 0; i < objects.names.length; i++) {
             if (i < objects.typeIndex[typeCounter]) {
                 type = objects.types[typeCounter];
             } else {
+              type = objects.types[typeCounter];
                 typeCounter++;
-                type = objects.types[typeCounter];
             }
             var name = objects.names[i];
             initialObjectProperties[name] = new ObjectProperty(name, type);

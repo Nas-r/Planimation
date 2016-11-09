@@ -120,6 +120,7 @@ body {
 
 #inputTable {
   margin: 25px auto auto auto;
+  text-align: left;
 }
 
 #inputOptions {
