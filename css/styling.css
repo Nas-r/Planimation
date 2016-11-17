@@ -193,3 +193,7 @@ body {
   width:50px;
   float:right;
 }
+
+.objectImage {
+  background-size:cover;
+}

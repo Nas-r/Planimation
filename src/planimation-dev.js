@@ -718,7 +718,7 @@ function generatePredicateInputForm(name) {
 }
 
 /**
- *
+ *Not yet implemented.
  */
 function generateActionInputForm(name) {
     var predicate_list = listActionPredicates(actions, name);
@@ -1321,16 +1321,16 @@ function generateAnimationFunction(object_properties, duration, stage_location) 
         var item = object_properties[key];
         //if there's a transition image, apply it.
         if (typeof(item.transition_image) != "undefined" && item.transition_image != "") {
-            funcdef += "$(\'#" + item.name + "IMAGE\').attr(\'src\',\'" + item.transition_image + "\'); ";
+            funcdef += "$(\'#" + item.name + "\').attr(\'background-image\',\"url(\'" + item.transition_image + "\')\");";
             // console.log(funcdef);
             // item.transition_image = "";
         }
         if ((typeof(item.transition_image) != "undefined" && item.transition_image != "") ||
             (item.image != "")) {
             if (typeof(item.image) != "undefined") {
-                set_final_images += "$(\'#" + item.name + "IMAGE\').attr(\'src\',\'" + item.image + "\'); ";
+                set_final_images +=  "$(\'#" + item.name + "\').attr(\'background-image\',\"url(\'" + item.image + "\')\");";
             } else {
-                set_final_images += "$(\'#" + item.name + "IMAGE\').attr(\'src\',\'" + objectProperties[item.name].image + "\'); ";
+                set_final_images += "$(\'#" + item.name + "\').attr(\'background-image\',\"url(\'" +  objectProperties[item.name].image + "\')\");";
             }
         }
         //add /\ location translations and duration to animation
@@ -1430,9 +1430,8 @@ function generateNewState(animation_entity, object_properties, stage_locations) 
 }
 
 function setImage(object, image) {
-    $("#" + object + "IMAGE").attr("src", image);
+  $("#" + object).attr("background-image","url(" + image + ")");
 }
-
 /**
  * takes a predicate with arguments populated from the calling action and
  returns a list of all applicable animations and which argument they target.
@@ -1632,11 +1631,10 @@ function createInitialStage() {
         var key = object_keys[i];
         var object = objectProperties[key];
         var objectcontainer = "";
-        objectcontainer += "<div id=\"" + object.name + "\" class=\"objectImage\" style=\"position:absolute;\"><img id=\"" + object.name + "IMAGE\"src=\"" + object.image +
-            "\" style=\"max-width:100%;max-height:100%;\"></img>";
+        objectcontainer += "<div id=\"" + object.name + "\" class=\"objectImage\" style=\"position:absolute;background-image:url(\'"+ object.image +"\');\">";
         if (globalOptions.labelled === "true") {
             console.log(globalOptions.labelled);
-            objectcontainer += "<p>" + key + "</p>";
+            objectcontainer +=  key;
         }
         objectcontainer += "</div>";
         objectshtml += objectcontainer;
@@ -1664,9 +1662,10 @@ function createInitialStage() {
         var x = stageLocation[key][0];
         var y = stageLocation[key][1]
         if (typeof(size) != "undefined") {
-            $("#" + key).css("width", size[0] + globalOptions.units);
+          console.log("Applying dimensions to " +key +" to "+size[0]+","+size[1]);
+            $("#" + key).css("min-width", size[0] + globalOptions.units);
             //NOTE: Height is currently useless. object-fit doesnt work. need to fix
-            $("#" + key).css("max-height", size[1] + globalOptions.units);
+            $("#" + key).css("min-height", size[1] + globalOptions.units);
         }
 
         var mleft = x.toString() + globalOptions.units;
