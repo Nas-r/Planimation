@@ -395,7 +395,7 @@ function createAnimationObjects() {
             if (i < objects.typeIndex[typeCounter]) {
                 type = objects.types[typeCounter];
             } else {
-              type = objects.types[typeCounter];
+                type = objects.types[typeCounter];
                 typeCounter++;
             }
             var name = objects.names[i];
@@ -1328,9 +1328,9 @@ function generateAnimationFunction(object_properties, duration, stage_location) 
         if ((typeof(item.transition_image) != "undefined" && item.transition_image != "") ||
             (item.image != "")) {
             if (typeof(item.image) != "undefined") {
-                set_final_images +=  "$(\'#" + item.name + "\').attr(\'background-image\',\"url(\'" + item.image + "\')\");";
+                set_final_images += "$(\'#" + item.name + "\').attr(\'background-image\',\"url(\'" + item.image + "\')\");";
             } else {
-                set_final_images += "$(\'#" + item.name + "\').attr(\'background-image\',\"url(\'" +  objectProperties[item.name].image + "\')\");";
+                set_final_images += "$(\'#" + item.name + "\').attr(\'background-image\',\"url(\'" + objectProperties[item.name].image + "\')\");";
             }
         }
         //add /\ location translations and duration to animation
@@ -1338,13 +1338,18 @@ function generateAnimationFunction(object_properties, duration, stage_location) 
         funcdef += "duration: " + duration + ", ";
         console.log(duration);
         if (stage_location[item.name][0] != stageLocation[item.name][0] || stage_location[item.name][1] != stageLocation[item.name][1]) {
-            console.log(item.name + ": " + stageLocation[item.name] + " to " + stage_location[item.name]);
-            console.log(stageLocation);
+            console.log("moving " + item.name + ": " + stageLocation[item.name] + " to " + stage_location[item.name]);
             funcdef += "left: [\'" + stageLocation[item.name][0] + globalOptions.units + "\',\'" + stage_location[item.name][0] + globalOptions.units + "\'],";
             funcdef += "bottom: [\'" + stageLocation[item.name][1] + globalOptions.units + "\',\'" + stage_location[item.name][1] + globalOptions.units + "\'],";
         }
-
-        //TODO : problem: This doesn't update stageLocation once it's done.
+        if (typeof(item.size) != "undefined" && item.size !== objectProperties[item.name].size) {
+            currentSize = getWidthAndHeight(item.name, objectProperties);
+            size = getWidthAndHeight(item.name, object_properties);
+            console.log("scaling " + item.name + ": " + currentSize[0] + ", " + currentSize[1] +
+                size[0] + ", " + size[1]);
+            funcdef += "width: [\'" + currentSize[0] + globalOptions.units + "\',\'" + size[0] + globalOptions.units + "\'],";
+            funcdef += "height: [\'" + currentSize[1] + globalOptions.units + "\',\'" + size[1] + globalOptions.units + "\'],";
+        }
 
         //add content of custom_js property
         if (typeof(item.custom_js) != "undefined") {
@@ -1430,7 +1435,7 @@ function generateNewState(animation_entity, object_properties, stage_locations) 
 }
 
 function setImage(object, image) {
-  $("#" + object).attr("background-image","url(" + image + ")");
+    $("#" + object).attr("background-image", "url(" + image + ")");
 }
 /**
  * takes a predicate with arguments populated from the calling action and
@@ -1542,6 +1547,12 @@ function get_updated_objectProperties(animation, object_properties) {
         if (typeof(animations[i][0].duration) != "undefined") {
             duration = animations[i][0].duration;
         }
+
+        //update size
+        if (typeof(animations[i][0].size) != "undefined" && animations[i][0].size.length>1) {
+            result[target.value].size = animations[i][0].size;
+        }
+
     }
     return [result, duration];
 }
@@ -1605,20 +1616,20 @@ function createInitialStage() {
     console.log(globalOptions.css);
 
     //apply typeOptions (shit these are overriding the specific inputs, which
-  //inverts the desired heirarchy. I should do this first, then write over everything)
+    //inverts the desired heirarchy. I should do this first, then write over everything)
     var typekeys = Object.keys(typeOptions);
     for (var i = 0; i < typekeys.length; i++) {
         var object_type = typekeys[i];
         var targets = getObjectListFromType(object_type);
         for (var j = 0; j < targets.length; j++) {
             var object_name = targets[j];
-            if (typeof(objectProperties[object_name].css) == "undefined" || objectProperties[object_name].css==="") {
+            if (typeof(objectProperties[object_name].css) == "undefined" || objectProperties[object_name].css === "") {
                 objectProperties[object_name].css = typeOptions[object_type].css;
             }
-            if (typeof(objectProperties[object_name].image) == "undefined" || objectProperties[object_name].image==="") {
+            if (typeof(objectProperties[object_name].image) == "undefined" || objectProperties[object_name].image === "") {
                 objectProperties[object_name].image = typeOptions[object_type].image;
             }
-            if (typeof(objectProperties[object_name].size) =="undefined" || objectProperties[object_name].size === "") {
+            if (typeof(objectProperties[object_name].size) == "undefined" || objectProperties[object_name].size === "") {
                 objectProperties[object_name].size = typeOptions[object_type].size;
             }
         }
@@ -1631,10 +1642,10 @@ function createInitialStage() {
         var key = object_keys[i];
         var object = objectProperties[key];
         var objectcontainer = "";
-        objectcontainer += "<div id=\"" + object.name + "\" class=\"objectImage\" style=\"position:absolute;background-image:url(\'"+ object.image +"\');\">";
+        objectcontainer += "<div id=\"" + object.name + "\" class=\"objectImage\" style=\"position:absolute;background-image:url(\'" + object.image + "\');\">";
         if (globalOptions.labelled === "true") {
             console.log(globalOptions.labelled);
-            objectcontainer +=  key;
+            objectcontainer += key;
         }
         objectcontainer += "</div>";
         objectshtml += objectcontainer;
@@ -1662,7 +1673,7 @@ function createInitialStage() {
         var x = stageLocation[key][0];
         var y = stageLocation[key][1]
         if (typeof(size) != "undefined") {
-          console.log("Applying dimensions to " +key +" to "+size[0]+","+size[1]);
+            console.log("Applying dimensions to " + key + " to " + size[0] + "," + size[1]);
             $("#" + key).css("min-width", size[0] + globalOptions.units);
             //NOTE: Height is currently useless. object-fit doesnt work. need to fix
             $("#" + key).css("min-height", size[1] + globalOptions.units);
